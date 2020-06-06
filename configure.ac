@@ -18,7 +18,6 @@ AC_CONFIG_FILES([
  src/roq/Makefile
  test/Makefile
 ])
-AC_CONFIG_FILES([include/roq/logging.h])
 AC_CONFIG_FILES([roq-logging.pc])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])

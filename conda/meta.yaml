@@ -1,0 +1,42 @@
+{% set version = environ.get('GIT_DESCRIBE_TAG', '0.0.0') %}
+{% set number = environ.get('GIT_DESCRIBE_NUMBER', 0) %}
+
+package:
+  name: roq-logging
+  version: {{ version }}
+
+source:
+  path: ..
+
+build:
+  skip: True  # [win and osx]
+  number: {{ number }}
+  run_exports:
+    strong:
+      - {{ pin_compatible('gflags', max_pin='x.x') }}
+      - {{ pin_subpackage('roq-logging', max_pin='x.x') }}
+
+requirements:
+  build:
+    - {{ compiler('cxx') }}
+    - autoconf    # [unix]
+    - automake    # [unix]
+    - libtool     # [unix]
+    - pkg-config  # [unix]
+    - make
+  host:
+    - gflags >=2.2
+    - roq-oss-fmt
+    - roq-oss-libunwind  # [linux]
+    - roq-oss-spdlog
+  run:
+    - gflags >=2.2
+
+about:
+  home: https://roq-trading.com
+  doc_url: https://roq-trading.com/docs
+  dev_url: https://github.com/roq-trading
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Roq Logging Library
