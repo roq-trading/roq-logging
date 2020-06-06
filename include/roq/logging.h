@@ -2,30 +2,34 @@
 
 #pragma once
 
+#if defined(__GNUC__) || defined(__clang__)
+#define ROQ_LOGGING_PUBLIC __attribute__((visibility("default")))
+#else
+#define ROQ_LOGGING_PUBLIC
+#endif
+
 #include <fmt/format.h>
 
 #include <functional>
 #include <utility>
 
-#include "roq/builtins.h"
-#include "roq/compat.h"
 #include "roq/static.h"
 
 namespace roq {
 
 namespace detail {
-extern ROQ_PUBLIC thread_local std::pair<char *, size_t> message_buffer;
-extern ROQ_PUBLIC bool append_newline;
-extern ROQ_PUBLIC int verbosity;
+extern ROQ_LOGGING_PUBLIC thread_local std::pair<char *, size_t> message_buffer;
+extern ROQ_LOGGING_PUBLIC bool append_newline;
+extern ROQ_LOGGING_PUBLIC int verbosity;
 // sinks
 typedef std::function<void(const std::string_view&)> sink_t;
-extern ROQ_PUBLIC sink_t info;
-extern ROQ_PUBLIC sink_t warning;
-extern ROQ_PUBLIC sink_t error;
-extern ROQ_PUBLIC sink_t critical;
+extern ROQ_LOGGING_PUBLIC sink_t info;
+extern ROQ_LOGGING_PUBLIC sink_t warning;
+extern ROQ_LOGGING_PUBLIC sink_t error;
+extern ROQ_LOGGING_PUBLIC sink_t critical;
 // support std::back_inserter
 template <typename T>
-class ROQ_PUBLIC basic_memory_view_t final {
+class ROQ_LOGGING_PUBLIC basic_memory_view_t final {
  public:
   using value_type = T;
   inline basic_memory_view_t(value_type *buffer, size_t length)
@@ -59,7 +63,7 @@ class ROQ_PUBLIC basic_memory_view_t final {
 
 using memory_view_t = basic_memory_view_t<char>;
 
-class ROQ_PUBLIC LogMessage final {
+class ROQ_LOGGING_PUBLIC LogMessage final {
  public:
   inline LogMessage(sink_t& sink, const std::string_view& prefix)
       : _sink(sink),
@@ -102,7 +106,7 @@ class ROQ_PUBLIC LogMessage final {
   memory_view_t _memory_view;
 };
 
-class ROQ_PUBLIC ErrnoLogMessage final {
+class ROQ_LOGGING_PUBLIC ErrnoLogMessage final {
  public:
   inline ErrnoLogMessage(sink_t& sink, const std::string_view& prefix)
       : _sink(sink),
@@ -153,7 +157,7 @@ class ROQ_PUBLIC ErrnoLogMessage final {
   int _errnum;
 };
 
-class ROQ_PUBLIC NullLogMessage final {
+class ROQ_LOGGING_PUBLIC NullLogMessage final {
  public:
   inline NullLogMessage(sink_t&, const std::string_view&) {
   }
@@ -173,7 +177,7 @@ class ROQ_PUBLIC NullLogMessage final {
 
 }  // namespace detail
 
-struct ROQ_PUBLIC Logger final {
+struct ROQ_LOGGING_PUBLIC Logger final {
   static void initialize(bool stacktrace = true);
   static void shutdown();
 };

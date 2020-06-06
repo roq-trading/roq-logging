@@ -34,6 +34,9 @@ thread_local std::pair<char *, size_t> message_buffer(
 }  // namespace detail
 
 namespace {
+inline bool likely(bool expr) {
+  return __builtin_expect(expr, true);
+}
 static void invoke_default_signal_handler(int signal) {
   struct sigaction sa = {};
   sigemptyset(&sa.sa_mask);

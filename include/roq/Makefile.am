@@ -1,3 +1,4 @@
 pkgincludedir=$(includedir)/roq
 pkginclude_HEADERS = \
-	logging.h
+	logging.h \
+	static.h
