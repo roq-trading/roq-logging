@@ -23,4 +23,5 @@ roq_logging_test_CPPFLAGS = \
 	$(PTHREAD_CFLAGS) \
 	$(GTEST_CFLAGS)
 nodist_roq_logging_test_SOURCES = \
+	logging.cpp \
 	main.cpp
