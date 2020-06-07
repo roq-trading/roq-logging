@@ -15,19 +15,49 @@
 #include <memory>
 
 #include "roq/unwind.h"
-#include "roq/memory.h"
 
 namespace roq {
 
-constexpr auto MESSAGE_BUFFER_SIZE = size_t{65536};
+constexpr size_t MESSAGE_BUFFER_SIZE = 65536;
 
-constexpr auto SPDLOG_QUEUE_SIZE = size_t{1024 * 1024};
-constexpr auto SPDLOG_THREAD_COUNT = size_t{1};
-constexpr auto SPDLOG_FLUSH_SECONDS = size_t{1};
+constexpr size_t SPDLOG_QUEUE_SIZE = 1024 * 1024;
+constexpr size_t SPDLOG_THREAD_COUNT = 1;
+constexpr size_t SPDLOG_FLUSH_SECONDS = 1;
 
 namespace detail {
-thread_local logging::page_aligned_vector<char> RAW_BUFFER(
-    MESSAGE_BUFFER_SIZE);
+template <typename T, std::size_t alignment>
+struct aligned_allocator {
+  using value_type = T;
+
+  aligned_allocator() = default;
+
+  T *allocate(std::size_t size) {
+    auto result = std::aligned_alloc(
+        alignment,
+        size);
+    return reinterpret_cast<T *>(result);
+  }
+  void deallocate(T *pointer, std::size_t) noexcept {
+    ::free(pointer);
+  }
+};
+
+constexpr size_t PAGE_SIZE = 4096;
+
+template <typename T>
+struct page_aligned_allocator
+    : public aligned_allocator<T, PAGE_SIZE> {
+};
+
+template <typename T>
+struct page_aligned_vector
+    : public std::vector<T, page_aligned_allocator<T> > {
+    using base_type = std::vector<T, page_aligned_allocator<T> >;
+    using base_type::base_type;
+};
+
+thread_local page_aligned_vector<char> RAW_BUFFER(MESSAGE_BUFFER_SIZE);
+
 thread_local std::pair<char *, size_t> message_buffer(
     &RAW_BUFFER[0],
     RAW_BUFFER.size());
@@ -37,6 +67,9 @@ namespace {
 inline bool likely(bool expr) {
   return __builtin_expect(expr, true);
 }
+}  // namespace
+
+namespace {
 static void invoke_default_signal_handler(int signal) {
   struct sigaction sa = {};
   sigemptyset(&sa.sa_mask);
