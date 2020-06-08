@@ -14,5 +14,6 @@ libroq_logging_la_CPPFLAGS = \
 	$(LIBUNWIND_CFLAGS) \
 	$(SPDLOG_CFLAGS)
 libroq_logging_la_SOURCES = \
+	application.cpp \
 	logging.cpp \
 	unwind.cpp
