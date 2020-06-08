@@ -206,7 +206,7 @@ struct ROQ_LOGGING_PUBLIC Logger final {
 
 // Conditional logging
 #define LOG_IF(level, condition) \
-    ::roq::likely(!(condition)) \
+    !(condition) \
     ? (void)(0) \
     : LOG(level)
 
