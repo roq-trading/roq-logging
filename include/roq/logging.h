@@ -125,10 +125,9 @@ class ROQ_LOGGING_PUBLIC ErrnoLogMessage final {
   inline void operator()(const std::string_view& format) {
     _memory_view.append(format);
   }
-  template <typename F, typename... Args,
-    class = typename std::enable_if<fmt::is_compile_string<F>::value>::type>
+  template <typename... Args>
   inline void operator()(
-      const F& format,
+      const std::string_view& format,
       Args&&... args) {
     fmt::format_to(
         std::back_inserter(_memory_view),
@@ -152,10 +151,9 @@ class ROQ_LOGGING_PUBLIC NullLogMessage final {
 
   inline void operator()(const std::string_view&) {
   }
-  template <typename F, typename... Args,
-    class = typename std::enable_if<fmt::is_compile_string<F>::value>::type>
+  template <typename... Args>
   inline void operator()(
-      const F& format,
+      const std::string_view& format,
       Args&&... args) {
   }
 };
