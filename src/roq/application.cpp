@@ -41,7 +41,7 @@ int Application::run() {
   LOG(INFO)("===== START =====");
   auto res = main(_argc, _argv);
   LOG_IF(WARNING, res != 0)(
-      FMT_STRING(R"(exit-code={})"),
+      R"(exit-code={})",
       res);
   LOG(INFO)("===== STOP =====");
   return res;
