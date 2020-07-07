@@ -1,10 +1,18 @@
 /* Copyright (c) 2017-2020, Hans Erik Thrane */
 
+#define USE_UNWIND
+
+#if defined(USE_UNWIND)
 #define UNW_LOCAL_ONLY
+#endif
 
 #include "roq/logging.h"
 
+#include <signal.h>
 #include <unistd.h>
+
+#include <absl/debugging/stacktrace.h>
+#include <absl/debugging/symbolize.h>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/async.h>
@@ -14,7 +22,9 @@
 #include <chrono>
 #include <memory>
 
+#if defined(USE_UNWIND)
 #include "roq/unwind.h"
+#endif
 
 namespace roq {
 
@@ -70,25 +80,84 @@ inline bool likely(bool expr) {
 }  // namespace
 
 namespace {
+static void initialize_abseil(const std::string_view& arg0) {
+  std::string tmp(arg0);
+  absl::InitializeSymbolizer(tmp.c_str());
+}
+}  // namespace
+
+namespace {
 static void invoke_default_signal_handler(int signal) {
   struct sigaction sa = {};
   sigemptyset(&sa.sa_mask);
   sa.sa_handler = SIG_DFL;
-  sigaction(signal, &sa, nullptr);
-  kill(getpid(), signal);
+  sigaction(
+      signal,
+      &sa,
+      nullptr);
+  kill(
+      getpid(),
+      signal);
 }
-static void termination_handler(int sig, siginfo_t *info, void *) {
+
+static void termination_handler(
+    int sig,
+    siginfo_t *info,
+    void *) {
   fprintf(stderr, "*** TERMINATION HANDLER ***\n");
-  unwind::print_stacktrace(sig, info);
+#if defined(USE_UNWIND)
+  unwind::print_stacktrace(
+      sig,
+      info);
+#else
+#if defined(__linux__)
+  psiginfo(info, nullptr);
+#endif
+  void *addr[32];
+  int depth = absl::GetStackTrace(
+      addr,
+      std::size(addr),
+      0);
+  if (depth) {
+    char name[1024];
+    for (int i = 0; i < depth; ++i) {
+      const char *symbol = "(unknown)";
+      auto result = absl::Symbolize(
+          addr[0],
+          name,
+          sizeof(name));
+      if (result)
+        symbol = name;
+      fprintf(
+          stderr,
+          "[%2d] %p %s\n",
+          i,
+          addr[i],
+          symbol);
+    }
+  } else {
+    fprintf(stderr, "can't get stacktrace\n");
+  }
+#endif
   invoke_default_signal_handler(sig);
 }
+
 static void install_failure_signal_handler() {
   struct sigaction sa = {};
   sa.sa_sigaction = termination_handler;
   sa.sa_flags = SA_SIGINFO;
-  sigaction(SIGABRT, &sa, nullptr);
-  sigaction(SIGILL, &sa, nullptr);
-  sigaction(SIGSEGV, &sa, nullptr);
+  sigaction(
+      SIGABRT,
+      &sa,
+      nullptr);
+  sigaction(
+      SIGILL,
+      &sa,
+      nullptr);
+  sigaction(
+      SIGSEGV,
+      &sa,
+      nullptr);
 }
 }  // namespace
 
@@ -98,18 +167,22 @@ static spdlog::logger *spdlog_logger = nullptr;
 
 namespace detail {
 int verbosity = 0;
+
 sink_t info = [](const std::string_view& message) {
   if (likely(spdlog_logger))
     spdlog_logger->info(message);
 };
+
 sink_t warning = [](const std::string_view& message) {
   if (likely(spdlog_logger))
     spdlog_logger->warn(message);
 };
+
 sink_t error = [](const std::string_view& message) {
   if (likely(spdlog_logger))
     spdlog_logger->error(message);
 };
+
 sink_t critical = [](const std::string_view& message) {
   if (likely(spdlog_logger)) {
     spdlog_logger->critical(message);
@@ -119,7 +192,12 @@ sink_t critical = [](const std::string_view& message) {
 };
 }  // namespace detail
 
-void Logger::initialize(bool stacktrace) {
+void Logger::initialize(
+    const std::string_view& arg0,
+    bool stacktrace) {
+  // abseil
+  initialize_abseil(arg0);
+  // spdlog
   auto terminal = ::isatty(fileno(stdout));
   std::shared_ptr<spdlog::logger> logger;
   if (terminal) {

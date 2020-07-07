@@ -11,6 +11,7 @@
 #include <fmt/format.h>
 
 #include <functional>
+#include <string_view>
 #include <utility>
 
 #include "roq/static.h"
@@ -161,7 +162,9 @@ class ROQ_LOGGING_PUBLIC NullLogMessage final {
 }  // namespace detail
 
 struct ROQ_LOGGING_PUBLIC Logger final {
-  static void initialize(bool stacktrace = true);
+  static void initialize(
+      const std::string_view& arg0,
+      bool stacktrace = true);
   static void shutdown();
 };
 

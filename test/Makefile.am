@@ -16,10 +16,12 @@ roq_logging_test_LDADD = \
 	$(LIBUNWIND_LIBS) \
 	$(GFLAGS_LIBS) \
 	$(FMT_LIBS) \
+	$(ABSEIL_LIBS) \
 	libgtest.la
 roq_logging_test_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/src \
+	$(ABSEIL_CFLAGS) \
 	$(PTHREAD_CFLAGS) \
 	$(GTEST_CFLAGS)
 nodist_roq_logging_test_SOURCES = \

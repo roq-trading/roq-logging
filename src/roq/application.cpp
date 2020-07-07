@@ -31,7 +31,8 @@ Application::Application(
     const std::string_view& version)
     : _argv(argv),
       _argc(initialize_gflags(argc, &_argv, description, version)) {
-  Logger::initialize();
+  assert(argc > 0);
+  Logger::initialize(argv[0]);
 }
 
 Application::~Application() {
