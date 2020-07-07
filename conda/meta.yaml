@@ -14,7 +14,6 @@ build:
   run_exports:
     strong:
       - {{ pin_compatible('gflags', max_pin='x.x') }}
-      - {{ pin_subpackage('roq-logging', max_pin='x.x') }}
 
 requirements:
   build:
