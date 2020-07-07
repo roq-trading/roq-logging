@@ -32,7 +32,7 @@ requirements:
     - roq-oss-spdlog
   run:
     - gflags >=2.2
-    - roq-oss-abseil-cpp >=20200225
+    - roq-oss-abseil-cpp
 
 about:
   home: https://roq-trading.com
