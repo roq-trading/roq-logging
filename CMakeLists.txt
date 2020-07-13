@@ -1,47 +1,90 @@
 cmake_minimum_required(VERSION 3.12)
 
-project(roq-logging)
+# cmake
 
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+
+# version (using git tag)
+
+include(GetGitRepoVersion)
+
+# project
+
+project(roq-logging VERSION ${GIT_REPO_VERSION})
+
+# conda
 
 if(DEFINED ENV{CONDA_PREFIX})
   set(CMAKE_INSTALL_PREFIX $ENV{CONDA_PREFIX})
   set(CMAKE_FIND_ROOT_PATH $ENV{CONDA_PREFIX})
 endif()
 
-project(${PACKAGE_NAME} CXX)
+# rpath
+
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# c++
+
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
-
-include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
+# filesystem
 
 include(GNUInstallDirs)
 
-find_package(Threads REQUIRED)
-find_package(Libunwind REQUIRED)
+# dependencies
 
+find_package(Libunwind REQUIRED)
 find_package(absl REQUIRED)
 find_package(fmt REQUIRED)
 find_package(gflags REQUIRED)
 find_package(spdlog REQUIRED)
 
+# include
+
 include_directories(
-  include
-  ${LIBUNWIND_INCLUDE_DIR}
+  "${CMAKE_SOURCE_DIR}/include"
+  "${CMAKE_SOURCE_DIR}/src")
+
+# headers (public)
+
+file(GLOB HEADERS CONFIGURE_DEPENDS
+  "${CMAKE_SOURCE_DIR}/include/roq/*.h")
+
+install(FILES ${HEADERS}
+  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/roq")
+
+# sub-projects
+
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/roq")
+
+# test
+
+option(ROQ_LOGGING_TEST "Enable test" OFF)
+
+if(ROQ_LOGGING_TEST)
+  include(GoogleTest)
+  add_subdirectory("${CMAKE_SOURCE_DIR}/third_party/googletest" EXCLUDE_FROM_ALL)
+  enable_testing()
+  add_subdirectory("${CMAKE_SOURCE_DIR}/test")
+endif(ROQ_LOGGING_TEST)
+
+# config
+
+install(TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}-config
 )
 
-file(GLOB HEADER_LIST CONFIGURE_DEPENDS "include/roq/*.h")
+set(ROQ_LOGGING_CMAKE_DIR
+  "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
-add_subdirectory(src/roq)
+export(TARGETS ${PROJECT_NAME}
+  NAMESPACE ${PROJECT_NAME}::
+  FILE "${ROQ_LOGGING_CMAKE_DIR}/${PROJECT_NAME}-config.cmake"
+)
 
-option(BUILD_TEST "Enable test" OFF)
-
-if(BUILD_TEST)
-add_subdirectory(third_party/googletest EXCLUDE_FROM_ALL)
-enable_testing()
-  # include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-include(GoogleTest)
-add_subdirectory(test)
-endif(BUILD_TEST)
+install(EXPORT ${PROJECT_NAME}-config
+  NAMESPACE ${PROJECT_NAME}::
+  DESTINATION "${ROQ_LOGGING_CMAKE_DIR}"
+)

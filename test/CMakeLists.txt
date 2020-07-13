@@ -1,18 +1,20 @@
-set(ROQ_LOGGING_TEST_SOURCES
+set(TARGET_NAME "${PROJECT_NAME}-test")
+
+set(SOURCES
   main.cpp
   logging.cpp
   stacktrace.cpp
 )
 
-add_executable(roq-logging-test
-  ${ROQ_LOGGING_TEST_SOURCES}
-)
+add_executable("${TARGET_NAME}" ${SOURCES})
 
-target_link_libraries(roq-logging-test
-  roq-logging
+target_link_libraries("${TARGET_NAME}"
+  ${PROJECT_NAME}
   absl::stacktrace
   absl::symbolize
   gtest_main
 )
 
-add_test(NAME roq-logging-test COMMAND roq-logging-test)
+# run
+
+add_test(NAME "${TARGET_NAME}" COMMAND "${TARGET_NAME}")

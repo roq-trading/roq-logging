@@ -1,17 +1,25 @@
+# vim
+
 *.swp
+*.swo
+
+
+# autotools
 
 Makefile
 Makefile.in
 aclocal.m4
 config.status
 configure
+config.log
 libtool
-autom4te.cache/
-m4/
-build-aux/
 
 .deps/
 .libs/
+
+autom4te.cache/
+build-aux/
+m4/
 
 *.Plo
 *.la
@@ -20,9 +28,21 @@ build-aux/
 
 *.tar.*
 
+
+# cmake
+
+CMakeCache.txt
+
+build/
+
+
+# gtest
+
 *.log
 *.trs
 
-roq-logging.pc
 
-test/roq-logging-test
+# project specific
+
+roq-logging.pc
+roq-logging-test
