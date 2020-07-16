@@ -10,12 +10,13 @@ add_library("${TARGET_NAME}" SHARED
   ${SOURCES}
 )
 
-target_link_libraries("${TARGET_NAME}"
-  absl::symbolize
+target_link_libraries("${TARGET_NAME}" INTERFACE
   fmt::fmt
-  spdlog::spdlog
-  gflags
-  ${LIBUNWIND_LIBRARIES}
+  PRIVATE
+    absl::symbolize
+    spdlog::spdlog
+    gflags
+    ${LIBUNWIND_LIBRARIES}
 )
 
 set_target_properties("${TARGET_NAME}" PROPERTIES LINK_FLAGS_RELEASE -s)
