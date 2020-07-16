@@ -33,6 +33,8 @@ m4/
 
 CMakeCache.txt
 DartConfiguration.tcl
+install_manifest.txt
+CMake*.in
 
 CMakeFiles/
 Testing/
