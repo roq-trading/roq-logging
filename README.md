@@ -116,7 +116,7 @@ void foo(int i) {
 
 int main(int argc, const char *argv[]) {
   roq::Logger::initialize(argv[0]);
-  foo(123);
+  foo(argc);
   roq::Logger::shutdown();
 }
 ```
