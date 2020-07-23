@@ -1,11 +1,12 @@
 # roq-logging
 
 
-The library provides the logging interface used by all projects offered
-by Roq Trading Solutions.
+The library provides the logging interface used by all the c++ based projects
+offered by Roq Trading Solutions.
 
 The interface borrows from [glog](https://github.com/google/glog)
-(BSD 3-Clause License) and [fmt](https://github.com/fmtlib/fmt) (MIT License).
+(BSD 3-Clause License) and uses [fmt](https://github.com/fmtlib/fmt) (MIT License).
+
 The implementation links to [spdlog](https://github.com/gabime/spdlog)
 (MIT License).
 
@@ -19,33 +20,28 @@ The implementation links to [spdlog](https://github.com/gabime/spdlog)
 
 The library is designed to be compatible with the conda package manager.
 
-### Download Miniconda
+This is one way to create a conda environment and install required
+packages for building the project
 
 ```
+# Download Miniconda
+
 wget -N https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-```
 
-### Install Miniconda
+# Install Miniconda
 
-```
 bash Miniconda3-latest-Linux-x86_64.sh -b -u -p ~/miniconda3
-```
 
-### Activate Miniconda
+# Activate Miniconda
 
-```
 source ~/miniconda3/bin/activate
-```
 
-### Install Toolchain
+# Install the toolchain
 
-```
 conda install -y git cmake gxx_linux-64 gdb_linux-64
-```
 
-### Install Package Dependencies
+# Install build dependencies
 
-```
 conda install -y \
     --channel https://roq-trading.com/conda/stable \
     roq-oss-abseil-cpp \
@@ -57,17 +53,13 @@ conda install -y \
 
 ## Building
 
-### Update Git Submodules
-
 ```
+# Update git submodules
+
 git submodule update --init --recursive
-```
 
-### Create Makefile
+# Create the makefile
 
-The default build system is CMake
-
-```
 cmake \
     -DCMAKE_AR="$AR" \
     -DCMAKE_RANLIB="$RANLIB" \
@@ -75,18 +67,13 @@ cmake \
     -DCMAKE_BUILD_TYPE=Debug \
     -DBUILD_TESTING=ON \
     .
-```
 
-### Compile
+# Compile
 
-```
 make -j4
-```
 
+# Test
 
-### Test
-
-```
 make test
 ```
 
@@ -100,8 +87,6 @@ conda install -y \
 ```
 
 ## Using
-
-The interface has been inspired by glog and fmt
 
 ```
 #include "roq/logging.h"
@@ -118,6 +103,12 @@ void foo(int i) {
 
   // terminate the process with a stacktrace
   LOG(FATAL)("something is wrong");
+}
+
+int main(int argc, const char *argv[]) {
+  roq::Logger::initialize(argv[0]);
+  foo(123);
+  roq::Logger::shutdown();
 }
 ```
 
