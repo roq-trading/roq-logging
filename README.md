@@ -14,6 +14,7 @@ The implementation uses
 * [spdlog](https://github.com/gabime/spdlog) (MIT License)
 * [gflags](https://github.com/gflags/gflags) (BDS 3-Clause License)
 * [abseil-cpp](https://github.com/abseil/abseil-cpp) (Apache 2.0 License)
+* [libunwind](https://github.com/libunwind/libunwind) (MIT License)
 
 
 ## Operating Systems
