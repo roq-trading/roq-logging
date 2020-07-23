@@ -1,7 +1,13 @@
 # roq-logging
 
-roq-logging is a utility library to provide a glog-like interface on top
-of spdlog.
+
+The library provides the logging interface used by all projects offered
+by Roq Trading Solutions.
+
+The interface borrows from [glog](https://github.com/google/glog)
+(BSD 3-Clause License) and [fmt](https://github.com/fmtlib/fmt) (MIT License).
+The implementation links to [spdlog](https://github.com/gabime/spdlog)
+(MIT License).
 
 
 ## Operating Systems
