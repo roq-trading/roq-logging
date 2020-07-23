@@ -3,7 +3,7 @@
 
 The logging library used by all Roq developed c++ projects.
 
-Uses
+Direct third-party dependencies
 
 * [fmt](https://github.com/fmtlib/fmt) (MIT License)
 * [spdlog](https://github.com/gabime/spdlog) (MIT License)
@@ -11,7 +11,7 @@ Uses
 * [abseil-cpp](https://github.com/abseil/abseil-cpp) (Apache 2.0 License)
 * [libunwind](https://github.com/libunwind/libunwind) (MIT License)
 
-Borrows some design ideas (primarily the macro interface) from
+Inspiration from
 
 * [glog](https://github.com/google/glog) (BSD 3-Clause License)
 
