@@ -102,7 +102,7 @@ conda install -y --channel https://roq-trading.com/conda/stable \
 
 ## Using
 
-```bash
+```cpp
 #include "roq/logging.h"
 
 void foo(int i) {
