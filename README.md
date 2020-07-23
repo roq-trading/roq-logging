@@ -11,7 +11,7 @@ Uses
 * [abseil-cpp](https://github.com/abseil/abseil-cpp) (Apache 2.0 License)
 * [libunwind](https://github.com/libunwind/libunwind) (MIT License)
 
-Borrows some design ideas from
+Borrows some design ideas (primarily the macro interface) from
 
 * [glog](https://github.com/google/glog) (BSD 3-Clause License)
 
