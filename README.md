@@ -43,7 +43,11 @@ source ~/miniconda3/bin/activate
 
 # Install the toolchain
 
-conda install -y git cmake gxx_linux-64 gdb_linux-64
+conda install -y \
+    git \
+    cmake \
+    gxx_linux-64 \
+    gdb_linux-64
 
 # Install build dependencies
 
