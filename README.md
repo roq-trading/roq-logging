@@ -1,6 +1,6 @@
 # Roq Trading Solutions
 
-## roq-logging
+**roq-logging**
 
 
 The library implements the logging interface used by all the c++ based projects
@@ -16,12 +16,12 @@ The implementation uses
 * [spdlog](https://github.com/gabime/spdlog) (MIT License)
 
 
-### Operating Systems
+## Operating Systems
 
 * Linux
 
 
-### Prerequisites
+## Prerequisites
 
 The library is designed to be compatible with the conda package manager.
 
@@ -56,7 +56,7 @@ conda install -y \
 ```
 
 
-### Building
+## Building
 
 ```
 # Update git submodules
@@ -87,7 +87,7 @@ make install
 ```
 
 
-### Installing
+## Installing
 
 A pre-compiled binary package can be downloaded from Roq Trading Solutions
 
@@ -97,7 +97,7 @@ conda install -y \
     roq-logging
 ```
 
-### Using
+## Using
 
 ```
 #include "roq/logging.h"
@@ -124,12 +124,12 @@ int main(int argc, const char *argv[]) {
 ```
 
 
-### License
+## License
 
 The library is released under the terms of the MIT license.
 
 
-### Links
+## Links
 
 * [Documentation](https://roq-trading.com/docs)
 * [Contact us](mailto:info@roq-trading.com)
