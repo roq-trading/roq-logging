@@ -8,6 +8,8 @@ set(SOURCES
 
 add_executable("${TARGET_NAME}" ${SOURCES})
 
+# target
+
 target_link_libraries("${TARGET_NAME}"
   ${PROJECT_NAME}
   absl::stacktrace
@@ -17,4 +19,5 @@ target_link_libraries("${TARGET_NAME}"
 
 # run
 
-add_test(NAME "${TARGET_NAME}" COMMAND "${TARGET_NAME}")
+add_test(NAME "${TARGET_NAME}"
+  COMMAND "${TARGET_NAME}")

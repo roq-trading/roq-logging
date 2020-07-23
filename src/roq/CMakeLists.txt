@@ -19,4 +19,5 @@ target_link_libraries("${TARGET_NAME}" INTERFACE
     ${LIBUNWIND_LIBRARIES}
 )
 
-set_target_properties("${TARGET_NAME}" PROPERTIES LINK_FLAGS_RELEASE -s)
+set_target_properties("${TARGET_NAME}"
+  PROPERTIES LINK_FLAGS_RELEASE -s)  # strip symbols
