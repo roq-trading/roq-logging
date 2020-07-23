@@ -103,6 +103,8 @@ conda install -y --channel https://roq-trading.com/conda/stable \
 ## Using
 
 ```cpp
+#include <cstdlib>
+
 #include "roq/logging.h"
 
 void foo(int i) {
@@ -123,6 +125,7 @@ int main(int argc, const char *argv[]) {
   roq::Logger::initialize(argv[0]);
   foo(argc);
   roq::Logger::shutdown();
+  return EXIT_SUCCESS;
 }
 ```
 
