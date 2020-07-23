@@ -1,8 +1,7 @@
 # roq-logging
 
 
-The logging library used by all the c++ based projects offered by
-Roq Trading Solutions.
+The logging library used by all Roq developed c++ projects.
 
 Uses
 
