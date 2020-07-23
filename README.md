@@ -28,7 +28,7 @@ The library is designed to be compatible with the conda package manager.
 This is one way to create a conda environment, install the required
 packages and build the project
 
-```
+```bash
 # Download Miniconda
 
 wget -N https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
@@ -62,7 +62,7 @@ conda install -y --channel https://roq-trading.com/conda/stable \
 
 ## Building
 
-```
+```bash
 # Update git submodules
 
 git submodule update --init --recursive
@@ -95,14 +95,14 @@ make install
 
 A pre-compiled binary package can be downloaded from Roq Trading Solutions
 
-```
+```bash
 conda install -y --channel https://roq-trading.com/conda/stable \
     roq-logging
 ```
 
 ## Using
 
-```
+```bash
 #include "roq/logging.h"
 
 void foo(int i) {
