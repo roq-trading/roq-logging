@@ -1,20 +1,20 @@
 # roq-logging
 
 
-The library implements the logging interface used by all the c++ based projects
-offered by Roq Trading Solutions.
+The logging library used by all the c++ based projects offered by
+Roq Trading Solutions.
 
-The interface borrows macro design ideas from
-
-* [glog](https://github.com/google/glog) (BSD 3-Clause License)
-
-The implementation uses
+Uses
 
 * [fmt](https://github.com/fmtlib/fmt) (MIT License)
 * [spdlog](https://github.com/gabime/spdlog) (MIT License)
 * [gflags](https://github.com/gflags/gflags) (BDS 3-Clause License)
 * [abseil-cpp](https://github.com/abseil/abseil-cpp) (Apache 2.0 License)
 * [libunwind](https://github.com/libunwind/libunwind) (MIT License)
+
+Borrows some design ideas from
+
+* [glog](https://github.com/google/glog) (BSD 3-Clause License)
 
 
 ## Operating Systems
