@@ -51,6 +51,7 @@ conda install -y \
     --channel https://roq-trading.com/conda/stable \
     roq-oss-abseil-cpp \
     roq-oss-fmt \
+    roq-oss-libunwind \
     roq-oss-spdlog \
     gflags
 ```
