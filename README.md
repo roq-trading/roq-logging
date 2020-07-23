@@ -1,6 +1,4 @@
-# Roq Trading Solutions
-
-**roq-logging**
+# roq-logging
 
 
 The library implements the logging interface used by all the c++ based projects
