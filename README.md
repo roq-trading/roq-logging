@@ -3,14 +3,17 @@
 ## roq-logging
 
 
-The library provides the logging interface used by all the c++ based projects
+The library implements the logging interface used by all the c++ based projects
 offered by Roq Trading Solutions.
 
-The interface borrows from [glog](https://github.com/google/glog)
-(BSD 3-Clause License) and uses [fmt](https://github.com/fmtlib/fmt) (MIT License).
+The interface borrows macro design ideas from
 
-The implementation links to [spdlog](https://github.com/gabime/spdlog)
-(MIT License).
+* [glog](https://github.com/google/glog) (BSD 3-Clause License)
+
+The implementation uses
+
+* [fmt](https://github.com/fmtlib/fmt) (MIT License)
+* [spdlog](https://github.com/gabime/spdlog) (MIT License)
 
 
 ### Operating Systems
@@ -22,8 +25,8 @@ The implementation links to [spdlog](https://github.com/gabime/spdlog)
 
 The library is designed to be compatible with the conda package manager.
 
-This is one way to create a conda environment and install required
-packages for building the project
+This is one way to create a conda environment, install the required
+packages and build the project
 
 ```
 # Download Miniconda
@@ -60,7 +63,7 @@ conda install -y \
 
 git submodule update --init --recursive
 
-# Create the makefile
+# Generate makefile
 
 cmake \
     -DCMAKE_AR="$AR" \
@@ -77,10 +80,16 @@ make -j4
 # Test
 
 make test
+
+# Install
+
+make install
 ```
 
 
 ### Installing
+
+A pre-compiled binary package can be downloaded from Roq Trading Solutions
 
 ```
 conda install -y \
