@@ -25,8 +25,8 @@ Borrows some design ideas (primarily the macro interface) from
 
 The library is designed to be compatible with the conda package manager.
 
-This is one way to create a conda environment, install the required
-packages and build the project
+This is one way to create a conda environment and install the required
+packages
 
 ```bash
 # Download Miniconda
