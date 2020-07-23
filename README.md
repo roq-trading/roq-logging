@@ -51,8 +51,7 @@ conda install -y \
 
 # Install build dependencies
 
-conda install -y \
-    --channel https://roq-trading.com/conda/stable \
+conda install -y --channel https://roq-trading.com/conda/stable \
     roq-oss-abseil-cpp \
     roq-oss-fmt \
     roq-oss-libunwind \
@@ -97,8 +96,7 @@ make install
 A pre-compiled binary package can be downloaded from Roq Trading Solutions
 
 ```
-conda install -y \
-    --channel https://roq-trading.com/conda/stable \
+conda install -y --channel https://roq-trading.com/conda/stable \
     roq-logging
 ```
 
