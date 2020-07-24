@@ -29,27 +29,17 @@ This is one way to create a conda environment and install the required
 packages
 
 ```bash
-# Download Miniconda
-
 wget -N https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-
-# Install Miniconda
 
 bash Miniconda3-latest-Linux-x86_64.sh -b -u -p ~/miniconda3
 
-# Activate Miniconda
-
 source ~/miniconda3/bin/activate
-
-# Install the toolchain
 
 conda install -y \
     git \
     cmake \
     gxx_linux-64 \
     gdb_linux-64
-
-# Install build dependencies
 
 conda install -y --channel https://roq-trading.com/conda/stable \
     roq-oss-abseil-cpp \
@@ -63,11 +53,7 @@ conda install -y --channel https://roq-trading.com/conda/stable \
 ## Building
 
 ```bash
-# Update git submodules
-
 git submodule update --init --recursive
-
-# Generate makefile
 
 cmake \
     -DCMAKE_AR="$AR" \
@@ -77,17 +63,9 @@ cmake \
     -DBUILD_TESTING=ON \
     .
 
-# Compile
-
 make -j4
 
-# Test
-
 make test
-
-# Install
-
-make install
 ```
 
 
@@ -109,13 +87,13 @@ conda install -y --channel https://roq-trading.com/conda/stable \
 #include "roq/logging.h"
 
 void foo(int i) {
-  // log when the ROQ_v environment variable has been set to 1 (or higher)
+  // only log when the ROQ_v environment variable has been set to 1 (or higher)
   VLOG(1)("enter foo")
 
   // always log
   LOG(INFO)("foo called with i={}", i);
 
-  // conditional logging
+  // conditional log a warning
   LOG_IF(WARNING, i > 10)("value exceeds threshold");
 
   // terminate the process with a stacktrace
