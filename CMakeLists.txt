@@ -74,7 +74,17 @@ if(BUILD_TESTING)
   add_subdirectory("${CMAKE_SOURCE_DIR}/test")
 endif(BUILD_TESTING)
 
-# config
+# doxygen
+
+option(BUILD_DOCS "Enable doxygen" OFF)
+
+if(BUILD_DOCS)
+  find_package(Doxygen)
+  add_subdirectory("${CMAKE_SOURCE_DIR}/doxygen")
+  add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}-doxygen)
+endif(BUILD_DOCS)
+
+# install (cmake)
 
 install(TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}-config

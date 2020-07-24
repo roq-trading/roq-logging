@@ -55,6 +55,14 @@ build/
 *.trs
 
 
+# doxygen
+
+doxygen/Doxyfile
+doxygen/doxygen-build.stamp
+doxygen/html
+doxygen/xml
+
+
 # project specific
 
 roq-logging.pc
