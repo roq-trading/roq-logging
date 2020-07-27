@@ -23,7 +23,7 @@ Inspiration from
 
 ## Prerequisites
 
-The library is designed to be compatible with the conda package manager.
+The project is designed to be compatible with the conda package manager.
 
 This is one way to create a conda environment and install the required
 packages
@@ -38,8 +38,7 @@ source ~/miniconda3/bin/activate
 conda install -y \
     git \
     cmake \
-    gxx_linux-64 \
-    gdb_linux-64
+    gxx_linux-64
 
 conda install -y --channel https://roq-trading.com/conda/stable \
     roq-oss-abseil-cpp \
@@ -55,13 +54,7 @@ conda install -y --channel https://roq-trading.com/conda/stable \
 ```bash
 git submodule update --init --recursive
 
-cmake \
-    -DCMAKE_AR="$AR" \
-    -DCMAKE_RANLIB="$RANLIB" \
-    -DCMAKE_NM="$NM" \
-    -DCMAKE_BUILD_TYPE=Debug \
-    -DBUILD_TESTING=ON \
-    .
+cmake .
 
 make -j4
 
