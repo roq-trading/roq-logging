@@ -25,9 +25,6 @@ Inspiration from
 
 The project is designed to be compatible with the conda package manager.
 
-This is one way to create a conda environment and install the required
-packages
-
 ```bash
 wget -N https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 
@@ -104,7 +101,7 @@ int main(int argc, const char *argv[]) {
 
 ## License
 
-The library is released under the terms of the MIT license.
+The project is released under the terms of the MIT license.
 
 
 ## Links
