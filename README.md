@@ -1,24 +1,24 @@
 # roq-logging
 
-
-The logging library used by all Roq developed c++ projects.
-
-Direct third-party dependencies
-
-* [fmt](https://github.com/fmtlib/fmt) (MIT License)
-* [spdlog](https://github.com/gabime/spdlog) (MIT License)
-* [gflags](https://github.com/gflags/gflags) (BDS 3-Clause License)
-* [abseil-cpp](https://github.com/abseil/abseil-cpp) (Apache 2.0 License)
-* [libunwind](https://github.com/libunwind/libunwind) (MIT License)
-
-Inspiration from
-
-* [glog](https://github.com/google/glog) (BSD 3-Clause License)
+Logging utilities.
 
 
 ## Operating Systems
 
 * Linux
+
+
+## Library/Package Dependencies
+
+* [fmt](https://github.com/fmtlib/fmt) (MIT License)
+* [spdlog](https://github.com/gabime/spdlog) (MIT License)
+* [gflags](https://github.com/gflags/gflags) (BDS 3-Clause License)
+* [Abseil](https://github.com/abseil/abseil-cpp) (Apache 2.0 License)
+* [libunwind](https://github.com/libunwind/libunwind) (MIT License)
+
+Optional
+
+* [Google Test](https://github.com/google/googletest) (BSD 3-Clause License)
 
 
 ## Prerequisites
@@ -97,6 +97,13 @@ int main(int argc, const char *argv[]) {
   return EXIT_SUCCESS;
 }
 ```
+
+
+## Acknowledgements
+
+The interface is somewhat inspired by
+
+* [glog](https://github.com/google/glog) (BSD 3-Clause License)
 
 
 ## License
