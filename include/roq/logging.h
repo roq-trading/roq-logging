@@ -161,10 +161,14 @@ class ROQ_LOGGING_PUBLIC NullLogMessage final {
 
 }  // namespace detail
 
+//! Interface to manage the lifetime of the single static logger.
 struct ROQ_LOGGING_PUBLIC Logger final {
+  //! Initialize the logger
   static void initialize(
       const std::string_view& arg0,
       bool stacktrace = true);
+
+  //! Shutdown the logger
   static void shutdown();
 };
 

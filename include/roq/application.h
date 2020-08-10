@@ -6,6 +6,7 @@
 
 namespace roq {
 
+//! Convenience class to wrap \ref roq::Logger, gflags, etc.
 class ROQ_LOGGING_PUBLIC Application {
  public:
   Application(
@@ -19,6 +20,7 @@ class ROQ_LOGGING_PUBLIC Application {
 
   virtual ~Application();
 
+  //! The main function
   int run();
 
  protected:
