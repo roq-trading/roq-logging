@@ -28,9 +28,22 @@ Application::Application(
     int argc,
     char **argv,
     const std::string_view& description,
-    const std::string_view& version)
+    const std::string_view& version,
+    const std::string_view& build_type,
+    const std::string_view& git_hash,
+    const std::string_view& compile_date,
+    const std::string_view& compile_time)
     : _argv(argv),
-      _argc(initialize_gflags(argc, &_argv, description, version)) {
+      _argc(
+          initialize_gflags(
+              argc,
+              &_argv,
+              description,
+              version)),
+      _build_type(build_type),
+      _git_hash(git_hash),
+      _compile_date(compile_date),
+      _compile_time(compile_time) {
   assert(argc > 0);
   Logger::initialize(argv[0]);
 }
@@ -40,6 +53,15 @@ Application::~Application() {
 
 int Application::run() {
   LOG(INFO)("===== START =====");
+  LOG(INFO)(
+      R"(Process: )"
+      R"(name="{}", version="{}", type="{}", git="{}", date="{}", time="{}")",
+      gflags::ProgramInvocationShortName(),
+      gflags::VersionString(),
+      _build_type,
+      _git_hash,
+      _compile_date,
+      _compile_time);
   auto res = main(_argc, _argv);
   LOG_IF(WARNING, res != 0)(
       R"(exit-code={})",
