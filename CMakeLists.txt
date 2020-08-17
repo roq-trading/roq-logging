@@ -47,9 +47,7 @@ find_package(spdlog REQUIRED)
 
 # include
 
-include_directories(
-  "${CMAKE_SOURCE_DIR}/include"
-  "${CMAKE_SOURCE_DIR}/src")
+include_directories("${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/src")
 
 # sub-projects
 
@@ -57,9 +55,11 @@ add_subdirectory("${CMAKE_SOURCE_DIR}/src/roq")
 
 # install (public headers)
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/roq/"
+install(
+  DIRECTORY "${CMAKE_SOURCE_DIR}/include/roq/"
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/roq"
-  FILES_MATCHING PATTERN "*.h"
+  FILES_MATCHING
+  PATTERN "*.h"
   PATTERN "CMakeFiles" EXCLUDE)
 
 # test
@@ -86,19 +86,16 @@ endif(BUILD_DOCS)
 
 # install (cmake)
 
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}-config)
+
+set(CMAKE_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+
+export(
+  TARGETS ${PROJECT_NAME}
+  NAMESPACE ${PROJECT_NAME}::
+  FILE "${CMAKE_LIB_DIR}/${PROJECT_NAME}-config.cmake")
+
+install(
   EXPORT ${PROJECT_NAME}-config
-)
-
-set(CMAKE_LIB_DIR
-  "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
-
-export(TARGETS ${PROJECT_NAME}
   NAMESPACE ${PROJECT_NAME}::
-  FILE "${CMAKE_LIB_DIR}/${PROJECT_NAME}-config.cmake"
-)
-
-install(EXPORT ${PROJECT_NAME}-config
-  NAMESPACE ${PROJECT_NAME}::
-  DESTINATION "${CMAKE_LIB_DIR}"
-)
+  DESTINATION "${CMAKE_LIB_DIR}")
