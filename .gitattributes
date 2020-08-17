@@ -3,6 +3,7 @@ third_party/* linguist-vendored
 
 doxygen/Doxyfile.in linguist-vendored
 
-include/* linguist-vendored=false
-src/* linguist-vendored=false
-test/* linguist-vendored=false
+
+# include/* linguist-vendored=false
+# src/* linguist-vendored=false
+# test/* linguist-vendored=false
