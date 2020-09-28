@@ -194,6 +194,7 @@ sink_t critical = [](const std::string_view& message) {
 
 void Logger::initialize(
     const std::string_view& arg0,
+    const std::string_view& pattern,
     bool stacktrace) {
   // abseil
   initialize_abseil(arg0);
@@ -207,15 +208,7 @@ void Logger::initialize(
     spdlog::flush_every(std::chrono::seconds(SPDLOG_FLUSH_SECONDS));
     logger = spdlog::stdout_logger_st<spdlog::async_factory>("spdlog");
   }
-  // matching spdlog pattern to glog
-  // - %L = level (I=INFO|W=WARN|E=ERROR|C=CRITICAL)
-  // - %m = month (MM)
-  // - %d = day (DD)
-  // - %T = time (HH:MM:SS)
-  // - %f = fraction (microseconds)
-  // - %t = thread (int)
-  // - %v = message
-  logger->set_pattern("%L%m%d %T.%f %t %v");
+  logger->set_pattern(std::string(pattern));
   logger->flush_on(spdlog::level::warn);
   // note! spdlog uses reference count
   spdlog_logger = logger.get();

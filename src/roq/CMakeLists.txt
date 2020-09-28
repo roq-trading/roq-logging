@@ -1,6 +1,6 @@
 set(TARGET_NAME "${PROJECT_NAME}")
 
-set(SOURCES application.cpp logging.cpp unwind.cpp)
+set(SOURCES logging.cpp service.cpp tool.cpp unwind.cpp)
 
 add_library("${TARGET_NAME}" SHARED ${SOURCES})
 

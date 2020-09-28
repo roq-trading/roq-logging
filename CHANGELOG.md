@@ -4,6 +4,14 @@ All notable changes will be documented in this file.
 
 ## Head
 
+### Changed
+
+* Application has been replaced with Service and Tool
+
+  * Service logging includes process information, start, stop, timestamp,
+    thread id, etc.
+  * Tool logging is minimal
+
 ## 0.4.4 &ndash; 2020-09-20
 
 ## 0.4.3 &ndash; 2020-09-02

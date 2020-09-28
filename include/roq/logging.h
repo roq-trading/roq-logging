@@ -166,6 +166,7 @@ struct ROQ_LOGGING_PUBLIC Logger final {
   //! Initialize the logger
   static void initialize(
       const std::string_view& arg0,
+      const std::string_view& pattern = std::string_view(),
       bool stacktrace = true);
 
   //! Shutdown the logger

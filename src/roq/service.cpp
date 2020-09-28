@@ -1,6 +1,6 @@
 /* Copyright (c) 2017-2020, Hans Erik Thrane */
 
-#include "roq/application.h"
+#include "roq/service.h"
 
 #include <gflags/gflags.h>
 
@@ -24,7 +24,7 @@ static int initialize_gflags(
 }
 }  // namespace
 
-Application::Application(
+Service::Service(
     int argc,
     char **argv,
     const std::string_view& description,
@@ -45,13 +45,22 @@ Application::Application(
       _compile_date(compile_date),
       _compile_time(compile_time) {
   assert(argc > 0);
-  Logger::initialize(argv[0]);
+  // matching spdlog pattern to glog
+  // - %L = level (I=INFO|W=WARN|E=ERROR|C=CRITICAL)
+  // - %m = month (MM)
+  // - %d = day (DD)
+  // - %T = time (HH:MM:SS)
+  // - %f = fraction (microseconds)
+  // - %t = thread (int)
+  // - %v = message
+  auto pattern = "%L%m%d %T.%f %t %v";
+  Logger::initialize(argv[0], pattern);
 }
 
-Application::~Application() {
+Service::~Service() {
 }
 
-int Application::run() {
+int Service::run() {
   LOG(INFO)("===== START =====");
   LOG(INFO)(
       R"(Process: )"

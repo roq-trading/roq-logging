@@ -10,9 +10,9 @@
 namespace roq {
 
 //! Convenience class to wrap \ref roq::Logger, gflags, etc.
-class ROQ_LOGGING_PUBLIC Application {
+class ROQ_LOGGING_PUBLIC Tool {
  public:
-  Application(
+  Tool(
       int argc,
       char **argv,
       const std::string_view& description,
@@ -22,10 +22,10 @@ class ROQ_LOGGING_PUBLIC Application {
       const std::string_view& compile_date = __DATE__,
       const std::string_view& compile_time = __TIME__);
 
-  Application(const Application&) = delete;
-  Application(Application&&) = default;
+  Tool(const Tool&) = delete;
+  Tool(Tool&&) = default;
 
-  virtual ~Application();
+  virtual ~Tool();
 
   //! The main function
   int run();
