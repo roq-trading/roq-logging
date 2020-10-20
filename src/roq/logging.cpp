@@ -14,10 +14,10 @@
 #include <absl/debugging/stacktrace.h>
 #include <absl/debugging/symbolize.h>
 
-#include <spdlog/spdlog.h>
 #include <spdlog/async.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
+#include <spdlog/spdlog.h>
 
 #include <chrono>
 #include <memory>
@@ -42,35 +42,27 @@ struct aligned_allocator {
   aligned_allocator() = default;
 
   T *allocate(std::size_t size) {
-    auto result = std::aligned_alloc(
-        alignment,
-        size);
+    auto result = std::aligned_alloc(alignment, size);
     return reinterpret_cast<T *>(result);
   }
-  void deallocate(T *pointer, std::size_t) noexcept {
-    ::free(pointer);
-  }
+  void deallocate(T *pointer, std::size_t) noexcept { ::free(pointer); }
 };
 
 constexpr size_t PAGE_SIZE = 4096;
 
 template <typename T>
-struct page_aligned_allocator
-    : public aligned_allocator<T, PAGE_SIZE> {
-};
+struct page_aligned_allocator : public aligned_allocator<T, PAGE_SIZE> {};
 
 template <typename T>
-struct page_aligned_vector
-    : public std::vector<T, page_aligned_allocator<T> > {
-    using base_type = std::vector<T, page_aligned_allocator<T> >;
-    using base_type::base_type;
+struct page_aligned_vector : public std::vector<T, page_aligned_allocator<T> > {
+  using base_type = std::vector<T, page_aligned_allocator<T> >;
+  using base_type::base_type;
 };
 
 thread_local page_aligned_vector<char> RAW_BUFFER(MESSAGE_BUFFER_SIZE);
 
 thread_local std::pair<char *, size_t> message_buffer(
-    &RAW_BUFFER[0],
-    RAW_BUFFER.size());
+    &RAW_BUFFER[0], RAW_BUFFER.size());
 }  // namespace detail
 
 namespace {
@@ -80,7 +72,7 @@ inline bool likely(bool expr) {
 }  // namespace
 
 namespace {
-static void initialize_abseil(const std::string_view& arg0) {
+static void initialize_abseil(const std::string_view &arg0) {
   std::string tmp(arg0);
   absl::InitializeSymbolizer(tmp.c_str());
 }
@@ -91,49 +83,27 @@ static void invoke_default_signal_handler(int signal) {
   struct sigaction sa = {};
   sigemptyset(&sa.sa_mask);
   sa.sa_handler = SIG_DFL;
-  sigaction(
-      signal,
-      &sa,
-      nullptr);
-  kill(
-      getpid(),
-      signal);
+  sigaction(signal, &sa, nullptr);
+  kill(getpid(), signal);
 }
 
-static void termination_handler(
-    int sig,
-    siginfo_t *info,
-    void *) {
+static void termination_handler(int sig, siginfo_t *info, void *) {
   fprintf(stderr, "*** TERMINATION HANDLER ***\n");
 #if defined(USE_UNWIND)
-  unwind::print_stacktrace(
-      sig,
-      info);
+  unwind::print_stacktrace(sig, info);
 #else
 #if defined(__linux__)
   psiginfo(info, nullptr);
 #endif
   void *addr[32];
-  int depth = absl::GetStackTrace(
-      addr,
-      std::size(addr),
-      0);
+  int depth = absl::GetStackTrace(addr, std::size(addr), 0);
   if (depth) {
     char name[1024];
     for (int i = 0; i < depth; ++i) {
       const char *symbol = "(unknown)";
-      auto result = absl::Symbolize(
-          addr[0],
-          name,
-          sizeof(name));
-      if (result)
-        symbol = name;
-      fprintf(
-          stderr,
-          "[%2d] %p %s\n",
-          i,
-          addr[i],
-          symbol);
+      auto result = absl::Symbolize(addr[0], name, sizeof(name));
+      if (result) symbol = name;
+      fprintf(stderr, "[%2d] %p %s\n", i, addr[i], symbol);
     }
   } else {
     fprintf(stderr, "can't get stacktrace\n");
@@ -146,18 +116,9 @@ static void install_failure_signal_handler() {
   struct sigaction sa = {};
   sa.sa_sigaction = termination_handler;
   sa.sa_flags = SA_SIGINFO;
-  sigaction(
-      SIGABRT,
-      &sa,
-      nullptr);
-  sigaction(
-      SIGILL,
-      &sa,
-      nullptr);
-  sigaction(
-      SIGSEGV,
-      &sa,
-      nullptr);
+  sigaction(SIGABRT, &sa, nullptr);
+  sigaction(SIGILL, &sa, nullptr);
+  sigaction(SIGSEGV, &sa, nullptr);
 }
 }  // namespace
 
@@ -168,22 +129,19 @@ static spdlog::logger *spdlog_logger = nullptr;
 namespace detail {
 int verbosity = 0;
 
-sink_t info = [](const std::string_view& message) {
-  if (likely(spdlog_logger))
-    spdlog_logger->info(message);
+sink_t info = [](const std::string_view &message) {
+  if (likely(spdlog_logger)) spdlog_logger->info(message);
 };
 
-sink_t warning = [](const std::string_view& message) {
-  if (likely(spdlog_logger))
-    spdlog_logger->warn(message);
+sink_t warning = [](const std::string_view &message) {
+  if (likely(spdlog_logger)) spdlog_logger->warn(message);
 };
 
-sink_t error = [](const std::string_view& message) {
-  if (likely(spdlog_logger))
-    spdlog_logger->error(message);
+sink_t error = [](const std::string_view &message) {
+  if (likely(spdlog_logger)) spdlog_logger->error(message);
 };
 
-sink_t critical = [](const std::string_view& message) {
+sink_t critical = [](const std::string_view &message) {
   if (likely(spdlog_logger)) {
     spdlog_logger->critical(message);
     spdlog_logger->flush();
@@ -193,8 +151,8 @@ sink_t critical = [](const std::string_view& message) {
 }  // namespace detail
 
 void Logger::initialize(
-    const std::string_view& arg0,
-    const std::string_view& pattern,
+    const std::string_view &arg0,
+    const std::string_view &pattern,
     bool stacktrace) {
   // abseil
   initialize_abseil(arg0);
@@ -215,8 +173,7 @@ void Logger::initialize(
   auto verbosity = std::getenv("ROQ_v");
   if (verbosity != nullptr && std::strlen(verbosity) > 0)
     detail::verbosity = std::atoi(verbosity);
-  if (stacktrace)
-    install_failure_signal_handler();
+  if (stacktrace) install_failure_signal_handler();
 }
 
 void Logger::shutdown() {

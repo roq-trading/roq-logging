@@ -45,11 +45,7 @@ void print_stacktrace(int /*signal*/, siginfo_t *info) {
       fprintf(stderr, "Unable to get libunwind ip register.\n");
     }
     unw_word_t offp;
-    status = unw_get_proc_name(
-        &cursor,
-        proc_name,
-        sizeof(proc_name),
-        &offp);
+    status = unw_get_proc_name(&cursor, proc_name, sizeof(proc_name), &offp);
     const char *name = "<unknown>";
     char *demangled_name = nullptr;
     if (status < 0) {
@@ -58,21 +54,16 @@ void print_stacktrace(int /*signal*/, siginfo_t *info) {
       }
     } else {
       name = proc_name;
-      demangled_name = abi::__cxa_demangle(
-          proc_name,
-          nullptr,
-          nullptr,
-          &status);
-      if (status == 0)
-        name = demangled_name;
+      demangled_name =
+          abi::__cxa_demangle(proc_name, nullptr, nullptr, &status);
+      if (status == 0) name = demangled_name;
     }
 #if defined(__linux__)
     fprintf(stderr, "[%2d] %#*lx %s\n", index, width, ip, name);
 #elif defined(__APPLE__)
     fprintf(stderr, "[%2d] %#*llx %s\n", index, width, ip, name);
 #endif
-    if (demangled_name)
-      free(demangled_name);
+    if (demangled_name) free(demangled_name);
   }
 }
 
