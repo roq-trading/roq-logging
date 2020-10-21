@@ -34,16 +34,16 @@ template <size_t N>
 class static_string final {
  public:
   constexpr explicit static_string(const char (&text)[N])
-      : _data {}, _size(N - 1) {
+      : _data{}, _size(N - 1) {
     for (size_t i = 0; i < N; ++i) _data[i] = text[i];
   }
   constexpr static_string(const char *text, size_t size)
-      : _data {}, _size(size) {
+      : _data{}, _size(size) {
     for (size_t i = 0; i < N && i < size; ++i) _data[i] = text[i];
   }
   template <size_t M>
   constexpr static_string(const static_string<M> &rhs, size_t size)
-      : _data {}, _size(size) {
+      : _data{}, _size(size) {
     for (size_t i = 0; i < rhs.size(); ++i) _data[i] = rhs[i];
   }
 
@@ -86,7 +86,7 @@ template <size_t N>
 class static_basename_string final {
  public:
   constexpr explicit static_basename_string(const char (&text)[N])
-      : _data {}, _size(N - 1) {
+      : _data{}, _size(N - 1) {
     size_t index = 0;
     for (size_t i = 0; i < N; ++i)
       if (text[i] == '/') index = i;
