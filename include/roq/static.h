@@ -3,6 +3,7 @@
 #pragma once
 
 #include <cstddef>
+#include <string_view>
 
 namespace roq {
 
@@ -67,8 +68,8 @@ class static_string final {
     for (size_t i = 0; i < size(); ++i)
       if (_data[i] == '/') index = i;
     while (index < size() && _data[index] == '/') ++index;
-    auto size = _size - index;
-    return static_string<N>(_data + index, size);
+    auto length = _size - index;
+    return static_string<N>(_data + index, length);
   }
 
   constexpr bool compare(const std::string_view &rhs) {
