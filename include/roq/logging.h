@@ -34,24 +34,24 @@ class ROQ_LOGGING_PUBLIC basic_memory_view_t final {
  public:
   using value_type = T;
   inline basic_memory_view_t(value_type *buffer, size_t length)
-      : _iter(buffer), _begin(buffer), _end(buffer + length) {}
+      : iter_(buffer), begin_(buffer), end_(buffer + length) {}
   inline operator std::string_view() const {
-    return std::string_view(_begin, size());
+    return std::string_view(begin_, size());
   }
-  inline size_t size() const { return _iter - _begin; }
-  inline size_t remain() const { return _end - _iter; }
+  inline size_t size() const { return iter_ - begin_; }
+  inline size_t remain() const { return end_ - iter_; }
   inline void push_back(char value) {
-    if (_iter < _end) *(_iter++) = value;
+    if (iter_ < end_) *(iter_++) = value;
     // note! silently drop if the buffer is full
   }
   inline void append(const std::string_view &text) {
-    _iter += text.copy(_iter, remain());
+    iter_ += text.copy(iter_, remain());
   }
 
  private:
-  value_type *_iter;
-  const value_type *_begin;
-  const value_type *_end;
+  value_type *iter_;
+  const value_type *begin_;
+  const value_type *end_;
 };
 
 using memory_view_t = basic_memory_view_t<char>;
@@ -59,8 +59,8 @@ using memory_view_t = basic_memory_view_t<char>;
 class ROQ_LOGGING_PUBLIC LogMessage final {
  public:
   inline LogMessage(sink_t &sink, const std::string_view &prefix)
-      : _sink(sink), _memory_view(message_buffer.first, message_buffer.second) {
-    _memory_view.append(prefix);
+      : sink_(sink), memory_view_(message_buffer.first, message_buffer.second) {
+    memory_view_.append(prefix);
   }
 
   LogMessage(const LogMessage &) = delete;
@@ -68,30 +68,30 @@ class ROQ_LOGGING_PUBLIC LogMessage final {
 
   inline ~LogMessage() {
     try {
-      _sink(_memory_view);
+      sink_(memory_view_);
     } catch (...) {
     }
   }
   inline void operator()(const std::string_view &format) {
-    _memory_view.append(format);
+    memory_view_.append(format);
   }
   template <typename... Args>
   inline void operator()(const std::string_view &format, Args &&... args) {
     fmt::format_to(
-        std::back_inserter(_memory_view), format, std::forward<Args>(args)...);
+        std::back_inserter(memory_view_), format, std::forward<Args>(args)...);
   }
 
  private:
-  sink_t &_sink;
-  memory_view_t _memory_view;
+  sink_t &sink_;
+  memory_view_t memory_view_;
 };
 
 class ROQ_LOGGING_PUBLIC ErrnoLogMessage final {
  public:
   inline ErrnoLogMessage(sink_t &sink, const std::string_view &prefix)
-      : _sink(sink), _memory_view(message_buffer.first, message_buffer.second),
-        _errnum(errno) {
-    _memory_view.append(prefix);
+      : sink_(sink), memory_view_(message_buffer.first, message_buffer.second),
+        errnum_(errno) {
+    memory_view_.append(prefix);
   }
 
   ErrnoLogMessage(const ErrnoLogMessage &) = delete;
@@ -100,28 +100,28 @@ class ROQ_LOGGING_PUBLIC ErrnoLogMessage final {
   inline ~ErrnoLogMessage() {
     try {
       fmt::format_to(
-          std::back_inserter(_memory_view),
+          std::back_inserter(memory_view_),
           R"(: {} [{}])",
-          std::strerror(_errnum),
-          _errnum);
-      _memory_view.push_back('\0');
-      _sink(_memory_view);
+          std::strerror(errnum_),
+          errnum_);
+      memory_view_.push_back('\0');
+      sink_(memory_view_);
     } catch (...) {
     }
   }
   inline void operator()(const std::string_view &format) {
-    _memory_view.append(format);
+    memory_view_.append(format);
   }
   template <typename... Args>
   inline void operator()(const std::string_view &format, Args &&... args) {
     fmt::format_to(
-        std::back_inserter(_memory_view), format, std::forward<Args>(args)...);
+        std::back_inserter(memory_view_), format, std::forward<Args>(args)...);
   }
 
  private:
-  sink_t &_sink;
-  memory_view_t _memory_view;
-  int _errnum;
+  sink_t &sink_;
+  memory_view_t memory_view_;
+  int errnum_;
 };
 
 class ROQ_LOGGING_PUBLIC NullLogMessage final {

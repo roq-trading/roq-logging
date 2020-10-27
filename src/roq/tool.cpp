@@ -33,19 +33,19 @@ Tool::Tool(
     const std::string_view &git_hash,
     const std::string_view &compile_date,
     const std::string_view &compile_time)
-    : _argv(argv), _argc(initialize_gflags(argc, &_argv, description, version)),
-      _build_type(build_type), _git_hash(git_hash), _compile_date(compile_date),
-      _compile_time(compile_time) {
-  assert(argc > 0);
+    : argv_(argv), argc_(initialize_gflags(argc, &argv_, description, version)),
+      build_type_(build_type), git_hash_(git_hash), compile_date_(compile_date),
+      compile_time_(compile_time) {
+  assert(argc_ > 0);
   auto pattern = "%v";
-  Logger::initialize(argv[0], pattern);
+  Logger::initialize(argv_[0], pattern);
 }
 
 Tool::~Tool() {
 }
 
 int Tool::run() {
-  return main(_argc, _argv);
+  return main(argc_, argv_);
 }
 
 }  // namespace roq

@@ -34,12 +34,12 @@ class ROQ_LOGGING_PUBLIC Tool {
   virtual int main(int argc, char **argv) = 0;
 
  private:
-  char **_argv;
-  int _argc;
-  std::string _build_type;
-  std::string _git_hash;
-  std::string _compile_date;
-  std::string _compile_time;
+  char **argv_;
+  int argc_;
+  std::string build_type_;
+  std::string git_hash_;
+  std::string compile_date_;
+  std::string compile_time_;
 };
 
 }  // namespace roq

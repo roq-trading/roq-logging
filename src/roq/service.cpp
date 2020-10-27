@@ -33,9 +33,9 @@ Service::Service(
     const std::string_view &git_hash,
     const std::string_view &compile_date,
     const std::string_view &compile_time)
-    : _argv(argv), _argc(initialize_gflags(argc, &_argv, description, version)),
-      _build_type(build_type), _git_hash(git_hash), _compile_date(compile_date),
-      _compile_time(compile_time) {
+    : argv_(argv), argc_(initialize_gflags(argc, &argv_, description, version)),
+      build_type_(build_type), git_hash_(git_hash), compile_date_(compile_date),
+      compile_time_(compile_time) {
   assert(argc > 0);
   // matching spdlog pattern to glog
   // - %L = level (I=INFO|W=WARN|E=ERROR|C=CRITICAL)
@@ -59,11 +59,11 @@ int Service::run() {
    R"(name="{}", version="{}", type="{}", git="{}", date="{}", time="{}")",
    gflags::ProgramInvocationShortName(),
    gflags::VersionString(),
-   _build_type,
-   _git_hash,
-   _compile_date,
-   _compile_time);
-  auto res = main(_argc, _argv);
+   build_type_,
+   git_hash_,
+   compile_date_,
+   compile_time_);
+  auto res = main(argc_, argv_);
   LOG_IF(WARNING, res != 0)(R"(exit-code={})", res);
   LOG(INFO)("===== STOP =====");
   return res;

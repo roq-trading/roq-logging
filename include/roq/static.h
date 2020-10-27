@@ -35,26 +35,26 @@ template <size_t N>
 class static_string final {
  public:
   constexpr explicit static_string(const char (&text)[N])
-      : _data{}, _size(N - 1) {
-    for (size_t i = 0; i < N; ++i) _data[i] = text[i];
+      : data_{}, size_(N - 1) {
+    for (size_t i = 0; i < N; ++i) data_[i] = text[i];
   }
   constexpr static_string(const char *text, size_t size)
-      : _data{}, _size(size) {
-    for (size_t i = 0; i < N && i < size; ++i) _data[i] = text[i];
+      : data_{}, size_(size) {
+    for (size_t i = 0; i < N && i < size; ++i) data_[i] = text[i];
   }
   template <size_t M>
   constexpr static_string(const static_string<M> &rhs, size_t size)
-      : _data{}, _size(size) {
-    for (size_t i = 0; i < rhs.size(); ++i) _data[i] = rhs[i];
+      : data_{}, size_(size) {
+    for (size_t i = 0; i < rhs.size(); ++i) data_[i] = rhs[i];
   }
 
-  constexpr const char *data() const { return _data; }
+  constexpr const char *data() const { return data_; }
 
-  constexpr size_t size() const { return _size; }
+  constexpr size_t size() const { return size_; }
 
-  constexpr char &operator[](size_t n) { return _data[n]; }
+  constexpr char &operator[](size_t n) { return data_[n]; }
 
-  constexpr const char &operator[](size_t n) const { return _data[n]; }
+  constexpr const char &operator[](size_t n) const { return data_[n]; }
 
   template <size_t M>
   constexpr auto append(const static_string<M> &rhs) {
@@ -66,10 +66,10 @@ class static_string final {
   constexpr auto basename() const {
     size_t index = 0;
     for (size_t i = 0; i < size(); ++i)
-      if (_data[i] == '/') index = i;
-    while (index < size() && _data[index] == '/') ++index;
-    auto length = _size - index;
-    return static_string<N>(_data + index, length);
+      if (data_[i] == '/') index = i;
+    while (index < size() && data_[index] == '/') ++index;
+    auto length = size_ - index;
+    return static_string<N>(data_ + index, length);
   }
 
   constexpr bool compare(const std::string_view &rhs) {
@@ -77,8 +77,8 @@ class static_string final {
   }
 
  private:
-  char _data[N];
-  size_t _size;
+  char data_[N];
+  size_t size_;
 };
 
 // XXX workaround to manage gcc build issues
@@ -87,23 +87,23 @@ template <size_t N>
 class static_basename_string final {
  public:
   constexpr explicit static_basename_string(const char (&text)[N])
-      : _data{}, _size(N - 1) {
+      : data_{}, size_(N - 1) {
     size_t index = 0;
     for (size_t i = 0; i < N; ++i)
       if (text[i] == '/') index = i;
     while (index < N && text[index] == '/') ++index;
-    _size -= index;
-    for (size_t i = 0; i < (_size + 1); ++i)
-      _data[i] = text[index + i];  // will include null terminator
+    size_ -= index;
+    for (size_t i = 0; i < (size_ + 1); ++i)
+      data_[i] = text[index + i];  // will include null terminator
   }
 
-  constexpr const char *data() const { return _data; }
+  constexpr const char *data() const { return data_; }
 
-  constexpr size_t size() const { return _size; }
+  constexpr size_t size() const { return size_; }
 
-  constexpr char &operator[](size_t n) { return _data[n]; }
+  constexpr char &operator[](size_t n) { return data_[n]; }
 
-  constexpr const char &operator[](size_t n) const { return _data[n]; }
+  constexpr const char &operator[](size_t n) const { return data_[n]; }
 
   template <size_t M>
   constexpr auto append(const static_string<M> &rhs) {
@@ -117,8 +117,8 @@ class static_basename_string final {
   }
 
  private:
-  char _data[N];
-  size_t _size;
+  char data_[N];
+  size_t size_;
 };
 
 static_assert(static_basename_string("").compare("") == 0);
