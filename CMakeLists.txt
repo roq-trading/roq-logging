@@ -8,6 +8,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 include(GetGitRepoVersion)
 
+message("Using GIT_REPO_VERSION=${GIT_REPO_VERSION}")
+
 # project
 
 project(roq-logging VERSION ${GIT_REPO_VERSION})
