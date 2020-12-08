@@ -23,6 +23,7 @@ requirements:
   host:
     - gflags >=2.2
     - roq-oss-abseil-cpp
+    - roq-oss-doxygen
     - roq-oss-fmt
     - roq-oss-libunwind  # [linux]
     - roq-oss-spdlog
