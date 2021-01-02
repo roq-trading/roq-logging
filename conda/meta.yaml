@@ -9,7 +9,7 @@ source:
   path: ..
 
 build:
-  skip: True  # [win and osx]
+  skip: true  # [win and osx]
   number: {{ number }}
   run_exports:
     strong:
@@ -21,15 +21,15 @@ requirements:
     - cmake
     - make
   host:
+    - abseil-cpp
+    - doxygen
+    - fmt
     - gflags >=2.2
-    - roq-oss-abseil-cpp
-    - roq-oss-doxygen
-    - roq-oss-fmt
     - roq-oss-libunwind  # [linux]
-    - roq-oss-spdlog
+    - spdlog
   run:
+    - abseil-cpp
     - gflags >=2.2
-    - roq-oss-abseil-cpp
 
 about:
   home: https://roq-trading.com
