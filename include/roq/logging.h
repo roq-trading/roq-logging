@@ -76,7 +76,7 @@ class ROQ_LOGGING_PUBLIC LogMessage final {
     memory_view_.append(format);
   }
   template <typename... Args>
-  inline void operator()(const std::string_view &format, Args &&...args) {
+  inline void operator()(const std::string_view &format, Args &&... args) {
     fmt::format_to(
         std::back_inserter(memory_view_), format, std::forward<Args>(args)...);
   }
@@ -113,7 +113,7 @@ class ROQ_LOGGING_PUBLIC ErrnoLogMessage final {
     memory_view_.append(format);
   }
   template <typename... Args>
-  inline void operator()(const std::string_view &format, Args &&...args) {
+  inline void operator()(const std::string_view &format, Args &&... args) {
     fmt::format_to(
         std::back_inserter(memory_view_), format, std::forward<Args>(args)...);
   }
@@ -133,7 +133,7 @@ class ROQ_LOGGING_PUBLIC NullLogMessage final {
 
   inline void operator()(const std::string_view &) {}
   template <typename... Args>
-  inline void operator()(const std::string_view &format, Args &&...args) {}
+  inline void operator()(const std::string_view &format, Args &&... args) {}
 };
 
 }  // namespace detail
