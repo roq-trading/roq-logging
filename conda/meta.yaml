@@ -19,10 +19,10 @@ requirements:
   build:
     - {{ compiler('cxx') }}
     - cmake
+    - doxygen
     - make
   host:
     - abseil-cpp
-    - doxygen
     - fmt
     - gflags >=2.2
     - roq-oss-libunwind  # [linux]
