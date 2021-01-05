@@ -98,7 +98,7 @@ static void termination_handler(int sig, siginfo_t *info, void *) {
   void *addr[32];
   int depth = absl::GetStackTrace(addr, std::size(addr), 0);
   if (depth) {
-    char name[1024];
+    char name[256];
     for (int i = 0; i < depth; ++i) {
       const char *symbol = "(unknown)";
       auto result = absl::Symbolize(addr[0], name, sizeof(name));
