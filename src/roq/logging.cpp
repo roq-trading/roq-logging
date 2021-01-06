@@ -102,7 +102,8 @@ static void termination_handler(int sig, siginfo_t *info, void *) {
     for (int i = 0; i < depth; ++i) {
       const char *symbol = "(unknown)";
       auto result = absl::Symbolize(addr[0], name, sizeof(name));
-      if (result) symbol = name;
+      if (result)
+        symbol = name;
       fprintf(stderr, "[%2d] %p %s\n", i, addr[i], symbol);
     }
   } else {
@@ -130,15 +131,18 @@ namespace detail {
 int verbosity = 0;
 
 sink_t info = [](const std::string_view &message) {
-  if (likely(spdlog_logger)) spdlog_logger->info(message);
+  if (likely(spdlog_logger))
+    spdlog_logger->info(message);
 };
 
 sink_t warning = [](const std::string_view &message) {
-  if (likely(spdlog_logger)) spdlog_logger->warn(message);
+  if (likely(spdlog_logger))
+    spdlog_logger->warn(message);
 };
 
 sink_t error = [](const std::string_view &message) {
-  if (likely(spdlog_logger)) spdlog_logger->error(message);
+  if (likely(spdlog_logger))
+    spdlog_logger->error(message);
 };
 
 sink_t critical = [](const std::string_view &message) {
@@ -173,7 +177,8 @@ void Logger::initialize(
   auto verbosity = std::getenv("ROQ_v");
   if (verbosity != nullptr && std::strlen(verbosity) > 0)
     detail::verbosity = std::atoi(verbosity);
-  if (stacktrace) install_failure_signal_handler();
+  if (stacktrace)
+    install_failure_signal_handler();
 }
 
 void Logger::shutdown() {

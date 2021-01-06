@@ -56,14 +56,16 @@ void print_stacktrace(int /*signal*/, siginfo_t *info) {
       name = proc_name;
       demangled_name =
           abi::__cxa_demangle(proc_name, nullptr, nullptr, &status);
-      if (status == 0) name = demangled_name;
+      if (status == 0)
+        name = demangled_name;
     }
 #if defined(__linux__)
     fprintf(stderr, "[%2d] %#*lx %s\n", index, width, ip, name);
 #elif defined(__APPLE__)
     fprintf(stderr, "[%2d] %#*llx %s\n", index, width, ip, name);
 #endif
-    if (demangled_name) free(demangled_name);
+    if (demangled_name)
+      free(demangled_name);
   }
 }
 

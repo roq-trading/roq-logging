@@ -19,7 +19,8 @@ constexpr std::size_t static_strlen(const char *s) {
 constexpr const char *static_strrchr(const char *s, char c) {
   const char *res = s;
   for (auto iter = s; *iter != '\0'; ++iter)
-    if (*iter == c) res = iter;
+    if (*iter == c)
+      res = iter;
   return res;
 }
 constexpr const char *static_basename(const char *path) {
@@ -66,7 +67,8 @@ class static_string final {
   constexpr auto basename() const {
     size_t index = 0;
     for (size_t i = 0; i < size(); ++i)
-      if (data_[i] == '/') index = i;
+      if (data_[i] == '/')
+        index = i;
     while (index < size() && data_[index] == '/') ++index;
     auto length = size_ - index;
     return static_string<N>(data_ + index, length);
@@ -90,7 +92,8 @@ class static_basename_string final {
       : data_{}, size_(N - 1) {
     size_t index = 0;
     for (size_t i = 0; i < N; ++i)
-      if (text[i] == '/') index = i;
+      if (text[i] == '/')
+        index = i;
     while (index < N && text[index] == '/') ++index;
     size_ -= index;
     for (size_t i = 0; i < (size_ + 1); ++i)

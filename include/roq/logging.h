@@ -41,7 +41,8 @@ class ROQ_LOGGING_PUBLIC basic_memory_view_t final {
   inline size_t size() const { return iter_ - begin_; }
   inline size_t remain() const { return end_ - iter_; }
   inline void push_back(char value) {
-    if (iter_ < end_) *(iter_++) = value;
+    if (iter_ < end_)
+      *(iter_++) = value;
     // note! silently drop if the buffer is full
   }
   inline void append(const std::string_view &text) {
