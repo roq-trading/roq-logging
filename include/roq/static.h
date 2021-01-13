@@ -25,7 +25,8 @@ constexpr const char *static_strrchr(const char *s, char c) {
 }
 constexpr const char *static_basename(const char *path) {
   auto res = static_strrchr(path, '/');
-  while (*res == '/') ++res;
+  while (*res == '/')
+    ++res;
   return res;
 }
 
@@ -37,16 +38,19 @@ class static_string final {
  public:
   constexpr explicit static_string(const char (&text)[N])
       : data_{}, size_(N - 1) {
-    for (size_t i = 0; i < N; ++i) data_[i] = text[i];
+    for (size_t i = 0; i < N; ++i)
+      data_[i] = text[i];
   }
   constexpr static_string(const char *text, size_t size)
       : data_{}, size_(size) {
-    for (size_t i = 0; i < N && i < size; ++i) data_[i] = text[i];
+    for (size_t i = 0; i < N && i < size; ++i)
+      data_[i] = text[i];
   }
   template <size_t M>
   constexpr static_string(const static_string<M> &rhs, size_t size)
       : data_{}, size_(size) {
-    for (size_t i = 0; i < rhs.size(); ++i) data_[i] = rhs[i];
+    for (size_t i = 0; i < rhs.size(); ++i)
+      data_[i] = rhs[i];
   }
 
   constexpr const char *data() const { return data_; }
@@ -60,7 +64,8 @@ class static_string final {
   template <size_t M>
   constexpr auto append(const static_string<M> &rhs) {
     static_string<N + M> res(*this, size() + rhs.size());
-    for (size_t i = 0; i < rhs.size(); ++i) res[size() + i] = rhs[i];
+    for (size_t i = 0; i < rhs.size(); ++i)
+      res[size() + i] = rhs[i];
     return res;
   }
 
@@ -69,7 +74,8 @@ class static_string final {
     for (size_t i = 0; i < size(); ++i)
       if (data_[i] == '/')
         index = i;
-    while (index < size() && data_[index] == '/') ++index;
+    while (index < size() && data_[index] == '/')
+      ++index;
     auto length = size_ - index;
     return static_string<N>(data_ + index, length);
   }
@@ -94,7 +100,8 @@ class static_basename_string final {
     for (size_t i = 0; i < N; ++i)
       if (text[i] == '/')
         index = i;
-    while (index < N && text[index] == '/') ++index;
+    while (index < N && text[index] == '/')
+      ++index;
     size_ -= index;
     for (size_t i = 0; i < (size_ + 1); ++i)
       data_[i] = text[index + i];  // will include null terminator
@@ -111,7 +118,8 @@ class static_basename_string final {
   template <size_t M>
   constexpr auto append(const static_string<M> &rhs) {
     static_string<N + M> res(data(), size() + rhs.size());
-    for (size_t i = 0; i < rhs.size(); ++i) res[size() + i] = rhs[i];
+    for (size_t i = 0; i < rhs.size(); ++i)
+      res[size() + i] = rhs[i];
     return res;
   }
 
