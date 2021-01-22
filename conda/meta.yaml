@@ -11,9 +11,6 @@ source:
 build:
   skip: true  # [win and osx]
   number: {{ number }}
-  run_exports:
-    strong:
-      - {{ pin_compatible('gflags', max_pin='x.x') }}
 
 requirements:
   build:
@@ -24,12 +21,10 @@ requirements:
   host:
     - abseil-cpp
     - fmt
-    - gflags >=2.2
     - roq-oss-libunwind  # [linux]
     - spdlog
   run:
     - abseil-cpp
-    - gflags >=2.2
 
 about:
   home: https://roq-trading.com

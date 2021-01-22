@@ -44,7 +44,6 @@ find_package(Libunwind REQUIRED)
 
 find_package(absl REQUIRED)
 find_package(fmt REQUIRED)
-find_package(gflags REQUIRED)
 find_package(spdlog REQUIRED)
 
 # include

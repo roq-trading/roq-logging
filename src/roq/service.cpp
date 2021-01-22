@@ -2,25 +2,24 @@
 
 #include "roq/service.h"
 
-#include <gflags/gflags.h>
+#include <absl/flags/parse.h>
+#include <absl/flags/usage.h>
 
 #include <cassert>
 
 namespace roq {
 
 namespace {
-static int initialize_gflags(
+static auto initialize_flags(
     int argc,
-    char ***argv,
+    char **argv,
     const std::string_view &description,
     const std::string_view &version) {
   assert(description.length() > 0);
   assert(version.length() > 0);
-  gflags::SetUsageMessage(description.data());
-  gflags::SetVersionString(version.data());
-  gflags::ParseCommandLineFlags(&argc, argv, true);
-  gflags::ShutDownCommandLineFlags();
-  return argc;
+  absl::SetProgramUsageMessage(description.data());
+  // gflags::SetVersionString(version.data());
+  return absl::ParseCommandLine(argc, argv);
 }
 }  // namespace
 
@@ -33,7 +32,7 @@ Service::Service(
     const std::string_view &git_hash,
     const std::string_view &compile_date,
     const std::string_view &compile_time)
-    : argv_(argv), argc_(initialize_gflags(argc, &argv_, description, version)),
+    : args_(initialize_flags(argc, argv, description, version)),
       build_type_(build_type), git_hash_(git_hash), compile_date_(compile_date),
       compile_time_(compile_time) {
   assert(argc > 0);
@@ -46,7 +45,7 @@ Service::Service(
   // - %t = thread (int)
   // - %v = message
   auto pattern = "%L%m%d %T.%f %t %v";
-  Logger::initialize(argv[0], pattern);
+  Logger::initialize(args_[0], pattern);
 }
 
 Service::~Service() {
@@ -54,16 +53,18 @@ Service::~Service() {
 
 int Service::run() {
   LOG(INFO)("===== START =====");
+  /* XXX HANS
   LOG(INFO)
   (R"(Process: )"
    R"(name="{}", version="{}", type="{}", git="{}", date="{}", time="{}")",
-   gflags::ProgramInvocationShortName(),
-   gflags::VersionString(),
+   absl::ProgramInvocationShortName(),
+   absl::VersionString(),
    build_type_,
    git_hash_,
    compile_date_,
    compile_time_);
-  auto res = main(argc_, argv_);
+  */
+  auto res = main(args_.size(), args_.data());
   LOG_IF(WARNING, res != 0)(R"(exit-code={})", res);
   LOG(INFO)("===== STOP =====");
   return res;

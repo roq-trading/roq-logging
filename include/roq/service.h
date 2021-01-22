@@ -4,12 +4,13 @@
 
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include "roq/logging.h"
 
 namespace roq {
 
-//! Convenience class to wrap \ref roq::Logger, gflags, etc.
+//! Convenience class to wrap \ref roq::Logger, absl::flags, etc.
 class ROQ_LOGGING_PUBLIC Service {
  public:
   Service(
@@ -34,8 +35,7 @@ class ROQ_LOGGING_PUBLIC Service {
   virtual int main(int argc, char **argv) = 0;
 
  private:
-  char **argv_;
-  int argc_;
+  std::vector<char *> args_;
   std::string build_type_;
   std::string git_hash_;
   std::string compile_date_;
