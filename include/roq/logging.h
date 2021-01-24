@@ -35,9 +35,7 @@ class ROQ_LOGGING_PUBLIC basic_memory_view_t final {
   using value_type = T;
   inline basic_memory_view_t(value_type *buffer, size_t length)
       : iter_(buffer), begin_(buffer), end_(buffer + length) {}
-  inline operator std::string_view() const {
-    return std::string_view(begin_, size());
-  }
+  inline operator std::string_view() const { return std::string_view(begin_, size()); }
   inline size_t size() const { return iter_ - begin_; }
   inline size_t remain() const { return end_ - iter_; }
   inline void push_back(char value) {
@@ -45,9 +43,7 @@ class ROQ_LOGGING_PUBLIC basic_memory_view_t final {
       *(iter_++) = value;
     // note! silently drop if the buffer is full
   }
-  inline void append(const std::string_view &text) {
-    iter_ += text.copy(iter_, remain());
-  }
+  inline void append(const std::string_view &text) { iter_ += text.copy(iter_, remain()); }
 
  private:
   value_type *iter_;
@@ -73,13 +69,10 @@ class ROQ_LOGGING_PUBLIC LogMessage final {
     } catch (...) {
     }
   }
-  inline void operator()(const std::string_view &format) {
-    memory_view_.append(format);
-  }
+  inline void operator()(const std::string_view &format) { memory_view_.append(format); }
   template <typename... Args>
   inline void operator()(const std::string_view &format, Args &&... args) {
-    fmt::format_to(
-        std::back_inserter(memory_view_), format, std::forward<Args>(args)...);
+    fmt::format_to(std::back_inserter(memory_view_), format, std::forward<Args>(args)...);
   }
 
  private:
@@ -90,8 +83,7 @@ class ROQ_LOGGING_PUBLIC LogMessage final {
 class ROQ_LOGGING_PUBLIC ErrnoLogMessage final {
  public:
   inline ErrnoLogMessage(sink_t &sink, const std::string_view &prefix)
-      : sink_(sink), memory_view_(message_buffer.first, message_buffer.second),
-        errnum_(errno) {
+      : sink_(sink), memory_view_(message_buffer.first, message_buffer.second), errnum_(errno) {
     memory_view_.append(prefix);
   }
 
@@ -101,22 +93,16 @@ class ROQ_LOGGING_PUBLIC ErrnoLogMessage final {
   inline ~ErrnoLogMessage() {
     try {
       fmt::format_to(
-          std::back_inserter(memory_view_),
-          R"(: {} [{}])",
-          std::strerror(errnum_),
-          errnum_);
+          std::back_inserter(memory_view_), R"(: {} [{}])", std::strerror(errnum_), errnum_);
       memory_view_.push_back('\0');
       sink_(memory_view_);
     } catch (...) {
     }
   }
-  inline void operator()(const std::string_view &format) {
-    memory_view_.append(format);
-  }
+  inline void operator()(const std::string_view &format) { memory_view_.append(format); }
   template <typename... Args>
   inline void operator()(const std::string_view &format, Args &&... args) {
-    fmt::format_to(
-        std::back_inserter(memory_view_), format, std::forward<Args>(args)...);
+    fmt::format_to(std::back_inserter(memory_view_), format, std::forward<Args>(args)...);
   }
 
  private:

@@ -36,19 +36,16 @@ constexpr const char *static_basename(const char *path) {
 template <size_t N>
 class static_string final {
  public:
-  constexpr explicit static_string(const char (&text)[N])
-      : data_{}, size_(N - 1) {
+  constexpr explicit static_string(const char (&text)[N]) : data_{}, size_(N - 1) {
     for (size_t i = 0; i < N; ++i)
       data_[i] = text[i];
   }
-  constexpr static_string(const char *text, size_t size)
-      : data_{}, size_(size) {
+  constexpr static_string(const char *text, size_t size) : data_{}, size_(size) {
     for (size_t i = 0; i < N && i < size; ++i)
       data_[i] = text[i];
   }
   template <size_t M>
-  constexpr static_string(const static_string<M> &rhs, size_t size)
-      : data_{}, size_(size) {
+  constexpr static_string(const static_string<M> &rhs, size_t size) : data_{}, size_(size) {
     for (size_t i = 0; i < rhs.size(); ++i)
       data_[i] = rhs[i];
   }
@@ -94,8 +91,7 @@ class static_string final {
 template <size_t N>
 class static_basename_string final {
  public:
-  constexpr explicit static_basename_string(const char (&text)[N])
-      : data_{}, size_(N - 1) {
+  constexpr explicit static_basename_string(const char (&text)[N]) : data_{}, size_(N - 1) {
     size_t index = 0;
     for (size_t i = 0; i < N; ++i)
       if (text[i] == '/')
@@ -138,8 +134,6 @@ static_assert(static_basename_string("abc/def").compare("def") == 0);
 static_assert(static_basename_string("abc/def/ghi").compare("ghi") == 0);
 
 static_assert(
-    static_basename_string("abc/def")
-        .append(static_string(":123"))
-        .compare("def:123") == 0);
+    static_basename_string("abc/def").append(static_string(":123")).compare("def:123") == 0);
 
 }  // namespace roq

@@ -13,10 +13,7 @@ namespace roq {
 namespace {
 static char VERSION[32] = {};
 static auto initialize_flags(
-    int argc,
-    char **argv,
-    const std::string_view &description,
-    const std::string_view &version) {
+    int argc, char **argv, const std::string_view &description, const std::string_view &version) {
   assert(description.length() > 0);
   absl::SetProgramUsageMessage(description.data());
   assert(version.length() > 0);
@@ -47,9 +44,8 @@ Service::Service(
     const std::string_view &git_hash,
     const std::string_view &compile_date,
     const std::string_view &compile_time)
-    : args_(initialize_flags(argc, argv, description, version)),
-      build_type_(build_type), git_hash_(git_hash), compile_date_(compile_date),
-      compile_time_(compile_time) {
+    : args_(initialize_flags(argc, argv, description, version)), build_type_(build_type),
+      git_hash_(git_hash), compile_date_(compile_date), compile_time_(compile_time) {
   assert(argc > 0);
   // matching spdlog pattern to glog
   // - %L = level (I=INFO|W=WARN|E=ERROR|C=CRITICAL)

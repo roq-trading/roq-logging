@@ -61,8 +61,7 @@ struct page_aligned_vector : public std::vector<T, page_aligned_allocator<T> > {
 
 thread_local page_aligned_vector<char> RAW_BUFFER(MESSAGE_BUFFER_SIZE);
 
-thread_local std::pair<char *, size_t> message_buffer(
-    &RAW_BUFFER[0], RAW_BUFFER.size());
+thread_local std::pair<char *, size_t> message_buffer(&RAW_BUFFER[0], RAW_BUFFER.size());
 }  // namespace detail
 
 namespace {
@@ -155,9 +154,7 @@ sink_t critical = [](const std::string_view &message) {
 }  // namespace detail
 
 void Logger::initialize(
-    const std::string_view &arg0,
-    const std::string_view &pattern,
-    bool stacktrace) {
+    const std::string_view &arg0, const std::string_view &pattern, bool stacktrace) {
   // abseil
   initialize_abseil(arg0);
   // spdlog

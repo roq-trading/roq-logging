@@ -54,8 +54,7 @@ void print_stacktrace(int /*signal*/, siginfo_t *info) {
       }
     } else {
       name = proc_name;
-      demangled_name =
-          abi::__cxa_demangle(proc_name, nullptr, nullptr, &status);
+      demangled_name = abi::__cxa_demangle(proc_name, nullptr, nullptr, &status);
       if (status == 0)
         name = demangled_name;
     }
