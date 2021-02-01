@@ -12,7 +12,6 @@ Logging utilities.
 
 * [fmt](https://github.com/fmtlib/fmt) (MIT License)
 * [spdlog](https://github.com/gabime/spdlog) (MIT License)
-* [gflags](https://github.com/gflags/gflags) (BDS 3-Clause License)
 * [Abseil](https://github.com/abseil/abseil-cpp) (Apache 2.0 License)
 * [libunwind](https://github.com/libunwind/libunwind) (MIT License)
 
@@ -26,23 +25,22 @@ Optional
 The project is designed to be compatible with the conda package manager.
 
 ```bash
-wget -N https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+wget -N https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
 
-bash Miniconda3-latest-Linux-x86_64.sh -b -u -p ~/miniconda3
+bash Miniforge3-Linux-x86_64.sh -b -u -p ~/conda
 
-source ~/miniconda3/bin/activate
+source ~/conda/bin/activate
 
 conda install -y \
     git \
     cmake \
-    gxx_linux-64
+    gxx_linux-64 \
+    abseil-cpp \
+    fmt \
+    spdlog
 
 conda install -y --channel https://roq-trading.com/conda/stable \
-    roq-oss-abseil-cpp \
-    roq-oss-fmt \
-    roq-oss-libunwind \
-    roq-oss-spdlog \
-    gflags
+    roq-oss-libunwind
 ```
 
 
