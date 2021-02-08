@@ -30,6 +30,7 @@ static auto initialize_flags(
         return std::string{file};
       },
   };
+  absl::SetFlagsUsageConfig(config);
   return absl::ParseCommandLine(argc, argv);
 }
 }  // namespace
