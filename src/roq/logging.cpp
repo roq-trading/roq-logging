@@ -26,6 +26,8 @@
 #include "roq/unwind.h"
 #endif
 
+using namespace std::literals;  // NOLINT
+
 namespace roq {
 
 constexpr size_t MESSAGE_BUFFER_SIZE = 65536;
@@ -161,11 +163,11 @@ void Logger::initialize(
   auto terminal = ::isatty(fileno(stdout));
   std::shared_ptr<spdlog::logger> logger;
   if (terminal) {
-    logger = spdlog::stdout_logger_st("spdlog");
+    logger = spdlog::stdout_logger_st("spdlog"s);
   } else {
     spdlog::init_thread_pool(SPDLOG_QUEUE_SIZE, SPDLOG_THREAD_COUNT);
     spdlog::flush_every(std::chrono::seconds(SPDLOG_FLUSH_SECONDS));
-    logger = spdlog::stdout_logger_st<spdlog::async_factory>("spdlog");
+    logger = spdlog::stdout_logger_st<spdlog::async_factory>("spdlog"s);
   }
   logger->set_pattern(std::string(pattern));
   logger->flush_on(spdlog::level::warn);

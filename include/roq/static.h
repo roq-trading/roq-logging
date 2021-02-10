@@ -128,12 +128,4 @@ class static_basename_string final {
   size_t size_;
 };
 
-static_assert(static_basename_string("").compare("") == 0);
-static_assert(static_basename_string("abc").compare("abc") == 0);
-static_assert(static_basename_string("abc/def").compare("def") == 0);
-static_assert(static_basename_string("abc/def/ghi").compare("ghi") == 0);
-
-static_assert(
-    static_basename_string("abc/def").append(static_string(":123")).compare("def:123") == 0);
-
 }  // namespace roq

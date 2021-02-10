@@ -8,6 +8,8 @@
 
 #include <cassert>
 
+using namespace std::literals;  // NOLINT
+
 namespace roq {
 
 namespace {
@@ -25,8 +27,8 @@ static auto initialize_flags(
       .contains_helppackage_flags = {},
       .version_string = []() { return VERSION; },
       .normalize_filename = [](const std::string_view &file) -> std::string {
-        if (file.find("roq") != file.npos)
-          return "roq";
+        if (file.find("roq"sv) != file.npos)
+          return "roq"s;
         return std::string{file};
       },
   };
@@ -55,7 +57,7 @@ Service::Service(
   // - %f = fraction (microseconds)
   // - %t = thread (int)
   // - %v = message
-  auto pattern = "%L%m%d %T.%f %t %v";
+  auto pattern = "%L%m%d %T.%f %t %v"sv;
   Logger::initialize(args_[0], pattern);
 }
 
@@ -63,11 +65,11 @@ Service::~Service() {
 }
 
 int Service::run() {
-  LOG(INFO)("===== START =====");
+  LOG(INFO)("===== START ====="sv);
   /* XXX HANS
   LOG(INFO)
   (R"(Process: )"
-   R"(name="{}", version="{}", type="{}", git="{}", date="{}", time="{}")",
+   R"(name="{}", version="{}", type="{}", git="{}", date="{}", time="{}")"sv,
    absl::ProgramInvocationShortName(),
    absl::VersionString(),
    build_type_,
@@ -76,8 +78,8 @@ int Service::run() {
    compile_time_);
   */
   auto res = main(args_.size(), args_.data());
-  LOG_IF(WARNING, res != 0)(R"(exit-code={})", res);
-  LOG(INFO)("===== STOP =====");
+  LOG_IF(WARNING, res != 0)(R"(exit-code={})"sv, res);
+  LOG(INFO)("===== STOP ====="sv);
   return res;
 }
 

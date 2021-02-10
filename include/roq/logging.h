@@ -91,9 +91,10 @@ class ROQ_LOGGING_PUBLIC ErrnoLogMessage final {
   ErrnoLogMessage(ErrnoLogMessage &&) = delete;
 
   inline ~ErrnoLogMessage() {
+    using namespace std::literals;  // NOLINT
     try {
       fmt::format_to(
-          std::back_inserter(memory_view_), R"(: {} [{}])", std::strerror(errnum_), errnum_);
+          std::back_inserter(memory_view_), R"(: {} [{}])"sv, std::strerror(errnum_), errnum_);
       memory_view_.push_back('\0');
       sink_(memory_view_);
     } catch (...) {
