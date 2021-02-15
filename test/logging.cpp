@@ -8,7 +8,7 @@
 int my_argc;
 char **my_argv;
 
-using namespace roq;  // NOLINT
+using namespace roq;
 
 TEST(logging, start_stop) {
   assert(my_argc > 0);
