@@ -21,6 +21,7 @@ requirements:
   host:
     - abseil-cpp
     - fmt
+    - roq-api =={{ version }}
     - roq-oss-libunwind  # [linux]
     - spdlog
   run:

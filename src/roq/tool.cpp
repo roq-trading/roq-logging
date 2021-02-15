@@ -8,7 +8,7 @@
 
 #include <cassert>
 
-using namespace std::literals;  // NOLINT
+using namespace roq::literals;
 
 namespace roq {
 
@@ -27,8 +27,8 @@ static auto initialize_flags(
       .contains_helppackage_flags = {},
       .version_string = []() { return VERSION; },
       .normalize_filename = [](const std::string_view &file) -> std::string {
-        if (file.find("roq"sv) != file.npos)
-          return "roq"s;
+        if (file.find("roq"_sv) != file.npos)
+          return "roq"_s;
         return std::string{file};
       },
   };
@@ -49,7 +49,7 @@ Tool::Tool(
     : args_(initialize_flags(argc, argv, description, version)), build_type_(build_type),
       git_hash_(git_hash), compile_date_(compile_date), compile_time_(compile_time) {
   assert(args_.size() > 0);
-  auto pattern = "%v"sv;
+  auto pattern = "%v"_sv;
   Logger::initialize(args_[0], pattern);
 }
 

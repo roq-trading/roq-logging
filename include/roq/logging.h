@@ -8,13 +8,14 @@
 #define ROQ_LOGGING_PUBLIC
 #endif
 
-#include <fmt/format.h>
-
 #include <functional>
 #include <string_view>
 #include <utility>
 
 #include "roq/static.h"
+
+#include "roq/format.h"
+#include "roq/literals.h"
 
 namespace roq {
 
@@ -69,10 +70,10 @@ class ROQ_LOGGING_PUBLIC LogMessage final {
     } catch (...) {
     }
   }
-  inline void operator()(const std::string_view &format) { memory_view_.append(format); }
+  inline void operator()(const std::string_view &text) { memory_view_.append(text); }
   template <typename... Args>
-  inline void operator()(const std::string_view &format, Args &&... args) {
-    fmt::format_to(std::back_inserter(memory_view_), format, std::forward<Args>(args)...);
+  inline void operator()(const roq::format_str &fmt, Args &&... args) {
+    roq::format_to(std::back_inserter(memory_view_), fmt, std::forward<Args>(args)...);
   }
 
  private:
@@ -91,19 +92,19 @@ class ROQ_LOGGING_PUBLIC ErrnoLogMessage final {
   ErrnoLogMessage(ErrnoLogMessage &&) = delete;
 
   inline ~ErrnoLogMessage() {
-    using namespace std::literals;
+    using namespace roq::literals;
     try {
-      fmt::format_to(
-          std::back_inserter(memory_view_), R"(: {} [{}])"sv, std::strerror(errnum_), errnum_);
+      roq::format_to(
+          std::back_inserter(memory_view_), R"(: {} [{}])"_fmt, std::strerror(errnum_), errnum_);
       memory_view_.push_back('\0');
       sink_(memory_view_);
     } catch (...) {
     }
   }
-  inline void operator()(const std::string_view &format) { memory_view_.append(format); }
+  inline void operator()(const std::string_view &text) { memory_view_.append(text); }
   template <typename... Args>
-  inline void operator()(const std::string_view &format, Args &&... args) {
-    fmt::format_to(std::back_inserter(memory_view_), format, std::forward<Args>(args)...);
+  inline void operator()(const roq::format_str &fmt, Args &&... args) {
+    roq::format_to(std::back_inserter(memory_view_), fmt, std::forward<Args>(args)...);
   }
 
  private:
@@ -121,7 +122,7 @@ class ROQ_LOGGING_PUBLIC NullLogMessage final {
 
   inline void operator()(const std::string_view &) {}
   template <typename... Args>
-  inline void operator()(const std::string_view &format, Args &&... args) {}
+  inline void operator()(const roq::format_str &, Args &&...) {}
 };
 
 }  // namespace detail

@@ -40,7 +40,8 @@ conda install -y \
     spdlog
 
 conda install -y --channel https://roq-trading.com/conda/stable \
-    roq-oss-libunwind
+    roq-oss-libunwind \
+    roq-api
 ```
 
 
