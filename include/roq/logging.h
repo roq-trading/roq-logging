@@ -72,7 +72,7 @@ class ROQ_LOGGING_PUBLIC LogMessage final {
   }
   inline void operator()(const std::string_view &text) { memory_view_.append(text); }
   template <typename... Args>
-  inline void operator()(const roq::format_str &fmt, Args &&... args) {
+  inline void operator()(const roq::format_str &fmt, Args &&...args) {
     roq::format_to(std::back_inserter(memory_view_), fmt, std::forward<Args>(args)...);
   }
 
@@ -103,7 +103,7 @@ class ROQ_LOGGING_PUBLIC ErrnoLogMessage final {
   }
   inline void operator()(const std::string_view &text) { memory_view_.append(text); }
   template <typename... Args>
-  inline void operator()(const roq::format_str &fmt, Args &&... args) {
+  inline void operator()(const roq::format_str &fmt, Args &&...args) {
     roq::format_to(std::back_inserter(memory_view_), fmt, std::forward<Args>(args)...);
   }
 
