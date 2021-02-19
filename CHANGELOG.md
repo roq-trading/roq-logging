@@ -4,9 +4,11 @@ All notable changes will be documented in this file.
 
 ## Head
 
+## 0.6.1 &ndash; 2021-02-19
+
 ### Changed
 
-* Use std string literals
+* Use string literals
 * Enforce use of `roq::format_str` or the `_fmt` literal
 * Now depends on `roq-api`
 
