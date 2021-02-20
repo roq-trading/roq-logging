@@ -109,5 +109,5 @@ install(
 
 set(CPACK_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "thraneh@gmail.com")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "roq-api")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "roq-api, libabsl-dev, libspdlog-dev, libunwind-dev")
 include(CPack)
