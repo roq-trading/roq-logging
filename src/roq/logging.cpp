@@ -46,7 +46,9 @@ struct aligned_allocator {
 
   T *allocate(std::size_t size) {
 #if __APPLE__
-    auto result = aligned_alloc(alignment, size);
+    void* result;
+    if (posix_memalign(&result, alignment, size) != 0)
+      throw std::bad_alloc();
 #else
     auto result = std::aligned_alloc(alignment, size);
 #endif
