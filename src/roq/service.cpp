@@ -20,7 +20,7 @@ static auto initialize_flags(
   absl::SetProgramUsageMessage(description.data());
   assert(version.length() > 0);
   assert(version.length() < (sizeof(VERSION) - 1));
-  version.copy(VERSION, sizeof(VERSION - 1));
+  version.copy(VERSION, sizeof(VERSION) - 1);
   absl::FlagsUsageConfig config{
       .contains_helpshort_flags = {},
       .contains_help_flags = [](auto) { return true; },

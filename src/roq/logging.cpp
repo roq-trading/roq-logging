@@ -20,6 +20,7 @@
 #include <spdlog/spdlog.h>
 
 #include <chrono>
+#include <cstdlib>
 #include <memory>
 
 #if defined(USE_UNWIND)
@@ -44,7 +45,11 @@ struct aligned_allocator {
   aligned_allocator() = default;
 
   T *allocate(std::size_t size) {
+#if __APPLE__
+    auto result = aligned_alloc(alignment, size);
+#else
     auto result = std::aligned_alloc(alignment, size);
+#endif
     return reinterpret_cast<T *>(result);
   }
   void deallocate(T *pointer, std::size_t) noexcept { ::free(pointer); }
