@@ -37,7 +37,7 @@ include(GNUInstallDirs)
 # dependencies
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-find_package(Libunwind REQUIRED)
+  find_package(Libunwind REQUIRED)
 endif()
 
 find_package(absl REQUIRED)
@@ -51,6 +51,7 @@ include_directories("${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/src")
 
 # sub-projects
 
+add_subdirectory("${CMAKE_SOURCE_DIR}/src/roq/compat")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/roq")
 
 # install (public headers)
@@ -107,7 +108,7 @@ install(
 
 option(BUILD_DEB "Enable debian packaging?" OFF)
 
-if (BUILD_DEB)
+if(BUILD_DEB)
   set(CPACK_GENERATOR "DEB")
   set(CPACK_DEBIAN_PACKAGE_MAINTAINER "thraneh@gmail.com")
   set(CPACK_DEBIAN_PACKAGE_DEPENDS "roq-api, libabsl-dev, libspdlog-dev, libunwind-dev")

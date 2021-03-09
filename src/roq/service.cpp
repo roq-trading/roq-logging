@@ -2,38 +2,20 @@
 
 #include "roq/service.h"
 
-#include <absl/flags/parse.h>
-#include <absl/flags/usage.h>
-#include <absl/flags/usage_config.h>
-
 #include <cassert>
+
+#include "roq/compat/abseil.h"
 
 using namespace roq::literals;
 
 namespace roq {
 
 namespace {
-static char VERSION[32] = {};
 static auto initialize_flags(
     int argc, char **argv, const std::string_view &description, const std::string_view &version) {
-  assert(description.length() > 0);
-  absl::SetProgramUsageMessage(description.data());
-  assert(version.length() > 0);
-  assert(version.length() < (sizeof(VERSION) - 1));
-  version.copy(VERSION, sizeof(VERSION) - 1);
-  absl::FlagsUsageConfig config{
-      .contains_helpshort_flags = {},
-      .contains_help_flags = [](auto) { return true; },
-      .contains_helppackage_flags = {},
-      .version_string = []() { return VERSION; },
-      .normalize_filename = [](const std::string_view &file) -> std::string {
-        if (file.find("roq"_sv) != file.npos)
-          return "roq"_s;
-        return std::string{file};
-      },
-  };
-  absl::SetFlagsUsageConfig(config);
-  return absl::ParseCommandLine(argc, argv);
+  compat::Abseil::set_program_usage_message(std::string{description});
+  compat::Abseil::set_flags_usage_config(std::string{version});
+  return compat::Abseil::parse_command_line(argc, argv);
 }
 }  // namespace
 
@@ -48,7 +30,7 @@ Service::Service(
     const std::string_view &compile_time)
     : args_(initialize_flags(argc, argv, description, version)), build_type_(build_type),
       git_hash_(git_hash), compile_date_(compile_date), compile_time_(compile_time) {
-  assert(argc > 0);
+  assert(args_.size() > 0);
   // matching spdlog pattern to glog
   // - %L = level (I=INFO|W=WARN|E=ERROR|C=CRITICAL)
   // - %m = month (MM)
@@ -66,17 +48,6 @@ Service::~Service() {
 
 int Service::run() {
   LOG(INFO)("===== START ====="_sv);
-  /* XXX HANS
-  LOG(INFO)
-  (R"(Process: )"
-   R"(name="{}", version="{}", type="{}", git="{}", date="{}", time="{}")"_sv,
-   absl::ProgramInvocationShortName(),
-   absl::VersionString(),
-   build_type_,
-   git_hash_,
-   compile_date_,
-   compile_time_);
-  */
   auto res = main(args_.size(), args_.data());
   LOG_IF(WARNING, res != 0)(R"(exit-code={})"_fmt, res);
   LOG(INFO)("===== STOP ====="_sv);
