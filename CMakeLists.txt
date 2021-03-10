@@ -51,7 +51,6 @@ include_directories("${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/src")
 
 # sub-projects
 
-add_subdirectory("${CMAKE_SOURCE_DIR}/src/roq/compat")
 add_subdirectory("${CMAKE_SOURCE_DIR}/src/roq")
 
 # install (public headers)
