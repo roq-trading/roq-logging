@@ -8,12 +8,12 @@
 #define ROQ_LOGGING_PUBLIC
 #endif
 
-#include <functional>
 #include <string_view>
 #include <utility>
 
-#include "roq/static.h"
+#include "roq/source_location.h"
 
+#include "roq/compat.h"
 #include "roq/format.h"
 #include "roq/literals.h"
 
@@ -21,15 +21,16 @@ namespace roq {
 
 namespace detail {
 extern ROQ_LOGGING_PUBLIC thread_local std::pair<char *, size_t> message_buffer;
-extern ROQ_LOGGING_PUBLIC bool append_newline;
 extern ROQ_LOGGING_PUBLIC int verbosity;
+
 // sinks
 typedef std::function<void(const std::string_view &)> sink_t;
 extern ROQ_LOGGING_PUBLIC sink_t info;
 extern ROQ_LOGGING_PUBLIC sink_t warning;
 extern ROQ_LOGGING_PUBLIC sink_t error;
 extern ROQ_LOGGING_PUBLIC sink_t critical;
-// support std::back_inserter
+
+// memory_view to support std::back_inserter
 template <typename T>
 class ROQ_LOGGING_PUBLIC basic_memory_view_t final {
  public:
@@ -54,77 +55,6 @@ class ROQ_LOGGING_PUBLIC basic_memory_view_t final {
 
 using memory_view_t = basic_memory_view_t<char>;
 
-class ROQ_LOGGING_PUBLIC LogMessage final {
- public:
-  inline LogMessage(sink_t &sink, const std::string_view &prefix)
-      : sink_(sink), memory_view_(message_buffer.first, message_buffer.second) {
-    memory_view_.append(prefix);
-  }
-
-  LogMessage(const LogMessage &) = delete;
-  LogMessage(LogMessage &&) = delete;
-
-  inline ~LogMessage() {
-    try {
-      sink_(memory_view_);
-    } catch (...) {
-    }
-  }
-  inline void operator()(const std::string_view &text) { memory_view_.append(text); }
-  template <typename... Args>
-  inline void operator()(const roq::format_str &fmt, Args &&...args) {
-    roq::format_to(std::back_inserter(memory_view_), fmt, std::forward<Args>(args)...);
-  }
-
- private:
-  sink_t &sink_;
-  memory_view_t memory_view_;
-};
-
-class ROQ_LOGGING_PUBLIC ErrnoLogMessage final {
- public:
-  inline ErrnoLogMessage(sink_t &sink, const std::string_view &prefix)
-      : sink_(sink), memory_view_(message_buffer.first, message_buffer.second), errnum_(errno) {
-    memory_view_.append(prefix);
-  }
-
-  ErrnoLogMessage(const ErrnoLogMessage &) = delete;
-  ErrnoLogMessage(ErrnoLogMessage &&) = delete;
-
-  inline ~ErrnoLogMessage() {
-    using namespace roq::literals;
-    try {
-      roq::format_to(
-          std::back_inserter(memory_view_), R"(: {} [{}])"_fmt, std::strerror(errnum_), errnum_);
-      memory_view_.push_back('\0');
-      sink_(memory_view_);
-    } catch (...) {
-    }
-  }
-  inline void operator()(const std::string_view &text) { memory_view_.append(text); }
-  template <typename... Args>
-  inline void operator()(const roq::format_str &fmt, Args &&...args) {
-    roq::format_to(std::back_inserter(memory_view_), fmt, std::forward<Args>(args)...);
-  }
-
- private:
-  sink_t &sink_;
-  memory_view_t memory_view_;
-  int errnum_;
-};
-
-class ROQ_LOGGING_PUBLIC NullLogMessage final {
- public:
-  inline NullLogMessage(sink_t &, const std::string_view &) {}
-
-  NullLogMessage(const NullLogMessage &) = delete;
-  NullLogMessage(NullLogMessage &&) = delete;
-
-  inline void operator()(const std::string_view &) {}
-  template <typename... Args>
-  inline void operator()(const roq::format_str &, Args &&...) {}
-};
-
 }  // namespace detail
 
 //! Interface to manage the lifetime of the single static logger.
@@ -141,42 +71,197 @@ struct ROQ_LOGGING_PUBLIC Logger final {
 
 }  // namespace roq
 
-// Convert number to string (SO2670816)
-#define STRINGIFY(number) STRINGIFY_HELPER(number)
-#define STRINGIFY_HELPER(number) #number
+// logging interface using source_location and deduction guides
+// references:
+//   https://stackoverflow.com/a/57548488
+//   https://en.cppreference.com/w/cpp/language/class_template_argument_deduction
 
-// Raw logging interface
-#define RAW_LOG(logger, sink)                                         \
-  logger(                                                             \
-      sink,                                                           \
-      ::roq::static_basename_string(__FILE__)                         \
-          .append(::roq::static_string(":" STRINGIFY(__LINE__) "] ")) \
-          .data())
+namespace roq {
+namespace log {
 
-// Sink selectors
-#define LOG_INFO(logger) RAW_LOG(logger, ::roq::detail::info)
-#define LOG_WARNING(logger) RAW_LOG(logger, ::roq::detail::warning)
-#define LOG_ERROR(logger) RAW_LOG(logger, ::roq::detail::error)
-// XXX SO26888805 [[noreturn]]
-#define LOG_FATAL(logger) RAW_LOG(logger, ::roq::detail::critical)
+namespace detail {
+static /*consteval*/ constexpr std::string_view basename(const std::string_view &path) noexcept {
+  auto pos = path.find_last_of('/');
+  return pos == path.npos ? path : path.substr(++pos);
+}
 
-// The main logging interface (level in {INFO|WARNING|ERROR|FATAL})
-#define LOG(level) LOG_##level(::roq::detail::LogMessage)
+template <typename... Args>
+static void helper(roq::detail::sink_t &sink, const source_location &loc, Args &&...args) {
+  roq::detail::memory_view_t buffer(
+      roq::detail::message_buffer.first, roq::detail::message_buffer.second);
+  roq::format_to(std::back_inserter(buffer), "{}:{}] "_fmt, basename(loc.file_name()), loc.line());
+  roq::format_to(std::back_inserter(buffer), std::forward<Args>(args)...);
+  sink(static_cast<std::string_view>(buffer));
+}
 
-// Conditional logging
-#define LOG_IF(level, condition) !(condition) ? (void)(0) : LOG(level)
+template <typename... Args>
+static void helper_system_error(
+    roq::detail::sink_t &sink, const source_location &loc, int error, Args &&...args) {
+  roq::detail::memory_view_t buffer(
+      roq::detail::message_buffer.first, roq::detail::message_buffer.second);
+  roq::format_to(
+      std::back_inserter(buffer),
+      "{}:{}] {} [{}] "_fmt,
+      basename(loc.file_name()),
+      loc.line(),
+      std::strerror(error),
+      error);
+  roq::format_to(std::back_inserter(buffer), std::forward<Args>(args)...);
+  sink(static_cast<std::string_view>(buffer));
+}
+}  // namespace detail
 
-// System error logging
-#define PLOG(level) LOG_##level(::roq::detail::ErrnoLogMessage)
+// info
 
-// Verbose logging
-#define VLOG(n) LOG_IF(INFO, (n) <= ::roq::detail::verbosity)
+template <typename... Args>
+struct info {
+  constexpr info(
+      Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
+    detail::helper(roq::detail::info, loc, std::forward<Args>(args)...);
+  }
+};
 
-// Debug logging
-#if defined(NDEBUG)
-#define DLOG(level) LOG_##level(::roq::detail::NullLogMessage)
-#define DLOG_IF(level, condition) LOG_##level(::roq::detail::NullLogMessage)
-#else
-#define DLOG(level) LOG(level)
-#define DLOG_IF(level, condition) LOG_IF(level, condition)
+template <typename... Args>
+info(Args &&...) -> info<Args...>;
+
+// warn
+
+template <typename... Args>
+struct warn {
+  constexpr warn(
+      Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
+    detail::helper(roq::detail::warning, loc, std::forward<Args>(args)...);
+  }
+};
+
+template <typename... Args>
+warn(Args &&...) -> warn<Args...>;
+
+// error
+
+template <typename... Args>
+struct error {
+  constexpr error(
+      Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
+    detail::helper(roq::detail::error, loc, std::forward<Args>(args)...);
+  }
+};
+
+template <typename... Args>
+error(Args &&...) -> error<Args...>;
+
+// fatal
+
+template <typename... Args>
+struct fatal {
+  [[noreturn]] constexpr fatal(
+      Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
+    detail::helper(roq::detail::critical, loc, std::forward<Args>(args)...);
+    std::abort();
+  }
+};
+
+template <typename... Args>
+fatal(Args &&...) -> fatal<Args...>;
+
+// debug (only for debug build)
+
+template <typename... Args>
+struct debug {
+  constexpr debug(
+      Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
+#if !defined(NDEBUG)
+    detail::helper(roq::detail::info, loc, std::forward<Args>(args)...);
 #endif
+  }
+};
+
+template <typename... Args>
+debug(Args &&...) -> debug<Args...>;
+
+// trace_1 (only for verbosity >= 1)
+
+template <typename... Args>
+struct trace_1 {
+  constexpr trace_1(
+      Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
+    if (ROQ_UNLIKELY(roq::detail::verbosity >= 1))
+      detail::helper(roq::detail::info, loc, std::forward<Args>(args)...);
+  }
+};
+
+template <typename... Args>
+trace_1(Args &&...) -> trace_1<Args...>;
+
+// trace_2 (only for verbosity >= 2)
+
+template <typename... Args>
+struct trace_2 {
+  constexpr trace_2(
+      Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
+    if (ROQ_UNLIKELY(roq::detail::verbosity >= 2))
+      detail::helper(roq::detail::info, loc, std::forward<Args>(args)...);
+  }
+};
+
+template <typename... Args>
+trace_2(Args &&...) -> trace_2<Args...>;
+
+// trace_3 (only for verbosity >= 3)
+
+template <typename... Args>
+struct trace_3 {
+  constexpr trace_3(
+      Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
+    if (ROQ_UNLIKELY(roq::detail::verbosity >= 3))
+      detail::helper(roq::detail::info, loc, std::forward<Args>(args)...);
+  }
+};
+
+template <typename... Args>
+trace_3(Args &&...) -> trace_3<Args...>;
+
+// trace_4 (only for verbosity >= 4)
+
+template <typename... Args>
+struct trace_4 {
+  constexpr trace_4(
+      Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
+    if (ROQ_UNLIKELY(roq::detail::verbosity >= 4))
+      detail::helper(roq::detail::info, loc, std::forward<Args>(args)...);
+  }
+};
+
+template <typename... Args>
+trace_4(Args &&...) -> trace_4<Args...>;
+
+// trace_5 (only for verbosity >= 5)
+
+template <typename... Args>
+struct trace_5 {
+  constexpr trace_5(
+      Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
+    if (ROQ_UNLIKELY(roq::detail::verbosity >= 5))
+      detail::helper(roq::detail::info, loc, std::forward<Args>(args)...);
+  }
+};
+
+template <typename... Args>
+trace_5(Args &&...) -> trace_5<Args...>;
+
+// system_error
+
+template <typename... Args>
+struct system_error {
+  constexpr system_error(
+      Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
+    static_assert(std::is_same<std::decay<decltype(errno)>::type, int>::value);
+    detail::helper_system_error(roq::detail::warning, loc, errno, std::forward<Args>(args)...);
+  }
+};
+
+template <typename... Args>
+system_error(Args &&...) -> system_error<Args...>;
+
+}  // namespace log
+}  // namespace roq

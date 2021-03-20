@@ -31,11 +31,12 @@ using namespace std::literals;  // NOLINT
 
 namespace roq {
 
-constexpr size_t MESSAGE_BUFFER_SIZE = 65536;
-
-constexpr size_t SPDLOG_QUEUE_SIZE = 1024 * 1024;
-constexpr size_t SPDLOG_THREAD_COUNT = 1;
-constexpr size_t SPDLOG_FLUSH_SECONDS = 1;
+namespace {
+static const size_t MESSAGE_BUFFER_SIZE = 65536u;
+static const size_t SPDLOG_QUEUE_SIZE = 1024u * 1024u;
+static const size_t SPDLOG_THREAD_COUNT = 1u;
+static const size_t SPDLOG_FLUSH_SECONDS = 1u;
+}  // namespace
 
 namespace detail {
 template <typename T, std::size_t alignment>

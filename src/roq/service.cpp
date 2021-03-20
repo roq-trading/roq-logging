@@ -47,10 +47,11 @@ Service::~Service() {
 }
 
 int Service::run() {
-  LOG(INFO)("===== START ====="_sv);
+  log::info("===== START ====="_sv);
   auto res = main(args_.size(), args_.data());
-  LOG_IF(WARNING, res != 0)(R"(exit-code={})"_fmt, res);
-  LOG(INFO)("===== STOP ====="_sv);
+  if (res != 0)
+    log::warn(R"(exit-code={})"_fmt, res);
+  log::info("===== STOP ====="_sv);
   return res;
 }
 
