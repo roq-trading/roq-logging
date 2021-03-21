@@ -46,7 +46,7 @@ void print_stacktrace(int /*signal*/, siginfo_t *info) {
     }
     unw_word_t offp;
     status = unw_get_proc_name(&cursor, proc_name, sizeof(proc_name), &offp);
-    const char *name = "<unknown>";
+    char const *name = "<unknown>";
     char *demangled_name = nullptr;
     if (status < 0) {
       if (status != UNW_ENOINFO) {

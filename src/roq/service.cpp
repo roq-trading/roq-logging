@@ -30,7 +30,7 @@ Service::Service(
     const std::string_view &compile_time)
     : args_(initialize_flags(argc, argv, description, version)), build_type_(build_type),
       git_hash_(git_hash), compile_date_(compile_date), compile_time_(compile_time) {
-  assert(args_.size() > 0);
+  assert(args_.size() > 0u);
   // matching spdlog pattern to glog
   // - %L = level (I=INFO|W=WARN|E=ERROR|C=CRITICAL)
   // - %m = month (MM)
@@ -40,7 +40,7 @@ Service::Service(
   // - %t = thread (int)
   // - %v = message
   auto pattern = "%L%m%d %T.%f %t %v"_sv;
-  Logger::initialize(args_[0], pattern);
+  Logger::initialize(args_[0u], pattern);
 }
 
 Service::~Service() {
@@ -50,7 +50,7 @@ int Service::run() {
   log::info("===== START ====="_sv);
   auto res = main(args_.size(), args_.data());
   if (res != 0)
-    log::warn(R"(exit-code={})"_fmt, res);
+    log::warn("exit-code={}"_fmt, res);
   log::info("===== STOP ====="_sv);
   return res;
 }

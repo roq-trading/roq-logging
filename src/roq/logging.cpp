@@ -58,10 +58,8 @@ struct aligned_allocator {
   void deallocate(T *pointer, std::size_t) noexcept { ::free(pointer); }
 };
 
-constexpr size_t PAGE_SIZE = 4096;
-
 template <typename T>
-struct page_aligned_allocator : public aligned_allocator<T, PAGE_SIZE> {};
+struct page_aligned_allocator : public aligned_allocator<T, ROQ_PAGE_SIZE> {};
 
 template <typename T>
 struct page_aligned_vector : public std::vector<T, page_aligned_allocator<T> > {
@@ -73,12 +71,6 @@ thread_local page_aligned_vector<char> RAW_BUFFER(MESSAGE_BUFFER_SIZE);
 
 thread_local std::pair<char *, size_t> message_buffer(&RAW_BUFFER[0], RAW_BUFFER.size());
 }  // namespace detail
-
-namespace {
-inline bool likely(bool expr) {
-  return __builtin_expect(expr, true);
-}
-}  // namespace
 
 namespace {
 static void initialize_abseil(const std::string_view &arg0) {
@@ -109,7 +101,7 @@ static void termination_handler(int sig, siginfo_t *info, void *) {
   if (depth) {
     char name[256];
     for (int i = 0; i < depth; ++i) {
-      const char *symbol = "(unknown)";
+      char const *symbol = "(unknown)";
       auto result = absl::Symbolize(addr[0], name, sizeof(name));
       if (result)
         symbol = name;
@@ -140,26 +132,25 @@ namespace detail {
 int verbosity = 0;
 
 sink_t info = [](const std::string_view &message) {
-  if (likely(spdlog_logger))
+  if (ROQ_LIKELY(spdlog_logger))
     spdlog_logger->info(message);
 };
 
 sink_t warning = [](const std::string_view &message) {
-  if (likely(spdlog_logger))
+  if (ROQ_LIKELY(spdlog_logger))
     spdlog_logger->warn(message);
 };
 
 sink_t error = [](const std::string_view &message) {
-  if (likely(spdlog_logger))
+  if (ROQ_LIKELY(spdlog_logger))
     spdlog_logger->error(message);
 };
 
 sink_t critical = [](const std::string_view &message) {
-  if (likely(spdlog_logger)) {
+  if (ROQ_LIKELY(spdlog_logger)) {
     spdlog_logger->critical(message);
     spdlog_logger->flush();
   }
-  std::abort();
 };
 }  // namespace detail
 
