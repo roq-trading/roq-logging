@@ -8,6 +8,7 @@
 #define ROQ_LOGGING_PUBLIC
 #endif
 
+#include <cassert>
 #include <string_view>
 #include <utility>
 
@@ -35,22 +36,32 @@ template <typename T>
 class ROQ_LOGGING_PUBLIC basic_memory_view_t final {
  public:
   using value_type = T;
-  inline basic_memory_view_t(value_type *buffer, size_t length)
-      : iter_(buffer), begin_(buffer), end_(buffer + length) {}
-  inline operator std::string_view() const { return std::string_view(begin_, size()); }
-  inline size_t size() const { return iter_ - begin_; }
-  inline size_t remain() const { return end_ - iter_; }
-  inline void push_back(char value) {
-    if (iter_ < end_)
-      *(iter_++) = value;
-    // note! silently drop if the buffer is full
+  basic_memory_view_t(value_type *buffer, size_t length)
+      : iter_(buffer), begin_(buffer), end_(buffer + length) {
+    assert(length > 4u);
   }
-  inline void append(const std::string_view &text) { iter_ += text.copy(iter_, remain()); }
+  size_t size() const { return iter_ - begin_; }
+  size_t remain() const { return end_ - iter_ - 4u; }
+  void push_back(char value) {
+    if (ROQ_LIKELY(remain() > 0u))
+      *(iter_++) = value;
+    else
+      overflow_ = true;
+  }
+  void append(const std::string_view &text) { iter_ += text.copy(iter_, remain()); }
+  std::string_view finish() {
+    if (ROQ_UNLIKELY(overflow_)) {
+      assert((end_ - iter_) == 4u);
+      " ..."_sv.copy(iter_, 4u);
+    }
+    return std::string_view(begin_, size());
+  }
 
  private:
   value_type *iter_;
   const value_type *begin_;
   const value_type *end_;
+  bool overflow_ = false;
 };
 
 using memory_view_t = basic_memory_view_t<char>;
@@ -87,27 +98,27 @@ static /*consteval*/ constexpr std::string_view basename(const std::string_view 
 
 template <typename... Args>
 static void helper(roq::detail::sink_t &sink, const source_location &loc, Args &&...args) {
-  roq::detail::memory_view_t buffer(
-      roq::detail::message_buffer.first, roq::detail::message_buffer.second);
-  roq::format_to(std::back_inserter(buffer), "{}:{}] "_fmt, basename(loc.file_name()), loc.line());
-  roq::format_to(std::back_inserter(buffer), std::forward<Args>(args)...);
-  sink(static_cast<std::string_view>(buffer));
+  auto &buffer = roq::detail::message_buffer;
+  roq::detail::memory_view_t view(buffer.first, buffer.second);
+  roq::format_to(std::back_inserter(view), "{}:{}] "_fmt, basename(loc.file_name()), loc.line());
+  roq::format_to(std::back_inserter(view), std::forward<Args>(args)...);
+  sink(view.finish());
 }
 
 template <typename... Args>
 static void helper_system_error(
     roq::detail::sink_t &sink, const source_location &loc, int error, Args &&...args) {
-  roq::detail::memory_view_t buffer(
-      roq::detail::message_buffer.first, roq::detail::message_buffer.second);
+  auto &buffer = roq::detail::message_buffer;
+  roq::detail::memory_view_t view(buffer.first, buffer.second);
   roq::format_to(
-      std::back_inserter(buffer),
+      std::back_inserter(view),
       "{}:{}] {} [{}] "_fmt,
       basename(loc.file_name()),
       loc.line(),
       std::strerror(error),
       error);
-  roq::format_to(std::back_inserter(buffer), std::forward<Args>(args)...);
-  sink(static_cast<std::string_view>(buffer));
+  roq::format_to(std::back_inserter(view), std::forward<Args>(args)...);
+  sink(view.finish());
 }
 }  // namespace detail
 
