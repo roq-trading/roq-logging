@@ -2,12 +2,6 @@
 
 #pragma once
 
-#if defined(__GNUC__) || defined(__clang__)
-#define ROQ_LOGGING_PUBLIC __attribute__((visibility("default")))
-#else
-#define ROQ_LOGGING_PUBLIC
-#endif
-
 #include <cassert>
 #include <string_view>
 #include <utility>
@@ -21,19 +15,19 @@
 namespace roq {
 
 namespace detail {
-extern ROQ_LOGGING_PUBLIC thread_local std::pair<char *, size_t> message_buffer;
-extern ROQ_LOGGING_PUBLIC int verbosity;
+extern ROQ_PUBLIC thread_local std::pair<char *, size_t> message_buffer;
+extern ROQ_PUBLIC int verbosity;
 
 // sinks
 typedef std::function<void(const std::string_view &)> sink_t;
-extern ROQ_LOGGING_PUBLIC sink_t info;
-extern ROQ_LOGGING_PUBLIC sink_t warning;
-extern ROQ_LOGGING_PUBLIC sink_t error;
-extern ROQ_LOGGING_PUBLIC sink_t critical;
+extern ROQ_PUBLIC sink_t info;
+extern ROQ_PUBLIC sink_t warning;
+extern ROQ_PUBLIC sink_t error;
+extern ROQ_PUBLIC sink_t critical;
 
 // memory_view to support std::back_inserter
 template <typename T>
-class ROQ_LOGGING_PUBLIC basic_memory_view_t final {
+class ROQ_PUBLIC basic_memory_view_t final {
  public:
   using value_type = T;
   basic_memory_view_t(value_type *buffer, size_t length)
@@ -69,7 +63,7 @@ using memory_view_t = basic_memory_view_t<char>;
 }  // namespace detail
 
 //! Interface to manage the lifetime of the single static logger.
-struct ROQ_LOGGING_PUBLIC Logger final {
+struct ROQ_PUBLIC Logger final {
   //! Initialize the logger
   static void initialize(
       const std::string_view &arg0,

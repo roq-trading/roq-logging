@@ -11,7 +11,7 @@
 namespace roq {
 
 //! Convenience class to wrap \ref roq::Logger, absl::flags, etc.
-class ROQ_LOGGING_PUBLIC Service {
+class ROQ_PUBLIC Service {
  public:
   Service(
       int argc,
