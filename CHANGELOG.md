@@ -4,6 +4,8 @@ All notable changes will be documented in this file.
 
 ## Head
 
+## 0.7.0 &ndash; 2021-04-15
+
 ### Changed
 
 * Replaced macro-based interface with a pure C++ based interface
