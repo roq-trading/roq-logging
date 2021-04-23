@@ -32,12 +32,12 @@ class ROQ_PUBLIC basic_memory_view_t final {
   using value_type = T;
   basic_memory_view_t(value_type *buffer, size_t length)
       : iter_(buffer), begin_(buffer), end_(buffer + length) {
-    assert(length > 4u);
+    assert(length > 4);
   }
   size_t size() const { return iter_ - begin_; }
-  size_t remain() const { return end_ - iter_ - 4u; }
+  size_t remain() const { return end_ - iter_ - 4; }
   void push_back(char value) {
-    if (ROQ_LIKELY(remain() > 0u))
+    if (ROQ_LIKELY(remain() > 0))
       *(iter_++) = value;
     else
       overflow_ = true;
@@ -45,8 +45,8 @@ class ROQ_PUBLIC basic_memory_view_t final {
   void append(const std::string_view &text) { iter_ += text.copy(iter_, remain()); }
   std::string_view finish() {
     if (ROQ_UNLIKELY(overflow_)) {
-      assert((end_ - iter_) == 4u);
-      " ..."_sv.copy(iter_, 4u);
+      assert((end_ - iter_) == 4);
+      " ..."_sv.copy(iter_, 4);
     }
     return std::string_view(begin_, size());
   }
