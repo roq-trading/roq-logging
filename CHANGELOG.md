@@ -4,6 +4,12 @@ All notable changes will be documented in this file.
 
 ## Head
 
+### Changed
+
+* Dropped requirement for calling `Logger::initialize(...)`
+
+  * Default is now to use `std::cout` and `std::cerr`
+
 ## 0.7.0 &ndash; 2021-04-15
 
 ### Changed

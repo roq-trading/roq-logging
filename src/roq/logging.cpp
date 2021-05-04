@@ -8,34 +8,37 @@
 
 #include "roq/logging.h"
 
-#include <signal.h>
-#include <unistd.h>
-
 #include <absl/debugging/stacktrace.h>
 #include <absl/debugging/symbolize.h>
 
 #include <spdlog/async.h>
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/spdlog.h>
 
+#include <signal.h>
+#include <unistd.h>
+
 #include <chrono>
 #include <cstdlib>
+#include <iostream>
 #include <memory>
 
 #if defined(USE_UNWIND)
 #include "roq/unwind.h"
 #endif
 
-using namespace std::literals;  // NOLINT
+using namespace std::literals;         // NOLINT
+using namespace std::chrono_literals;  // NOLINT
 
 namespace roq {
 
 namespace {
-static const size_t MESSAGE_BUFFER_SIZE = 65536;
-static const size_t SPDLOG_QUEUE_SIZE = 1024 * 1024;
-static const size_t SPDLOG_THREAD_COUNT = 1;
-static const size_t SPDLOG_FLUSH_SECONDS = 1;
+static const auto MESSAGE_BUFFER_SIZE = 65536;
+static const auto SPDLOG_QUEUE_SIZE = 1024 * 1024;
+static const auto SPDLOG_THREAD_COUNT = 1;
+static const auto SPDLOG_FLUSH_EVERY = 1s;
 }  // namespace
 
 namespace detail {
@@ -125,31 +128,43 @@ static void install_failure_signal_handler() {
 }  // namespace
 
 namespace {
-static spdlog::logger *spdlog_logger = nullptr;
+static spdlog::logger *SPDLOG_OUT = nullptr;
+static spdlog::logger *SPDLOG_ERR = nullptr;
 }  // namespace
 
 namespace detail {
 int verbosity = 0;
 
-sink_t info = [](const std::string_view &message) {
-  if (ROQ_LIKELY(spdlog_logger))
-    spdlog_logger->info(message);
+sink_t INFO = [](const std::string_view &message) {
+  if (ROQ_LIKELY(SPDLOG_OUT)) {
+    SPDLOG_OUT->info(message);
+  } else {
+    std::cout << message << std::endl;
+  }
 };
 
-sink_t warning = [](const std::string_view &message) {
-  if (ROQ_LIKELY(spdlog_logger))
-    spdlog_logger->warn(message);
+sink_t WARNING = [](const std::string_view &message) {
+  if (ROQ_LIKELY(SPDLOG_OUT)) {
+    SPDLOG_OUT->warn(message);
+  } else {
+    std::cout << message << std::endl;
+  }
 };
 
-sink_t error = [](const std::string_view &message) {
-  if (ROQ_LIKELY(spdlog_logger))
-    spdlog_logger->error(message);
+sink_t ERROR = [](const std::string_view &message) {
+  if (ROQ_LIKELY(SPDLOG_ERR)) {
+    SPDLOG_ERR->error(message);
+  } else {
+    std::cerr << message << std::endl;
+  }
 };
 
-sink_t critical = [](const std::string_view &message) {
-  if (ROQ_LIKELY(spdlog_logger)) {
-    spdlog_logger->critical(message);
-    spdlog_logger->flush();
+sink_t CRITICAL = [](const std::string_view &message) {
+  if (ROQ_LIKELY(SPDLOG_ERR)) {
+    SPDLOG_ERR->critical(message);
+    SPDLOG_ERR->flush();
+  } else {
+    std::cerr << message << std::endl;
   }
 };
 }  // namespace detail
@@ -160,18 +175,27 @@ void Logger::initialize(
   initialize_abseil(arg0);
   // spdlog
   auto terminal = ::isatty(fileno(stdout));
-  std::shared_ptr<spdlog::logger> logger;
+  std::shared_ptr<spdlog::logger> out, err;
   if (terminal) {
-    logger = spdlog::stdout_logger_st("spdlog"s);
+    // note! almost similar to std::cout/std::cerr, only using spdlog for buffering
+    out = spdlog::stdout_color_mt("spdlog_out"s);
+    err = spdlog::stderr_color_mt("spdlog_err"s);
   } else {
     spdlog::init_thread_pool(SPDLOG_QUEUE_SIZE, SPDLOG_THREAD_COUNT);
-    spdlog::flush_every(std::chrono::seconds(SPDLOG_FLUSH_SECONDS));
-    logger = spdlog::stdout_logger_st<spdlog::async_factory>("spdlog"s);
+    spdlog::flush_every(std::chrono::seconds(SPDLOG_FLUSH_EVERY));
+    out = spdlog::stdout_logger_st<spdlog::async_factory>("spdlog"s);
+    // note! no dedicated err stream when running as sevice
+    // reason: avoid potential timing issues when interleaving two streams
   }
-  logger->set_pattern(std::string(pattern));
-  logger->flush_on(spdlog::level::warn);
+  out->set_pattern(std::string(pattern));
+  out->flush_on(spdlog::level::warn);
+  if (err) {
+    err->set_pattern(std::string(pattern));
+    err->flush_on(spdlog::level::warn);
+  }
   // note! spdlog uses reference count
-  spdlog_logger = logger.get();
+  SPDLOG_OUT = out.get();
+  SPDLOG_ERR = err ? err.get() : SPDLOG_OUT;
   auto verbosity = std::getenv("ROQ_v");
   if (verbosity != nullptr && std::strlen(verbosity) > 0)
     detail::verbosity = std::atoi(verbosity);
@@ -181,9 +205,13 @@ void Logger::initialize(
 
 void Logger::shutdown() {
   // note! not thread-safe
-  if (spdlog_logger) {
-    spdlog_logger->flush();
-    spdlog_logger = nullptr;
+  if (SPDLOG_OUT) {
+    SPDLOG_OUT->flush();
+    SPDLOG_OUT = nullptr;
+  }
+  if (SPDLOG_ERR) {
+    SPDLOG_ERR->flush();
+    SPDLOG_ERR = nullptr;
   }
   spdlog::drop_all();
 }

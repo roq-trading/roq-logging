@@ -10,8 +10,20 @@ char **my_argv;
 
 using namespace roq;
 
+TEST(logging, no_init_before) {
+  log::info("info"_sv);
+  log::error("error"_sv);
+  EXPECT_TRUE(true);
+}
+
 TEST(logging, start_stop) {
   assert(my_argc > 0);
   Logger::initialize(my_argv[0]);
   Logger::shutdown();
+}
+
+TEST(logging, no_init_after) {
+  log::info("info"_sv);
+  log::error("error"_sv);
+  EXPECT_TRUE(true);
 }
