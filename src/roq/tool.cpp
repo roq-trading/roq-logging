@@ -4,6 +4,8 @@
 
 #include <cassert>
 
+#include "roq/exceptions.h"
+
 #include "roq/compat/abseil.h"
 
 using namespace roq::literals;
@@ -39,7 +41,17 @@ Tool::~Tool() {
 }
 
 int Tool::run() {
-  return main(args_.size(), args_.data());
+  auto res = EXIT_FAILURE;
+  try {
+    res = main(args_.size(), args_.data());
+  } catch (Exception &e) {
+    log::error("Exception: {}"_fmt, e);
+  } catch (std::exception &e) {
+    log::error(R"(Exception: what="{}")"_fmt, e.what());
+  } catch (...) {
+    log::error("Exception: <unknown>"_sv);
+  }
+  return res;
 }
 
 }  // namespace roq

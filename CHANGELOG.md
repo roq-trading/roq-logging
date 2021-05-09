@@ -10,6 +10,8 @@ All notable changes will be documented in this file.
 
   * Default is now to use `std::cout` and `std::cerr`
 
+* `Service` and `Tool` will now catch and log exceptions at top-level main wrapper
+
 ## 0.7.0 &ndash; 2021-04-15
 
 ### Changed

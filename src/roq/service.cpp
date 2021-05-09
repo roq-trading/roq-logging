@@ -4,6 +4,8 @@
 
 #include <cassert>
 
+#include "roq/exceptions.h"
+
 #include "roq/compat/abseil.h"
 
 using namespace roq::literals;
@@ -48,7 +50,16 @@ Service::~Service() {
 
 int Service::run() {
   log::info("===== START ====="_sv);
-  auto res = main(args_.size(), args_.data());
+  auto res = EXIT_FAILURE;
+  try {
+    res = main(args_.size(), args_.data());
+  } catch (Exception &e) {
+    log::error("Exception: {}"_fmt, e);
+  } catch (std::exception &e) {
+    log::error(R"(Exception: what="{}")"_fmt, e.what());
+  } catch (...) {
+    log::error("Exception: <unknown>"_sv);
+  }
   if (res != 0)
     log::warn("exit-code={}"_fmt, res);
   log::info("===== STOP ====="_sv);
