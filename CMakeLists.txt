@@ -26,6 +26,10 @@ endif()
 
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
+# prefer static libraries
+
+set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+
 # c++
 
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
