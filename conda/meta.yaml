@@ -19,10 +19,9 @@ requirements:
     - abseil-cpp
     - fmt
     - roq-api
+    - roq-oss-abseil-cpp
     - roq-oss-libunwind  # [linux]
     - spdlog
-  run:
-    - abseil-cpp
 
 about:
   home: https://roq-trading.com
