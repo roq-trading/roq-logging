@@ -20,7 +20,7 @@ requirements:
     - roq-api
     - roq-oss-abseil-cpp
     - roq-oss-libunwind  # [linux]
-    - spdlog
+    - roq-oss-spdlog
 
 about:
   home: https://roq-trading.com
