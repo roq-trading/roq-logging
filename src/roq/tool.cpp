@@ -30,8 +30,8 @@ Tool::Tool(
     const std::string_view &git_hash,
     const std::string_view &compile_date,
     const std::string_view &compile_time)
-    : args_(initialize_flags(argc, argv, description, version)), build_type_(build_type),
-      git_hash_(git_hash), compile_date_(compile_date), compile_time_(compile_time) {
+    : args_(initialize_flags(argc, argv, description, version)), build_type_(build_type), git_hash_(git_hash),
+      compile_date_(compile_date), compile_time_(compile_time) {
   assert(args_.size() > 0);
   auto pattern = "%v"_sv;
   Logger::initialize(args_[0], pattern);

@@ -169,8 +169,7 @@ sink_t CRITICAL = [](const std::string_view &message) {
 };
 }  // namespace detail
 
-void Logger::initialize(
-    const std::string_view &arg0, const std::string_view &pattern, bool stacktrace) {
+void Logger::initialize(const std::string_view &arg0, const std::string_view &pattern, bool stacktrace) {
   // abseil
   initialize_abseil(arg0);
   // spdlog
