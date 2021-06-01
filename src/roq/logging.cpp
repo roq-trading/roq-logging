@@ -17,6 +17,7 @@
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/spdlog.h>
 
+#include <execinfo.h>
 #include <signal.h>
 #include <unistd.h>
 
@@ -99,15 +100,17 @@ static void termination_handler(int sig, siginfo_t *info, void *) {
 #if defined(__linux__)
   psiginfo(info, nullptr);
 #endif
-  void *addr[32];
-  int depth = absl::GetStackTrace(addr, std::size(addr), 0);
+  std::array<void *, 32> addr;
+  int depth = ::backtrace(std::data(addr), std::size(addr));
   if (depth) {
-    char name[256];
+    std::array<char, 256> name;
     for (int i = 0; i < depth; ++i) {
       char const *symbol = "(unknown)";
-      auto result = absl::Symbolize(addr[0], name, sizeof(name));
+      // note! this signature does not include the arguments
+      // --> so we still prefer libunwind
+      auto result = absl::Symbolize(addr[i], std::data(name), std::size(name));
       if (result)
-        symbol = name;
+        symbol = std::data(name);
       fprintf(stderr, "[%2d] %p %s\n", i, addr[i], symbol);
     }
   } else {
