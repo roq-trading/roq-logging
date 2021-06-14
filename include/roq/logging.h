@@ -96,6 +96,17 @@ static void helper(roq::detail::sink_t &sink, const source_location &loc, Args &
   sink(view.finish());
 }
 
+#if !defined(NDEBUG)
+template <typename... Args>
+static void helper_debug(roq::detail::sink_t &sink, const source_location &loc, Args &&...args) {
+  auto &buffer = roq::detail::message_buffer;
+  roq::detail::memory_view_t view(buffer.first, buffer.second);
+  roq::format_to(std::back_inserter(view), "{}:{}] DEBUG: "_fmt, basename(loc.file_name()), loc.line());
+  roq::format_to(std::back_inserter(view), std::forward<Args>(args)...);
+  sink(view.finish());
+}
+#endif
+
 template <typename... Args>
 static void helper_system_error(roq::detail::sink_t &sink, const source_location &loc, int error, Args &&...args) {
   auto &buffer = roq::detail::message_buffer;
@@ -148,7 +159,22 @@ struct error {
 template <typename... Args>
 error(Args &&...) -> error<Args...>;
 
-// fatal
+// critical (will only abort if this is a debug build)
+
+template <typename... Args>
+struct critical {
+  [[noreturn]] constexpr critical(Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
+    detail::helper(roq::detail::CRITICAL, loc, std::forward<Args>(args)...);
+#if !defined(NDEBUG)
+    std::abort();
+#endif
+  }
+};
+
+template <typename... Args>
+critical(Args &&...) -> critical<Args...>;
+
+// fatal (will always abort)
 
 template <typename... Args>
 struct fatal {
@@ -161,13 +187,13 @@ struct fatal {
 template <typename... Args>
 fatal(Args &&...) -> fatal<Args...>;
 
-// debug (only for debug build)
+// debug (no-op unless this is a debug build)
 
 template <typename... Args>
 struct debug {
   constexpr debug(Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
 #if !defined(NDEBUG)
-    detail::helper(roq::detail::INFO, loc, std::forward<Args>(args)...);
+    detail::helper_debug(roq::detail::INFO, loc, std::forward<Args>(args)...);
 #endif
   }
 };

@@ -4,6 +4,15 @@ All notable changes will be documented in this file.
 
 ## Head
 
+### Added
+
+* `log::critical` to only abort if debug build (`log::fatal` is too strict in some cases)
+
+### Changed
+
+* `log::debug` will now prefix all messages with 'DEBUG:' to make it easier to manage and
+  remove log statements as they become "stale"
+
 ## 0.7.1 &ndash; 2021-05-30
 
 ### Changed
