@@ -53,15 +53,15 @@ int Service::run() {
   auto res = EXIT_FAILURE;
   try {
     res = main(args_.size(), args_.data());
-  } catch (Exception &e) {
-    log::error("Exception: {}"_fmt, e);
+  } catch (const Exception &e) {
+    log::error("Exception: {}"_sv, e);
   } catch (std::exception &e) {
-    log::error(R"(Exception: what="{}")"_fmt, e.what());
+    log::error(R"(Exception: what="{}")"_sv, e.what());
   } catch (...) {
     log::error("Exception: <unknown>"_sv);
   }
   if (res != 0)
-    log::warn("exit-code={}"_fmt, res);
+    log::warn("exit-code={}"_sv, res);
   log::info("===== STOP ====="_sv);
   return res;
 }

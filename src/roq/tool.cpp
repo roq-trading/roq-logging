@@ -45,9 +45,9 @@ int Tool::run() {
   try {
     res = main(args_.size(), args_.data());
   } catch (Exception &e) {
-    log::error("Exception: {}"_fmt, e);
+    log::error("Exception: {}"_sv, e);
   } catch (std::exception &e) {
-    log::error(R"(Exception: what="{}")"_fmt, e.what());
+    log::error(R"(Exception: what="{}")"_sv, e.what());
   } catch (...) {
     log::error("Exception: <unknown>"_sv);
   }

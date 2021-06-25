@@ -6,6 +6,7 @@
 #include <string_view>
 #include <utility>
 
+#include "roq/format_str.h"
 #include "roq/source_location.h"
 
 #include "roq/compat.h"
@@ -75,8 +76,7 @@ struct ROQ_PUBLIC Logger final {
 
 // logging interface using source_location and deduction guides
 // references:
-//   https://stackoverflow.com/a/57548488
-//   https://en.cppreference.com/w/cpp/language/class_template_argument_deduction
+//   https://stackoverflow.com/a/66380209
 
 namespace roq {
 namespace log {
@@ -88,196 +88,137 @@ static /*consteval*/ constexpr std::string_view basename(const std::string_view 
 }
 
 template <typename... Args>
-static void helper(roq::detail::sink_t &sink, const source_location &loc, Args &&...args) {
+static void helper(roq::detail::sink_t &sink, const format_str &fmt, Args &&...args) {
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
-  roq::format_to(std::back_inserter(view), "{}:{}] "_fmt, basename(loc.file_name()), loc.line());
-  roq::format_to(std::back_inserter(view), std::forward<Args>(args)...);
+  auto &loc = static_cast<const source_location &>(fmt);
+  roq::format_to(std::back_inserter(view), "{}:{}] "_sv, basename(loc.file_name()), loc.line());
+  roq::format_to(std::back_inserter(view), static_cast<const std::string_view &>(fmt), std::forward<Args>(args)...);
   sink(view.finish());
 }
 
 #if !defined(NDEBUG)
 template <typename... Args>
-static void helper_debug(roq::detail::sink_t &sink, const source_location &loc, Args &&...args) {
+static void helper_debug(roq::detail::sink_t &sink, const format_str &fmt, Args &&...args) {
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
-  roq::format_to(std::back_inserter(view), "{}:{}] DEBUG: "_fmt, basename(loc.file_name()), loc.line());
-  roq::format_to(std::back_inserter(view), std::forward<Args>(args)...);
+  auto &loc = static_cast<const source_location &>(fmt);
+  roq::format_to(std::back_inserter(view), "{}:{}] DEBUG: "_sv, basename(loc.file_name()), loc.line());
+  roq::format_to(std::back_inserter(view), static_cast<const std::string_view &>(fmt), std::forward<Args>(args)...);
   sink(view.finish());
 }
 #endif
 
 template <typename... Args>
-static void helper_system_error(roq::detail::sink_t &sink, const source_location &loc, int error, Args &&...args) {
+static void helper_system_error(roq::detail::sink_t &sink, const format_str &fmt, int error, Args &&...args) {
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
+  auto &loc = static_cast<const source_location &>(fmt);
   roq::format_to(
       std::back_inserter(view),
-      "{}:{}] {} [{}] "_fmt,
+      "{}:{}] {} [{}] "_sv,
       basename(loc.file_name()),
       loc.line(),
       std::strerror(error),
       error);
-  roq::format_to(std::back_inserter(view), std::forward<Args>(args)...);
+  roq::format_to(std::back_inserter(view), static_cast<const std::string_view &>(fmt), std::forward<Args>(args)...);
   sink(view.finish());
 }
 }  // namespace detail
 
 // info
 
-template <typename... Args>
+template <std::size_t level = 0>
 struct info {
-  constexpr info(Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
-    detail::helper(roq::detail::INFO, loc, std::forward<Args>(args)...);
+  template <typename... Args>
+  constexpr info(const format_str &fmt, Args &&...args) {  // NOLINT
+    if constexpr (level > 0) {
+      if (ROQ_LIKELY(roq::detail::verbosity < level))
+        return;
+    }
+    detail::helper(roq::detail::INFO, fmt, std::forward<Args>(args)...);
   }
 };
-
-template <typename... Args>
-info(Args &&...) -> info<Args...>;
 
 // warn
 
-template <typename... Args>
+template <std::size_t level = 0>
 struct warn {
-  constexpr warn(Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
-    detail::helper(roq::detail::WARNING, loc, std::forward<Args>(args)...);
+  template <typename... Args>
+  constexpr warn(const format_str &fmt, Args &&...args) {  // NOLINT
+    if constexpr (level > 0) {
+      if (ROQ_LIKELY(roq::detail::verbosity < level))
+        return;
+    }
+    detail::helper(roq::detail::WARNING, fmt, std::forward<Args>(args)...);
   }
 };
-
-template <typename... Args>
-warn(Args &&...) -> warn<Args...>;
 
 // error
 
-template <typename... Args>
+template <std::size_t level = 0>
 struct error {
-  constexpr error(Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
-    detail::helper(roq::detail::ERROR, loc, std::forward<Args>(args)...);
+  template <typename... Args>
+  constexpr error(const format_str &fmt, Args &&...args) {  // NOLINT
+    if constexpr (level > 0) {
+      if (ROQ_LIKELY(roq::detail::verbosity < level))
+        return;
+    }
+    detail::helper(roq::detail::ERROR, fmt, std::forward<Args>(args)...);
   }
 };
-
-template <typename... Args>
-error(Args &&...) -> error<Args...>;
 
 // critical (will only abort if this is a debug build)
 
-template <typename... Args>
 struct critical {
-  [[noreturn]] constexpr critical(Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
-    detail::helper(roq::detail::CRITICAL, loc, std::forward<Args>(args)...);
+  template <typename... Args>
+  [[noreturn]] constexpr critical(const format_str &fmt, Args &&...args) {  // NOLINT
+    detail::helper(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
 #if !defined(NDEBUG)
     std::abort();
 #endif
   }
 };
-
-template <typename... Args>
-critical(Args &&...) -> critical<Args...>;
 
 // fatal (will always abort)
 
-template <typename... Args>
 struct fatal {
-  [[noreturn]] constexpr fatal(Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
-    detail::helper(roq::detail::CRITICAL, loc, std::forward<Args>(args)...);
+  template <typename... Args>
+  [[noreturn]] constexpr fatal(const format_str &fmt, Args &&...args) {  // NOLINT
+    detail::helper(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
     std::abort();
   }
 };
 
-template <typename... Args>
-fatal(Args &&...) -> fatal<Args...>;
-
 // debug (no-op unless this is a debug build)
 
-template <typename... Args>
+template <std::size_t level = 0>
 struct debug {
-  constexpr debug(Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
+  template <typename... Args>
+  constexpr debug(const format_str &fmt, Args &&...args) {  // NOLINT
 #if !defined(NDEBUG)
-    detail::helper_debug(roq::detail::INFO, loc, std::forward<Args>(args)...);
+    if constexpr (level > 0) {
+      if (ROQ_LIKELY(roq::detail::verbosity < level))
+        return;
+    }
+    detail::helper_debug(roq::detail::INFO, fmt, std::forward<Args>(args)...);
 #endif
   }
 };
-
-template <typename... Args>
-debug(Args &&...) -> debug<Args...>;
-
-// trace_1 (only for verbosity >= 1)
-
-template <typename... Args>
-struct trace_1 {
-  constexpr trace_1(Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
-    if (ROQ_UNLIKELY(roq::detail::verbosity >= 1))
-      detail::helper(roq::detail::INFO, loc, std::forward<Args>(args)...);
-  }
-};
-
-template <typename... Args>
-trace_1(Args &&...) -> trace_1<Args...>;
-
-// trace_2 (only for verbosity >= 2)
-
-template <typename... Args>
-struct trace_2 {
-  constexpr trace_2(Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
-    if (ROQ_UNLIKELY(roq::detail::verbosity >= 2))
-      detail::helper(roq::detail::INFO, loc, std::forward<Args>(args)...);
-  }
-};
-
-template <typename... Args>
-trace_2(Args &&...) -> trace_2<Args...>;
-
-// trace_3 (only for verbosity >= 3)
-
-template <typename... Args>
-struct trace_3 {
-  constexpr trace_3(Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
-    if (ROQ_UNLIKELY(roq::detail::verbosity >= 3))
-      detail::helper(roq::detail::INFO, loc, std::forward<Args>(args)...);
-  }
-};
-
-template <typename... Args>
-trace_3(Args &&...) -> trace_3<Args...>;
-
-// trace_4 (only for verbosity >= 4)
-
-template <typename... Args>
-struct trace_4 {
-  constexpr trace_4(Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
-    if (ROQ_UNLIKELY(roq::detail::verbosity >= 4))
-      detail::helper(roq::detail::INFO, loc, std::forward<Args>(args)...);
-  }
-};
-
-template <typename... Args>
-trace_4(Args &&...) -> trace_4<Args...>;
-
-// trace_5 (only for verbosity >= 5)
-
-template <typename... Args>
-struct trace_5 {
-  constexpr trace_5(Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
-    if (ROQ_UNLIKELY(roq::detail::verbosity >= 5))
-      detail::helper(roq::detail::INFO, loc, std::forward<Args>(args)...);
-  }
-};
-
-template <typename... Args>
-trace_5(Args &&...) -> trace_5<Args...>;
-
 // system_error
 
-template <typename... Args>
+template <std::size_t level = 0>
 struct system_error {
-  constexpr system_error(Args &&...args, const source_location &loc = source_location::current()) {  // NOLINT
+  template <typename... Args>
+  constexpr system_error(const format_str &fmt, Args &&...args) {  // NOLINT
+    if constexpr (level > 0) {
+      if (ROQ_LIKELY(roq::detail::verbosity < level))
+        return;
+    }
     static_assert(std::is_same<std::decay<decltype(errno)>::type, int>::value);
-    detail::helper_system_error(roq::detail::WARNING, loc, errno, std::forward<Args>(args)...);
+    detail::helper_system_error(roq::detail::WARNING, fmt, errno, std::forward<Args>(args)...);
   }
 };
-
-template <typename... Args>
-system_error(Args &&...) -> system_error<Args...>;
 
 }  // namespace log
 }  // namespace roq

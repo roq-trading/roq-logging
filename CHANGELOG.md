@@ -4,6 +4,19 @@ All notable changes will be documented in this file.
 
 ## Head
 
+### Added
+
+* The `format_str` class has been moved from the roq-api library
+
+### Changed
+
+* Automatic capture of `source_location` is now managed by the `format_str` class
+* All loggers, except for critical and fatal, now accept a template argument for the log level
+
+### Removed
+
+* The `trace_n` loggers
+
 ## 0.7.2 &ndash; 2021-06-20
 
 ### Added
