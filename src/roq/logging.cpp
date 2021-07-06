@@ -51,6 +51,7 @@ static auto merge_config(const Logger::Config &config) {
       .path = config.path.empty() ? Flags::log_path() : config.path,
       .max_size = config.max_size == 0 ? Flags::log_max_size() : config.max_size,
       .max_files = config.max_files == 0 ? Flags::log_max_files() : config.max_files,
+      .rotate_on_open = !config.rotate_on_open ? Flags::log_rotate_on_open() : config.rotate_on_open,
   };
   return result;
 }

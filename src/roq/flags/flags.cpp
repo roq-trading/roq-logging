@@ -41,7 +41,7 @@ ABSL_FLAG(  //
 ABSL_FLAG(  //
     bool,
     log_rotate_on_open,
-    false,
+    true,
     "rotate log file on open? (only if path is non-empty)"_s);
 
 namespace roq {
