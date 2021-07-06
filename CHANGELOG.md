@@ -4,6 +4,8 @@ All notable changes will be documented in this file.
 
 ## Head
 
+## 0.7.3 &ndash; 2021-07-06
+
 ### Added
 
 * The `format_str` class has been moved from the roq-api library
