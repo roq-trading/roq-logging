@@ -41,8 +41,10 @@ Service::Service(
   // - %f = fraction (microseconds)
   // - %t = thread (int)
   // - %v = message
-  auto pattern = "%L%m%d %T.%f %t %v"_sv;
-  Logger::initialize(args_[0], pattern);
+  Logger::Config config{
+      .pattern = "%L%m%d %T.%f %t %v"_sv,
+  };
+  Logger::initialize(args_[0], config);
 }
 
 Service::~Service() {

@@ -7,6 +7,7 @@ All notable changes will be documented in this file.
 ### Added
 
 * The `format_str` class has been moved from the roq-api library
+* Flags to allow logging to file (with automatic rotation)
 
 ### Changed
 

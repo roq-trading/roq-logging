@@ -12,10 +12,12 @@
 #include <absl/debugging/symbolize.h>
 
 #include <spdlog/async.h>
+#include <spdlog/spdlog.h>
+
 #include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/stdout_sinks.h>
-#include <spdlog/spdlog.h>
 
 #include <execinfo.h>
 #include <signal.h>
@@ -30,6 +32,8 @@
 #include "roq/unwind.h"
 #endif
 
+#include "roq/flags.h"
+
 using namespace std::literals;         // NOLINT
 using namespace std::chrono_literals;  // NOLINT
 
@@ -39,7 +43,17 @@ namespace {
 static const auto MESSAGE_BUFFER_SIZE = 65536;
 static const auto SPDLOG_QUEUE_SIZE = 1024 * 1024;
 static const auto SPDLOG_THREAD_COUNT = 1;
-static const auto SPDLOG_FLUSH_EVERY = 1s;
+
+static auto merge_config(const Logger::Config &config) {
+  decltype(config) result{
+      .pattern = config.pattern.empty() ? Flags::log_pattern() : config.pattern,
+      .flush_every = config.flush_every.count() == 0 ? Flags::log_flush_every() : config.flush_every,
+      .path = config.path.empty() ? Flags::log_path() : config.path,
+      .max_size = config.max_size == 0 ? Flags::log_max_size() : config.max_size,
+      .max_files = config.max_files == 0 ? Flags::log_max_files() : config.max_files,
+  };
+  return result;
+}
 }  // namespace
 
 namespace detail {
@@ -172,27 +186,45 @@ sink_t CRITICAL = [](const std::string_view &message) {
 };
 }  // namespace detail
 
-void Logger::initialize(const std::string_view &arg0, const std::string_view &pattern, bool stacktrace) {
-  // abseil
+void Logger::initialize(const std::string_view &arg0, const Config &config, bool stacktrace) {
+  // abseil:
   initialize_abseil(arg0);
-  // spdlog
+  // spdlog:
+  auto final_config = merge_config(config);
+  // note! to detach from terminal: use nohup, systemd, etc.
   auto terminal = ::isatty(fileno(stdout));
-  std::shared_ptr<spdlog::logger> out, err;
-  if (terminal) {
-    // note! almost similar to std::cout/std::cerr, only using spdlog for buffering
-    out = spdlog::stdout_color_mt("spdlog_out"s);
-    err = spdlog::stderr_color_mt("spdlog_err"s);
-  } else {
+  // note! non-interactive sessions are asynchronous
+  auto interactive = final_config.path.empty() && terminal;
+  if (!interactive) {
     spdlog::init_thread_pool(SPDLOG_QUEUE_SIZE, SPDLOG_THREAD_COUNT);
-    spdlog::flush_every(std::chrono::seconds(SPDLOG_FLUSH_EVERY));
-    out = spdlog::stdout_logger_st<spdlog::async_factory>("spdlog"s);
-    // note! no dedicated err stream when running as sevice
-    // reason: avoid potential timing issues when interleaving two streams
+    if (final_config.flush_every.count())
+      spdlog::flush_every(final_config.flush_every);
   }
-  out->set_pattern(std::string(pattern));
+  std::shared_ptr<spdlog::logger> out, err;
+  if (final_config.path.empty()) {
+    if (terminal) {
+      // note! almost similar to stdout/stderr, only using spdlog for buffering
+      out = spdlog::stdout_color_mt("spdlog_out"s);
+      err = spdlog::stderr_color_mt("spdlog_err"s);
+    } else {
+      out = spdlog::stdout_logger_st<spdlog::async_factory>("spdlog"s);
+    }
+  } else {
+    out = spdlog::rotating_logger_st<spdlog::async_factory>(
+        "spdlog",
+        std::string{final_config.path},
+        final_config.max_size,
+        final_config.max_files,
+        final_config.rotate_on_open);
+  }
+  if (!final_config.pattern.empty())
+    out->set_pattern(std::string{final_config.pattern});
   out->flush_on(spdlog::level::warn);
+  // note! async logging does not use a dedicated err stream
+  // reason: avoid potential timing issues when interleaving two streams
   if (err) {
-    err->set_pattern(std::string(pattern));
+    if (!final_config.pattern.empty())
+      err->set_pattern(std::string{final_config.pattern});
     err->flush_on(spdlog::level::warn);
   }
   // note! spdlog uses reference count

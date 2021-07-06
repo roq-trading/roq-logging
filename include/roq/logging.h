@@ -3,6 +3,7 @@
 #pragma once
 
 #include <cassert>
+#include <chrono>
 #include <string_view>
 #include <utility>
 
@@ -64,9 +65,18 @@ using memory_view_t = basic_memory_view_t<char>;
 
 //! Interface to manage the lifetime of the single static logger.
 struct ROQ_PUBLIC Logger final {
+  //! Config
+  struct Config final {
+    std::string_view pattern = {};
+    std::chrono::seconds flush_every = {};
+    std::string_view path = {};
+    size_t max_size = {};
+    size_t max_files = {};
+    bool rotate_on_open = {};
+  };
+
   //! Initialize the logger
-  static void initialize(
-      const std::string_view &arg0, const std::string_view &pattern = std::string_view(), bool stacktrace = true);
+  static void initialize(const std::string_view &arg0, const Config &, bool stacktrace = true);
 
   //! Shutdown the logger
   static void shutdown();

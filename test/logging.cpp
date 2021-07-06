@@ -18,7 +18,8 @@ TEST(logging, no_init_before) {
 
 TEST(logging, start_stop) {
   assert(my_argc > 0);
-  Logger::initialize(my_argv[0]);
+  Logger::Config config{};
+  Logger::initialize(my_argv[0], config);
   Logger::shutdown();
 }
 
