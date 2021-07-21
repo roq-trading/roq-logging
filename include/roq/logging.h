@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <chrono>
+#include <functional>
 #include <string_view>
 #include <utility>
 
