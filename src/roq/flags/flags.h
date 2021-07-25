@@ -11,7 +11,7 @@ namespace flags {
 
 struct Flags final {
   static std::string_view log_pattern();
-  static std::chrono::seconds log_flush_every();
+  static std::chrono::nanoseconds log_flush_freq();
   static std::string_view log_path();
   static uint32_t log_max_size();
   static uint32_t log_max_files();

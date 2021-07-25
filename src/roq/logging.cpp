@@ -47,7 +47,7 @@ static const auto SPDLOG_THREAD_COUNT = 1;
 static auto merge_config(const Logger::Config &config) {
   decltype(config) result{
       .pattern = config.pattern.empty() ? Flags::log_pattern() : config.pattern,
-      .flush_every = config.flush_every.count() == 0 ? Flags::log_flush_every() : config.flush_every,
+      .flush_freq = config.flush_freq.count() == 0 ? Flags::log_flush_freq() : config.flush_freq,
       .path = config.path.empty() ? Flags::log_path() : config.path,
       .max_size = config.max_size == 0 ? Flags::log_max_size() : config.max_size,
       .max_files = config.max_files == 0 ? Flags::log_max_files() : config.max_files,
@@ -198,8 +198,8 @@ void Logger::initialize(const std::string_view &arg0, const Config &config, bool
   auto interactive = final_config.path.empty() && terminal;
   if (!interactive) {
     spdlog::init_thread_pool(SPDLOG_QUEUE_SIZE, SPDLOG_THREAD_COUNT);
-    if (final_config.flush_every.count())
-      spdlog::flush_every(final_config.flush_every);
+    if (final_config.flush_freq.count())
+      spdlog::flush_every(std::chrono::duration_cast<std::chrono::seconds>(final_config.flush_freq));
   }
   std::shared_ptr<spdlog::logger> out, err;
   if (final_config.path.empty()) {

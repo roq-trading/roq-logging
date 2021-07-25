@@ -7,6 +7,40 @@
 #include "roq/literals.h"
 
 using namespace roq::literals;
+using namespace std::chrono_literals;  // NOLINT
+
+namespace {
+class TimePeriod final {
+ public:
+  TimePeriod() = default;
+
+  TimePeriod(const std::chrono::nanoseconds value) : value_(absl::FromChrono(value)) {}  // NOLINT (allow implicit)
+
+  operator const absl::Duration &() const { return value_; }
+
+  static std::string unparse(const TimePeriod &flag) { return absl::AbslUnparseFlag(flag.value_); }
+
+  static bool parse(absl::string_view text, TimePeriod *flag, std::string *error) {
+    if (!absl::ParseFlag(text, &flag->value_, error)) {
+      return false;
+    }
+    return true;
+  }
+
+ private:
+  absl::Duration value_ = {};
+};
+
+template <typename T>
+static std::string AbslUnparseFlag(T flag) {
+  return T::unparse(flag);
+}
+
+template <typename T>
+static bool AbslParseFlag(absl::string_view text, T *flag, std::string *error) {
+  return T::parse(text, flag, error);
+}
+}  // namespace
 
 ABSL_FLAG(  //
     std::string,
@@ -15,10 +49,10 @@ ABSL_FLAG(  //
     "log pattern"_s);
 
 ABSL_FLAG(  //
-    uint32_t,
-    log_flush_every_secs,
-    3,
-    "flush log every (seconds)"_s);
+    TimePeriod,
+    log_flush_freq,
+    {3s},
+    "flush log every"_s);
 
 ABSL_FLAG(  //
     std::string,
@@ -52,8 +86,8 @@ std::string_view Flags::log_pattern() {
   return result;
 }
 
-std::chrono::seconds Flags::log_flush_every() {
-  static const std::chrono::seconds result{absl::GetFlag(FLAGS_log_flush_every_secs)};
+std::chrono::nanoseconds Flags::log_flush_freq() {
+  static const std::chrono::nanoseconds result{absl::ToChronoNanoseconds(absl::GetFlag(FLAGS_log_flush_freq))};
   return result;
 }
 

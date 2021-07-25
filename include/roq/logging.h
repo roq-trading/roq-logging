@@ -69,7 +69,7 @@ struct ROQ_PUBLIC Logger final {
   //! Config
   struct Config final {
     std::string_view pattern = {};
-    std::chrono::seconds flush_every = {};
+    std::chrono::nanoseconds flush_freq = {};
     std::string_view path = {};
     size_t max_size = {};
     size_t max_files = {};
