@@ -4,6 +4,8 @@ All notable changes will be documented in this file.
 
 ## Head
 
+## 0.7.5 &ndash; 2021-08-08
+
 ### Changed
 
 * The `--log_flush_freq` (duration) has replaced `--log_flush_every_secs` (int)
