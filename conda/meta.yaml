@@ -20,6 +20,7 @@ requirements:
     - roq-api
     - roq-oss-abseil-cpp
     - roq-oss-libunwind  # [linux]
+    - roq-oss-magic_enum
     - roq-oss-spdlog
 
 about:
