@@ -10,9 +10,11 @@ char **my_argv;
 
 using namespace roq;
 
+using namespace std::literals;
+
 TEST(logging, no_init_before) {
-  log::info("info"_sv);
-  log::error("error"_sv);
+  log::info("info"sv);
+  log::error("error"sv);
   EXPECT_TRUE(true);
 }
 
@@ -24,7 +26,7 @@ TEST(logging, start_stop) {
 }
 
 TEST(logging, no_init_after) {
-  log::info("info"_sv);
-  log::error("error"_sv);
+  log::info("info"sv);
+  log::error("error"sv);
   EXPECT_TRUE(true);
 }

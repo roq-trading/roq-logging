@@ -4,6 +4,10 @@ All notable changes will be documented in this file.
 
 ## Head
 
+### Changed
+
+* Remove custom literals (#110)
+
 ## 0.7.7 &ndash; 2021-09-20
 
 ## 0.7.6 &ndash; 2021-09-02

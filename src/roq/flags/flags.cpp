@@ -4,9 +4,7 @@
 
 #include <absl/flags/flag.h>
 
-#include "roq/literals.h"
-
-using namespace roq::literals;
+using namespace std::literals;
 using namespace std::chrono_literals;  // NOLINT
 
 namespace {
@@ -46,37 +44,37 @@ ABSL_FLAG(  //
     std::string,
     log_pattern,
     {},
-    "log pattern"_s);
+    "log pattern"s);
 
 ABSL_FLAG(  //
     TimePeriod,
     log_flush_freq,
     {3s},
-    "flush log every"_s);
+    "flush log every"s);
 
 ABSL_FLAG(  //
     std::string,
     log_path,
     {},
-    "log file (path)"_s);
+    "log file (path)"s);
 
 ABSL_FLAG(  //
     uint32_t,
     log_max_size,
     1073741824,  // 1GB
-    "max size of log file before rotating (only if path is non-empty)"_s);
+    "max size of log file before rotating (only if path is non-empty)"s);
 
 ABSL_FLAG(  //
     uint32_t,
     log_max_files,
     3,
-    "max number of log files to retain (only if path is non-empty)"_s);
+    "max number of log files to retain (only if path is non-empty)"s);
 
 ABSL_FLAG(  //
     bool,
     log_rotate_on_open,
     true,
-    "rotate log file on open? (only if path is non-empty)"_s);
+    "rotate log file on open? (only if path is non-empty)"s);
 
 namespace roq {
 namespace flags {

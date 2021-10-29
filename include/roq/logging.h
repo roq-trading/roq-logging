@@ -14,7 +14,6 @@
 #include "roq/source_location.h"
 
 #include "roq/compat.h"
-#include "roq/literals.h"
 
 namespace roq {
 
@@ -47,9 +46,10 @@ class ROQ_PUBLIC basic_memory_view_t final {
   }
   void append(const std::string_view &text) { iter_ += text.copy(iter_, remain()); }
   std::string_view finish() {
+    using namespace std::literals;
     if (ROQ_UNLIKELY(overflow_)) {
       assert((end_ - iter_) == 4);
-      " ..."_sv.copy(iter_, 4);
+      " ..."sv.copy(iter_, 4);
     }
     return std::string_view(begin_, size());
   }
@@ -102,9 +102,10 @@ static /*consteval*/ constexpr std::string_view basename(const std::string_view 
 template <typename... Args>
 static void helper(
     roq::detail::sink_t &sink, const source_location &loc, const fmt::format_string<Args...> &fmt, Args &&...args) {
+  using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
-  fmt::format_to(std::back_inserter(view), "{}:{}] "_sv, basename(loc.file_name()), loc.line());
+  fmt::format_to(std::back_inserter(view), "{}:{}] "sv, basename(loc.file_name()), loc.line());
   fmt::format_to(std::back_inserter(view), fmt, std::forward<Args>(args)...);
   sink(view.finish());
 }
@@ -113,9 +114,10 @@ static void helper(
 template <typename... Args>
 static void helper_debug(
     roq::detail::sink_t &sink, const source_location &loc, const fmt::format_string<Args...> &fmt, Args &&...args) {
+  using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
-  fmt::format_to(std::back_inserter(view), "{}:{}] DEBUG: "_sv, basename(loc.file_name()), loc.line());
+  fmt::format_to(std::back_inserter(view), "{}:{}] DEBUG: "sv, basename(loc.file_name()), loc.line());
   fmt::format_to(std::back_inserter(view), fmt, std::forward<Args>(args)...);
   sink(view.finish());
 }
@@ -128,11 +130,12 @@ static void helper_system_error(
     const fmt::format_string<Args...> &fmt,
     int error,
     Args &&...args) {
+  using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
   fmt::format_to(
       std::back_inserter(view),
-      "{}:{}] {} [{}] "_sv,
+      "{}:{}] {} [{}] "sv,
       basename(loc.file_name()),
       loc.line(),
       std::strerror(error),

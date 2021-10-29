@@ -8,7 +8,7 @@
 
 #include "roq/compat/abseil.h"
 
-using namespace roq::literals;
+using namespace std::literals;
 
 namespace roq {
 
@@ -34,7 +34,7 @@ Tool::Tool(
       compile_date_(compile_date), compile_time_(compile_time) {
   assert(args_.size() > 0);
   Logger::Config config{
-      .pattern = "%v"_sv,
+      .pattern = "%v"sv,
   };
   Logger::initialize(args_[0], config);
 }
@@ -47,11 +47,11 @@ int Tool::run() {
   try {
     res = main(args_.size(), args_.data());
   } catch (Exception &e) {
-    log::error("Exception: {}"_sv, e);
+    log::error("Exception: {}"sv, e);
   } catch (std::exception &e) {
-    log::error(R"(Exception: what="{}")"_sv, e.what());
+    log::error(R"(Exception: what="{}")"sv, e.what());
   } catch (...) {
-    log::error("Exception: <unknown>"_sv);
+    log::error("Exception: <unknown>"sv);
   }
   return res;
 }

@@ -8,7 +8,7 @@
 
 #include "roq/compat/abseil.h"
 
-using namespace roq::literals;
+using namespace std::literals;
 
 namespace roq {
 
@@ -42,7 +42,7 @@ Service::Service(
   // - %t = thread (int)
   // - %v = message
   Logger::Config config{
-      .pattern = "%L%m%d %T.%f %t %v"_sv,
+      .pattern = "%L%m%d %T.%f %t %v"sv,
   };
   Logger::initialize(args_[0], config);
 }
@@ -51,20 +51,20 @@ Service::~Service() {
 }
 
 int Service::run() {
-  log::info("===== START ====="_sv);
+  log::info("===== START ====="sv);
   auto res = EXIT_FAILURE;
   try {
     res = main(args_.size(), args_.data());
   } catch (const Exception &e) {
-    log::error("Exception: {}"_sv, e);
+    log::error("Exception: {}"sv, e);
   } catch (std::exception &e) {
-    log::error(R"(Exception: what="{}")"_sv, e.what());
+    log::error(R"(Exception: what="{}")"sv, e.what());
   } catch (...) {
-    log::error("Exception: <unknown>"_sv);
+    log::error("Exception: <unknown>"sv);
   }
   if (res != 0)
-    log::warn("exit-code={}"_sv, res);
-  log::info("===== STOP ====="_sv);
+    log::warn("exit-code={}"sv, res);
+  log::info("===== STOP ====="sv);
   return res;
 }
 
