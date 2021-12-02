@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2021, Hans Erik Thrane */
+/* Copyright (c) 2017-2022, Hans Erik Thrane */
 
 #include "roq/tool.h"
 
@@ -32,7 +32,7 @@ Tool::Tool(
     const std::string_view &compile_time)
     : args_(initialize_flags(argc, argv, description, version)), build_type_(build_type), git_hash_(git_hash),
       compile_date_(compile_date), compile_time_(compile_time) {
-  assert(args_.size() > 0);
+  assert(std::size(args_) > 0);
   Logger::Config config{
       .pattern = "%v"sv,
   };
@@ -45,7 +45,7 @@ Tool::~Tool() {
 int Tool::run() {
   auto res = EXIT_FAILURE;
   try {
-    res = main(args_.size(), args_.data());
+    res = main(std::size(args_), std::data(args_));
   } catch (Exception &e) {
     log::error("Exception: {}"sv, e);
   } catch (std::exception &e) {

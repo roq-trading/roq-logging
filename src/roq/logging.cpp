@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2021, Hans Erik Thrane */
+/* Copyright (c) 2017-2022, Hans Erik Thrane */
 
 #define USE_UNWIND
 
@@ -46,9 +46,9 @@ static const auto SPDLOG_THREAD_COUNT = 1;
 
 static auto merge_config(const Logger::Config &config) {
   decltype(config) result{
-      .pattern = config.pattern.empty() ? Flags::log_pattern() : config.pattern,
+      .pattern = std::empty(config.pattern) ? Flags::log_pattern() : config.pattern,
       .flush_freq = config.flush_freq.count() == 0 ? Flags::log_flush_freq() : config.flush_freq,
-      .path = config.path.empty() ? Flags::log_path() : config.path,
+      .path = std::empty(config.path) ? Flags::log_path() : config.path,
       .max_size = config.max_size == 0 ? Flags::log_max_size() : config.max_size,
       .max_files = config.max_files == 0 ? Flags::log_max_files() : config.max_files,
       .rotate_on_open = !config.rotate_on_open ? Flags::log_rotate_on_open() : config.rotate_on_open,
@@ -88,7 +88,7 @@ struct page_aligned_vector : public std::vector<T, page_aligned_allocator<T> > {
 
 thread_local page_aligned_vector<char> RAW_BUFFER(MESSAGE_BUFFER_SIZE);
 
-thread_local std::pair<char *, size_t> message_buffer(&RAW_BUFFER[0], RAW_BUFFER.size());
+thread_local std::pair<char *, size_t> message_buffer(std::data(RAW_BUFFER), std::size(RAW_BUFFER));
 }  // namespace detail
 
 namespace {
@@ -195,14 +195,14 @@ void Logger::initialize(const std::string_view &arg0, const Config &config, bool
   // note! to detach from terminal: use nohup, systemd, etc.
   auto terminal = ::isatty(fileno(stdout));
   // note! non-interactive sessions are asynchronous
-  auto interactive = final_config.path.empty() && terminal;
+  auto interactive = std::empty(final_config.path) && terminal;
   if (!interactive) {
     spdlog::init_thread_pool(SPDLOG_QUEUE_SIZE, SPDLOG_THREAD_COUNT);
     if (final_config.flush_freq.count())
       spdlog::flush_every(std::chrono::duration_cast<std::chrono::seconds>(final_config.flush_freq));
   }
   std::shared_ptr<spdlog::logger> out, err;
-  if (final_config.path.empty()) {
+  if (std::empty(final_config.path)) {
     if (terminal) {
       // note! almost similar to stdout/stderr, only using spdlog for buffering
       out = spdlog::stdout_color_mt("spdlog_out"s);
@@ -218,13 +218,13 @@ void Logger::initialize(const std::string_view &arg0, const Config &config, bool
         final_config.max_files,
         final_config.rotate_on_open);
   }
-  if (!final_config.pattern.empty())
+  if (!std::empty(final_config.pattern))
     out->set_pattern(std::string{final_config.pattern});
   out->flush_on(spdlog::level::warn);
   // note! async logging does not use a dedicated err stream
   // reason: avoid potential timing issues when interleaving two streams
   if (err) {
-    if (!final_config.pattern.empty())
+    if (!std::empty(final_config.pattern))
       err->set_pattern(std::string{final_config.pattern});
     err->flush_on(spdlog::level::warn);
   }
