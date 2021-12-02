@@ -14,20 +14,29 @@ namespace roq {
 namespace compat {
 
 void Abseil::set_program_usage_message(const std::string &message) {
+#if (__cplusplus >= 201703L)
   assert(!std::empty(message));
+#endif
   absl::SetProgramUsageMessage(message);
 }
 
 void Abseil::set_flags_usage_config(const std::string &version) {
+#if (__cplusplus >= 201703L)
   assert(!std::empty(version));
+#endif
   absl::FlagsUsageConfig config{
       .contains_helpshort_flags = {},
       .contains_help_flags = [](auto) { return true; },
       .contains_helppackage_flags = {},
       .version_string = [version]() -> std::string { return version; },
       .normalize_filename = [](const auto &file) -> std::string {
+#if (__cplusplus < 201703L)
+        if (file.find("roq") != file.npos)
+          return "roq";
+#else
         if (file.find("roq"sv) != file.npos)
           return "roq"s;
+#endif
         return std::string{file};
       },
   };
