@@ -31,11 +31,15 @@ void Abseil::set_flags_usage_config(const std::string &version) {
       .version_string = [version]() -> std::string { return version; },
       .normalize_filename = [](const auto &file) -> std::string {
 #if (__cplusplus < 201703L)
-        if (file.find("roq") != file.npos)
-          return "roq";
+        std::string prefix = "/conda/conda-bld/";
+        auto pos = file.find(prefix);
+        if (pos != file.npos)
+          return std::string{file.substr(pos + prefix.size())};
 #else
-        if (file.find("roq"sv) != file.npos)
-          return "roq"s;
+        auto prefix = "/conda/conda-bld/"sv;
+        auto pos = file.find(prefix);
+        if (pos != file.npos)
+          return std::string{file.substr(pos + std::size(prefix))};
 #endif
         return std::string{file};
       },
