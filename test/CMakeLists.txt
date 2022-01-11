@@ -1,6 +1,6 @@
 set(TARGET_NAME "${PROJECT_NAME}-test")
 
-set(SOURCES main.cpp logging.cpp stacktrace.cpp)
+set(SOURCES main.cpp logging.cpp regex.cpp stacktrace.cpp)
 
 add_executable("${TARGET_NAME}" ${SOURCES})
 

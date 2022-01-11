@@ -7,11 +7,16 @@
 #include <absl/flags/usage_config.h>
 
 #include <cassert>
+#include <regex>
 
 using namespace std::literals;
 
 namespace roq {
 namespace compat {
+
+namespace {
+const std::regex REGEX(".*/opt/conda/.*work/(.*)"s);
+}
 
 void Abseil::set_program_usage_message(const std::string &message) {
 #if (__cplusplus >= 201703L)
@@ -30,17 +35,10 @@ void Abseil::set_flags_usage_config(const std::string &version) {
       .contains_helppackage_flags = {},
       .version_string = [version]() -> std::string { return version; },
       .normalize_filename = [](const auto &file) -> std::string {
-#if (__cplusplus < 201703L)
-        std::string prefix = "/conda/conda-bld/";
-        auto pos = file.find(prefix);
-        if (pos != file.npos)
-          return std::string{file.substr(pos + prefix.size())};
-#else
-        auto prefix = "/conda/conda-bld/"sv;
-        auto pos = file.find(prefix);
-        if (pos != file.npos)
-          return std::string{file.substr(pos + std::size(prefix))};
-#endif
+        std::cmatch match;
+        std::regex_match(std::begin(file), std::end(file), match, REGEX);
+        if (std::size(match) == 2)
+          return std::string{match[1]};
         return std::string{file};
       },
   };
