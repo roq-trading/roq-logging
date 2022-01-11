@@ -15,7 +15,7 @@ namespace roq {
 namespace compat {
 
 namespace {
-const std::regex REGEX(".*/opt/conda/.*work/(.*)"s);
+const std::regex REGEX(".*/opt/conda/.*work/(src/)?(.*)"s);
 }
 
 void Abseil::set_program_usage_message(const std::string &message) {
@@ -37,8 +37,12 @@ void Abseil::set_flags_usage_config(const std::string &version) {
       .normalize_filename = [](const auto &file) -> std::string {
         std::cmatch match;
         std::regex_match(std::begin(file), std::end(file), match, REGEX);
-        if (std::size(match) == 2)
-          return std::string{match[1]};
+#if (__cplusplus >= 201703L)
+        if (std::size(match) == 3)
+#else
+        if (match.size() == 3)
+#endif
+          return std::string{match[2]};
         return std::string{file};
       },
   };

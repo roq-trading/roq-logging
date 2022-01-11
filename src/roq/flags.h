@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include "roq/flags/flags.h"
+#include "roq/logging/flags/flags.h"
 
 namespace roq {
 
-using flags::Flags;
+using logging::flags::Flags;
 
 }  // namespace roq

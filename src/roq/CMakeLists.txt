@@ -1,7 +1,7 @@
 set(TARGET_NAME "${PROJECT_NAME}")
 
 add_subdirectory(compat)
-add_subdirectory(flags)
+add_subdirectory(logging/flags)
 
 set(SOURCES logging.cpp service.cpp tool.cpp unwind.cpp)
 

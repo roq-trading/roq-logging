@@ -1,6 +1,6 @@
 /* Copyright (c) 2017-2022, Hans Erik Thrane */
 
-#include "roq/flags/flags.h"
+#include "roq/logging/flags/flags.h"
 
 #include <absl/flags/flag.h>
 
@@ -77,6 +77,7 @@ ABSL_FLAG(  //
     "rotate log file on open? (only if path is non-empty)"s);
 
 namespace roq {
+namespace logging {
 namespace flags {
 
 std::string_view Flags::log_pattern() {
@@ -110,4 +111,5 @@ bool Flags::log_rotate_on_open() {
 }
 
 }  // namespace flags
+}  // namespace logging
 }  // namespace roq

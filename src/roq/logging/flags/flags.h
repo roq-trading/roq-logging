@@ -7,6 +7,7 @@
 #include <string>
 
 namespace roq {
+namespace logging {
 namespace flags {
 
 struct Flags final {
@@ -19,4 +20,5 @@ struct Flags final {
 };
 
 }  // namespace flags
+}  // namespace logging
 }  // namespace roq
