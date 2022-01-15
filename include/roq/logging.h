@@ -94,53 +94,36 @@ namespace roq {
 namespace log {
 
 namespace detail {
-static /*consteval*/ constexpr std::string_view basename(const std::string_view &path) noexcept {
-  auto pos = path.find_last_of('/');
-  return pos == path.npos ? path : path.substr(++pos);
-}
-
 template <typename... Args>
-static void helper(
-    roq::detail::sink_t &sink, const source_location &loc, const fmt::format_string<Args...> &fmt, Args &&...args) {
+static void helper(roq::detail::sink_t &sink, const roq::format_str<Args...> &fmt, Args &&...args) {
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
-  fmt::format_to(std::back_inserter(view), "{}:{}] "sv, basename(loc.file_name()), loc.line());
-  fmt::format_to(std::back_inserter(view), fmt, std::forward<Args>(args)...);
+  fmt::format_to(std::back_inserter(view), "{}:{}] "sv, fmt.file_name_, fmt.line_);
+  fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
   sink(view.finish());
 }
 
 #if !defined(NDEBUG)
 template <typename... Args>
-static void helper_debug(
-    roq::detail::sink_t &sink, const source_location &loc, const fmt::format_string<Args...> &fmt, Args &&...args) {
+static void helper_debug(roq::detail::sink_t &sink, const roq::format_str<Args...> &fmt, Args &&...args) {
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
-  fmt::format_to(std::back_inserter(view), "{}:{}] DEBUG: "sv, basename(loc.file_name()), loc.line());
-  fmt::format_to(std::back_inserter(view), fmt, std::forward<Args>(args)...);
+  fmt::format_to(std::back_inserter(view), "{}:{}] DEBUG: "sv, fmt.file_name_, fmt.line_);
+  fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
   sink(view.finish());
 }
 #endif
 
 template <typename... Args>
 static void helper_system_error(
-    roq::detail::sink_t &sink,
-    const source_location &loc,
-    const fmt::format_string<Args...> &fmt,
-    int error,
-    Args &&...args) {
+    roq::detail::sink_t &sink, int error, const roq::format_str<Args...> &fmt, Args &&...args) {
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
-  fmt::format_to(
-      std::back_inserter(view),
-      "{}:{}] {} [{}] "sv,
-      basename(loc.file_name()),
-      loc.line(),
-      std::strerror(error),
-      error);
-  fmt::format_to(std::back_inserter(view), fmt, std::forward<Args>(args)...);
+  fmt::format_to(std::back_inserter(view), "{}:{}] {} [{}] "sv, fmt.file_name_, fmt.line_, std::strerror(error), error);
+  fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
   sink(view.finish());
 }
 }  // namespace detail
@@ -150,16 +133,12 @@ static void helper_system_error(
 template <std::size_t level = 0>
 struct info {
   template <typename... Args>
-  constexpr info(const format_str &fmt, Args &&...args) {  // NOLINT
+  constexpr info(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
       if (ROQ_LIKELY(roq::detail::verbosity < level))
         return;
     }
-    detail::helper(
-        roq::detail::INFO,
-        static_cast<const source_location &>(fmt),
-        fmt::format_string<Args...>(static_cast<const std::string_view &>(fmt)),
-        std::forward<Args>(args)...);
+    detail::helper(roq::detail::INFO, fmt, std::forward<Args>(args)...);
   }
 };
 
@@ -168,16 +147,12 @@ struct info {
 template <std::size_t level = 0>
 struct warn {
   template <typename... Args>
-  constexpr warn(const format_str &fmt, Args &&...args) {  // NOLINT
+  constexpr warn(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
       if (ROQ_LIKELY(roq::detail::verbosity < level))
         return;
     }
-    detail::helper(
-        roq::detail::WARNING,
-        static_cast<const source_location &>(fmt),
-        fmt::format_string<Args...>(static_cast<const std::string_view &>(fmt)),
-        std::forward<Args>(args)...);
+    detail::helper(roq::detail::WARNING, fmt, std::forward<Args>(args)...);
   }
 };
 
@@ -186,16 +161,12 @@ struct warn {
 template <std::size_t level = 0>
 struct error {
   template <typename... Args>
-  constexpr error(const format_str &fmt, Args &&...args) {  // NOLINT
+  constexpr error(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
       if (ROQ_LIKELY(roq::detail::verbosity < level))
         return;
     }
-    detail::helper(
-        roq::detail::ERROR,
-        static_cast<const source_location &>(fmt),
-        fmt::format_string<Args...>(static_cast<const std::string_view &>(fmt)),
-        std::forward<Args>(args)...);
+    detail::helper(roq::detail::ERROR, fmt, std::forward<Args>(args)...);
   }
 };
 
@@ -203,12 +174,8 @@ struct error {
 
 struct critical {
   template <typename... Args>
-  [[noreturn]] constexpr critical(const format_str &fmt, Args &&...args) {  // NOLINT
-    detail::helper(
-        roq::detail::CRITICAL,
-        static_cast<const source_location &>(fmt),
-        fmt::format_string<Args...>(static_cast<const std::string_view &>(fmt)),
-        std::forward<Args>(args)...);
+  [[noreturn]] constexpr critical(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
+    detail::helper(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
 #if !defined(NDEBUG)
     std::abort();
 #endif
@@ -219,12 +186,8 @@ struct critical {
 
 struct fatal {
   template <typename... Args>
-  [[noreturn]] constexpr fatal(const format_str &fmt, Args &&...args) {  // NOLINT
-    detail::helper(
-        roq::detail::CRITICAL,
-        static_cast<const source_location &>(fmt),
-        fmt::format_string<Args...>(static_cast<const std::string_view &>(fmt)),
-        std::forward<Args>(args)...);
+  [[noreturn]] constexpr fatal(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
+    detail::helper(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
     std::abort();
   }
 };
@@ -234,17 +197,13 @@ struct fatal {
 template <std::size_t level = 0>
 struct debug {
   template <typename... Args>
-  constexpr debug(const format_str &fmt, Args &&...args) {  // NOLINT
+  constexpr debug(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
 #if !defined(NDEBUG)
     if constexpr (level > 0) {
       if (ROQ_LIKELY(roq::detail::verbosity < level))
         return;
     }
-    detail::helper_debug(
-        roq::detail::INFO,
-        static_cast<const source_location &>(fmt),
-        fmt::format_string<Args...>(static_cast<const std::string_view &>(fmt)),
-        std::forward<Args>(args)...);
+    detail::helper_debug(roq::detail::INFO, fmt, std::forward<Args>(args)...);
 #endif
   }
 };
@@ -254,18 +213,13 @@ struct debug {
 template <std::size_t level = 0>
 struct system_error {
   template <typename... Args>
-  constexpr system_error(const format_str &fmt, Args &&...args) {  // NOLINT
+  constexpr system_error(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
       if (ROQ_LIKELY(roq::detail::verbosity < level))
         return;
     }
     static_assert(std::is_same<std::decay<decltype(errno)>::type, int>::value);
-    detail::helper_system_error(
-        roq::detail::WARNING,
-        static_cast<const source_location &>(fmt),
-        fmt::format_string<Args...>(static_cast<const std::string_view &>(fmt)),
-        errno,
-        std::forward<Args>(args)...);
+    detail::helper_system_error(roq::detail::WARNING, errno, fmt, std::forward<Args>(args)...);
   }
 };
 
