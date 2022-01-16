@@ -154,7 +154,7 @@ namespace detail {
 int verbosity = 0;
 
 sink_t INFO = [](const std::string_view &message) {
-  if (ROQ_LIKELY(SPDLOG_OUT)) {
+  if (SPDLOG_OUT) [[likely]] {
     SPDLOG_OUT->log(spdlog::source_loc{}, spdlog::level::info, message);
   } else {
     std::cout << message << std::endl;
@@ -162,7 +162,7 @@ sink_t INFO = [](const std::string_view &message) {
 };
 
 sink_t WARNING = [](const std::string_view &message) {
-  if (ROQ_LIKELY(SPDLOG_OUT)) {
+  if (SPDLOG_OUT) [[likely]] {
     SPDLOG_OUT->log(spdlog::source_loc{}, spdlog::level::warn, message);
   } else {
     std::cout << message << std::endl;
@@ -170,7 +170,7 @@ sink_t WARNING = [](const std::string_view &message) {
 };
 
 sink_t ERROR = [](const std::string_view &message) {
-  if (ROQ_LIKELY(SPDLOG_ERR)) {
+  if (SPDLOG_ERR) [[likely]] {
     SPDLOG_ERR->log(spdlog::source_loc{}, spdlog::level::err, message);
   } else {
     std::cerr << message << std::endl;
@@ -178,7 +178,7 @@ sink_t ERROR = [](const std::string_view &message) {
 };
 
 sink_t CRITICAL = [](const std::string_view &message) {
-  if (ROQ_LIKELY(SPDLOG_ERR)) {
+  if (SPDLOG_ERR) [[likely]] {
     SPDLOG_ERR->log(spdlog::source_loc{}, spdlog::level::critical, message);
     SPDLOG_ERR->flush();
   } else {

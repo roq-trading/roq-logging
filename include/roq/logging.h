@@ -39,15 +39,16 @@ class ROQ_PUBLIC basic_memory_view_t final {
   size_t size() const { return iter_ - begin_; }
   size_t remain() const { return end_ - iter_ - 4; }
   void push_back(char value) {
-    if (ROQ_LIKELY(remain() > 0))
+    if (remain() > 0) [[likely]] {
       *(iter_++) = value;
-    else
+    } else {
       overflow_ = true;
+    }
   }
   void append(const std::string_view &text) { iter_ += text.copy(iter_, remain()); }
   std::string_view finish() {
     using namespace std::literals;
-    if (ROQ_UNLIKELY(overflow_)) {
+    if (overflow_) [[unlikely]] {
       assert((end_ - iter_) == 4);
       " ..."sv.copy(iter_, 4);
     }
@@ -135,7 +136,7 @@ struct info {
   template <typename... Args>
   constexpr info(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
-      if (ROQ_LIKELY(roq::detail::verbosity < level))
+      if (roq::detail::verbosity < level) [[likely]]
         return;
     }
     detail::helper(roq::detail::INFO, fmt, std::forward<Args>(args)...);
@@ -149,7 +150,7 @@ struct warn {
   template <typename... Args>
   constexpr warn(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
-      if (ROQ_LIKELY(roq::detail::verbosity < level))
+      if (roq::detail::verbosity < level) [[likely]]
         return;
     }
     detail::helper(roq::detail::WARNING, fmt, std::forward<Args>(args)...);
@@ -163,7 +164,7 @@ struct error {
   template <typename... Args>
   constexpr error(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
-      if (ROQ_LIKELY(roq::detail::verbosity < level))
+      if (roq::detail::verbosity < level) [[likely]]
         return;
     }
     detail::helper(roq::detail::ERROR, fmt, std::forward<Args>(args)...);
@@ -200,7 +201,7 @@ struct debug {
   constexpr debug(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
 #if !defined(NDEBUG)
     if constexpr (level > 0) {
-      if (ROQ_LIKELY(roq::detail::verbosity < level))
+      if (roq::detail::verbosity < level) [[likely]]
         return;
     }
     detail::helper_debug(roq::detail::INFO, fmt, std::forward<Args>(args)...);
@@ -215,7 +216,7 @@ struct system_error {
   template <typename... Args>
   constexpr system_error(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
-      if (ROQ_LIKELY(roq::detail::verbosity < level))
+      if (roq::detail::verbosity < level) [[likely]]
         return;
     }
     static_assert(std::is_same<std::decay<decltype(errno)>::type, int>::value);
