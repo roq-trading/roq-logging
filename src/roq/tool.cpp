@@ -21,17 +21,9 @@ static auto initialize_flags(
 }
 }  // namespace
 
-Tool::Tool(
-    int argc,
-    char **argv,
-    const std::string_view &description,
-    const std::string_view &version,
-    const std::string_view &build_type,
-    const std::string_view &git_hash,
-    const std::string_view &compile_date,
-    const std::string_view &compile_time)
-    : args_(initialize_flags(argc, argv, description, version)), build_type_(build_type), git_hash_(git_hash),
-      compile_date_(compile_date), compile_time_(compile_time) {
+Tool::Tool(int argc, char **argv, const Info &info)
+    : args_(initialize_flags(argc, argv, info.description, info.build_version)), build_type_(info.build_type),
+      git_hash_(info.git_hash), compile_date_(info.compile_date), compile_time_(info.compile_time) {
   assert(std::size(args_) > 0);
   Logger::Config config{
       .pattern = "%v"sv,

@@ -13,15 +13,18 @@ namespace roq {
 //! Convenience class to wrap \ref roq::Logger, absl::flags, etc.
 class ROQ_PUBLIC Tool {
  public:
-  Tool(
-      int argc,
-      char **argv,
-      const std::string_view &description,
-      const std::string_view &version,
-      const std::string_view &build_type = std::string_view(),
-      const std::string_view &git_hash = std::string_view(),
-      const std::string_view &compile_date = __DATE__,
-      const std::string_view &compile_time = __TIME__);
+  struct Info final {
+    std::string_view description;
+    std::string_view package_name;
+    std::string_view build_version = {};
+    std::string_view build_number = {};
+    std::string_view build_type = {};
+    std::string_view git_hash = {};
+    std::string_view compile_date = __DATE__;
+    std::string_view compile_time = __TIME__;
+  };
+
+  Tool(int argc, char **argv, const Info &);
 
   Tool(const Tool &) = delete;
   Tool(Tool &&) = default;
