@@ -30,3 +30,11 @@ TEST(logging, no_init_after) {
   log::error("error"sv);
   EXPECT_TRUE(true);
 }
+
+TEST(logging, conditional) {
+  // log::info::when(false, "{}"sv, 123);
+  // log::info::when(true, "{}"sv, 123);
+  log::info<0>::when(false, "{}"sv, 123);
+  log::info<0>::when(true, "{}"sv, 123);
+  // log::fatal::when(false, "{}"sv, 123);
+}

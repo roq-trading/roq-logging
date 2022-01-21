@@ -7,6 +7,10 @@ All notable changes will be documented in this file.
 ### Changed                                                                                                                
 
 * Always log packaging and build information (#159)
+
+### Added
+
+* Conditional logging (experimental)
                                                                                                                            
 ## 0.8.1 &ndash; 2022-01-16
 
