@@ -143,9 +143,9 @@ struct info final {
   }
 
   // note! experimental (conditional logging currently requires explicit level)
-  template <typename... Args>
   struct when final {
-    constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
+    template <typename... Args>
+    explicit constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
       if (condition) [[unlikely]]
         info<level>(fmt, std::forward<Args>(args)...);
     }
@@ -166,8 +166,8 @@ struct warn final {
   }
 
   // note! experimental (conditional logging currently requires explicit level)
-  template <typename... Args>
   struct when final {
+    template <typename... Args>
     constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
       if (condition) [[unlikely]]
         warn<level>(fmt, std::forward<Args>(args)...);
@@ -189,8 +189,8 @@ struct error final {
   }
 
   // note! experimental (conditional logging currently requires explicit level)
-  template <typename... Args>
   struct when final {
+    template <typename... Args>
     constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
       if (condition) [[unlikely]]
         error<level>(fmt, std::forward<Args>(args)...);
@@ -210,8 +210,8 @@ struct critical final {
   }
 
   // note! experimental
-  template <typename... Args>
   struct when final {
+    template <typename... Args>
     constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
       if (condition) [[unlikely]]
         critical(fmt, std::forward<Args>(args)...);
@@ -229,8 +229,8 @@ struct fatal final {
   }
 
   // note! experimental
-  template <typename... Args>
   struct when final {
+    template <typename... Args>
     constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
       if (condition) [[unlikely]]
         fatal(fmt, std::forward<Args>(args)...);
@@ -254,8 +254,8 @@ struct debug final {
   }
 
   // note! experimental (conditional logging currently requires explicit level)
-  template <typename... Args>
   struct when final {
+    template <typename... Args>
     constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
       if (condition) [[unlikely]]
         debug<level>(fmt, std::forward<Args>(args)...);
@@ -278,8 +278,8 @@ struct system_error final {
   }
 
   // note! experimental (conditional logging currently requires explicit level)
-  template <typename... Args>
   struct when final {
+    template <typename... Args>
     constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
       if (condition) [[unlikely]]
         system_error<level>(fmt, std::forward<Args>(args)...);
