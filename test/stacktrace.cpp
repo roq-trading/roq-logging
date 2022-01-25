@@ -21,7 +21,6 @@ static auto stack_trace_function() {
 }
 }  // namespace
 
-/*
 TEST(stack_frames, simple) {
   auto depth = stack_frames_function();
 #if defined(__x86_64__)
@@ -39,4 +38,3 @@ TEST(stack_trace, simple) {
   ASSERT_GT(depth, 0);
 #endif
 }
-*/

@@ -4,6 +4,8 @@ set(SOURCES main.cpp logging.cpp regex.cpp stacktrace.cpp)
 
 add_executable("${TARGET_NAME}" ${SOURCES})
 
+add_compile_definitions(GTEST_HAS_ABSL)
+
 # target
 
 target_link_libraries("${TARGET_NAME}" ${PROJECT_NAME} absl::stacktrace absl::symbolize gtest_main)
