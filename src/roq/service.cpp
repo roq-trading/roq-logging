@@ -13,8 +13,7 @@ using namespace std::literals;
 namespace roq {
 
 namespace {
-static auto initialize_flags(
-    int argc, char **argv, const std::string_view &description, const std::string_view &version) {
+auto initialize_flags(int argc, char **argv, const std::string_view &description, const std::string_view &version) {
   compat::Abseil::set_program_usage_message(std::string{description});
   compat::Abseil::set_flags_usage_config(std::string{version});
   return compat::Abseil::parse_command_line(argc, argv);

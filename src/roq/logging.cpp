@@ -40,11 +40,11 @@ using namespace std::chrono_literals;  // NOLINT
 namespace roq {
 
 namespace {
-static const auto MESSAGE_BUFFER_SIZE = 65536;
-static const auto SPDLOG_QUEUE_SIZE = 1024 * 1024;
-static const auto SPDLOG_THREAD_COUNT = 1;
+const size_t MESSAGE_BUFFER_SIZE = 65536;
+const size_t SPDLOG_QUEUE_SIZE = 1024 * 1024;
+const size_t SPDLOG_THREAD_COUNT = 1;
 
-static auto merge_config(const Logger::Config &config) {
+auto merge_config(const Logger::Config &config) {
   decltype(config) result{
       .pattern = std::empty(config.pattern) ? Flags::log_pattern() : config.pattern,
       .flush_freq = config.flush_freq.count() == 0 ? Flags::log_flush_freq() : config.flush_freq,
@@ -92,14 +92,14 @@ thread_local std::pair<char *, size_t> message_buffer(std::data(RAW_BUFFER), std
 }  // namespace detail
 
 namespace {
-static void initialize_abseil(const std::string_view &arg0) {
+void initialize_abseil(const std::string_view &arg0) {
   std::string tmp(arg0);
   absl::InitializeSymbolizer(tmp.c_str());
 }
 }  // namespace
 
 namespace {
-static void invoke_default_signal_handler(int signal) {
+void invoke_default_signal_handler(int signal) {
   struct sigaction sa = {};
   sigemptyset(&sa.sa_mask);
   sa.sa_handler = SIG_DFL;
@@ -107,7 +107,7 @@ static void invoke_default_signal_handler(int signal) {
   kill(getpid(), signal);
 }
 
-static void termination_handler(int sig, siginfo_t *info, void *) {
+void termination_handler(int sig, siginfo_t *info, void *) {
   fprintf(stderr, "*** TERMINATION HANDLER ***\n");
 #if defined(USE_UNWIND)
   unwind::print_stacktrace(sig, info);
@@ -135,7 +135,7 @@ static void termination_handler(int sig, siginfo_t *info, void *) {
   invoke_default_signal_handler(sig);
 }
 
-static void install_failure_signal_handler() {
+void install_failure_signal_handler() {
   struct sigaction sa = {};
   sa.sa_sigaction = termination_handler;
   sa.sa_flags = SA_SIGINFO;
@@ -146,8 +146,8 @@ static void install_failure_signal_handler() {
 }  // namespace
 
 namespace {
-static spdlog::logger *SPDLOG_OUT = nullptr;
-static spdlog::logger *SPDLOG_ERR = nullptr;
+spdlog::logger *SPDLOG_OUT = nullptr;
+spdlog::logger *SPDLOG_ERR = nullptr;
 }  // namespace
 
 namespace detail {
