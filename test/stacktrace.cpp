@@ -23,7 +23,7 @@ static auto stack_trace_function() {
 
 TEST(stack_frames, simple) {
   auto depth = stack_frames_function();
-#if defined(__x86_64__)
+#if defined(__x86_64__) && !defined(__APPLE__)
   ASSERT_EQ(depth, 0);  // doesn't seem to work -- will fail when it works
 #else
   ASSERT_GT(depth, 0);
@@ -32,7 +32,7 @@ TEST(stack_frames, simple) {
 
 TEST(stack_trace, simple) {
   auto depth = stack_trace_function();
-#if defined(__x86_64__)
+#if defined(__x86_64__) && !defined(__APPLE__)
   ASSERT_EQ(depth, 0);  // doesn't seem to work -- will fail when it works
 #else
   ASSERT_GT(depth, 0);
