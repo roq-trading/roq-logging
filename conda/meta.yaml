@@ -8,6 +8,8 @@ source:
 build:
   skip: true  # [win]
   number: {{ GIT_DESCRIBE_NUMBER }}
+  script_env:                                                                                                              
+    - ROQ_BUILD_TYPE
 
 requirements:
   build:
