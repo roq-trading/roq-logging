@@ -8,6 +8,8 @@ source:
 build:
   skip: true  # [win]
   number: {{ GIT_DESCRIBE_NUMBER }}
+  run_exports:
+    - {{ pin_subpackage('roq-logging', max_pin='x.x.x') }}
   script_env:                                                                                                              
     - ROQ_BUILD_TYPE
 
