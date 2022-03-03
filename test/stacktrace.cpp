@@ -1,6 +1,6 @@
 /* Copyright (c) 2017-2022, Hans Erik Thrane */
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
 
 #include <absl/debugging/stacktrace.h>
 #include <absl/debugging/symbolize.h>
@@ -21,20 +21,20 @@ static auto stack_trace_function() {
 }
 }  // namespace
 
-TEST(stack_frames, simple) {
+TEST_CASE("stack_frames_simple", "stack_frames") {
   auto depth = stack_frames_function();
 #if defined(__x86_64__) && !defined(__APPLE__)
-  ASSERT_EQ(depth, 0);  // doesn't seem to work -- will fail when it works
+  REQUIRE(depth == 0);  // doesn't seem to work -- will fail when it works
 #else
-  ASSERT_GT(depth, 0);
+  REQUIRE(depth > 0);
 #endif
 }
 
-TEST(stack_trace, simple) {
+TEST_CASE("stack_trace_simple", "stack_trace") {
   auto depth = stack_trace_function();
 #if defined(__x86_64__) && !defined(__APPLE__)
-  ASSERT_EQ(depth, 0);  // doesn't seem to work -- will fail when it works
+  REQUIRE(depth == 0);  // doesn't seem to work -- will fail when it works
 #else
-  ASSERT_GT(depth, 0);
+  REQUIRE(depth > 0);
 #endif
 }

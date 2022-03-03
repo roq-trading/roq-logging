@@ -8,7 +8,7 @@ add_compile_definitions(GTEST_HAS_ABSL)
 
 # target
 
-target_link_libraries("${TARGET_NAME}" ${PROJECT_NAME} absl::stacktrace absl::symbolize gtest_main)
+target_link_libraries("${TARGET_NAME}" ${PROJECT_NAME} absl::stacktrace absl::symbolize Catch2::Catch2)
 
 target_compile_features("${TARGET_NAME}" PUBLIC cxx_std_20)
 

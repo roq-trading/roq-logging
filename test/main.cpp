@@ -1,8 +1,10 @@
 /* Copyright (c) 2017-2022, Hans Erik Thrane */
 
-#include <absl/debugging/symbolize.h>
+#define CATCH_CONFIG_RUNNER
 
-#include <gtest/gtest.h>
+#include <catch2/catch.hpp>
+
+#include <absl/debugging/symbolize.h>
 
 // SO5260907
 extern int my_argc;
@@ -10,8 +12,7 @@ extern char **my_argv;
 
 int main(int argc, char **argv) {
   ::absl::InitializeSymbolizer(argv[0]);
-  ::testing::InitGoogleTest(&argc, argv);
   my_argc = argc;
   my_argv = argv;
-  return RUN_ALL_TESTS();
+  return Catch::Session().run(argc, argv);
 }

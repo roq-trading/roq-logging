@@ -17,7 +17,7 @@ Logging utilities.
 
 Optional
 
-* [Google Test](https://github.com/google/googletest) (BSD 3-Clause License)
+* [Catch2](https://github.com/catchorg/Catch2) (Boost Software License 1.0 License)
 
 
 ## Prerequisites
