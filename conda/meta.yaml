@@ -20,6 +20,7 @@ requirements:
     - doxygen
     - make
   host:
+    - catch2
     - fmt
     - roq-api
     - roq-oss-abseil-cpp
