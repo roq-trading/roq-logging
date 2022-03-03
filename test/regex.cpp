@@ -1,9 +1,9 @@
 /* Copyright (c) 2017-2022, Hans Erik Thrane */
 
-#include <catch2/catch.hpp>
-
 #include <regex>
 #include <string>
+
+#include <catch2/catch.hpp>
 
 using namespace std::literals;
 

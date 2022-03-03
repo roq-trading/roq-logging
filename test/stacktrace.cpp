@@ -1,9 +1,9 @@
 /* Copyright (c) 2017-2022, Hans Erik Thrane */
 
-#include <catch2/catch.hpp>
-
 #include <absl/debugging/stacktrace.h>
 #include <absl/debugging/symbolize.h>
+
+#include <catch2/catch.hpp>
 
 namespace {
 static auto stack_frames_function() {

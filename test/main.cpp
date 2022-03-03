@@ -1,10 +1,10 @@
 /* Copyright (c) 2017-2022, Hans Erik Thrane */
 
+#include <absl/debugging/symbolize.h>
+
 #define CATCH_CONFIG_RUNNER
 
 #include <catch2/catch.hpp>
-
-#include <absl/debugging/symbolize.h>
 
 // SO5260907
 extern int my_argc;
