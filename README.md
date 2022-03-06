@@ -10,10 +10,11 @@ Logging utilities.
 
 ## Library/Package Dependencies
 
-* [fmt](https://github.com/fmtlib/fmt) (MIT License)
-* [spdlog](https://github.com/gabime/spdlog) (MIT License)
 * [Abseil](https://github.com/abseil/abseil-cpp) (Apache 2.0 License)
+* [ctre](https://github.com/hanickadot/compile-time-regular-expressions) (Apache 2.0 License)
+* [fmt](https://github.com/fmtlib/fmt) (MIT License)
 * [libunwind](https://github.com/libunwind/libunwind) (MIT License)
+* [spdlog](https://github.com/gabime/spdlog) (MIT License)
 
 Optional
 
@@ -40,6 +41,7 @@ conda install -y \
     spdlog
 
 conda install -y --channel https://roq-trading.com/conda/stable \
+    roq-oss-ctre \
     roq-oss-libunwind \
     roq-api
 ```

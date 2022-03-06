@@ -7,7 +7,8 @@
 #include <absl/flags/usage_config.h>
 
 #include <cassert>
-#include <regex>
+
+#include <ctre.hpp>
 
 using namespace std::literals;
 
@@ -15,7 +16,7 @@ namespace roq {
 namespace compat {
 
 namespace {
-const std::regex REGEX(".*/opt/conda/.*work/(src/)?(.*)"s);
+const constexpr auto PATTERN = ctll::fixed_string{".*/opt/conda/.*work/(src/)?(.*)"};
 }
 
 void Abseil::set_program_usage_message(const std::string &message) {
@@ -35,15 +36,8 @@ void Abseil::set_flags_usage_config(const std::string &version) {
       .contains_helppackage_flags = {},
       .version_string = [version]() -> std::string { return version; },
       .normalize_filename = [](const auto &file) -> std::string {
-        std::cmatch match;
-        std::regex_match(std::begin(file), std::end(file), match, REGEX);
-#if (__cplusplus >= 201703L)
-        if (std::size(match) == 3)
-#else
-        if (match.size() == 3)
-#endif
-          return std::string{match[2]};
-        return std::string{file};
+        auto [whole, dummy, sub] = ctre::match<PATTERN>(file);
+        return whole ? std::string{sub} : std::string{file};
       },
   };
   absl::SetFlagsUsageConfig(config);
