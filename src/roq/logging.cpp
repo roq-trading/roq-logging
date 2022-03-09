@@ -6,7 +6,7 @@
 #define UNW_LOCAL_ONLY
 #endif
 
-#include "roq/logging.h"
+#include "roq/logging.hpp"
 
 #include <absl/debugging/stacktrace.h>
 #include <absl/debugging/symbolize.h>
@@ -29,10 +29,10 @@
 #include <memory>
 
 #if defined(USE_UNWIND)
-#include "roq/unwind.h"
+#include "roq/unwind.hpp"
 #endif
 
-#include "roq/flags.h"
+#include "roq/flags.hpp"
 
 using namespace std::literals;         // NOLINT
 using namespace std::chrono_literals;  // NOLINT

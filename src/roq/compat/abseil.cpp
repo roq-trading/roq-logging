@@ -1,6 +1,6 @@
 /* Copyright (c) 2017-2022, Hans Erik Thrane */
 
-#include "roq/compat/abseil.h"
+#include "roq/compat/abseil.hpp"
 
 #include <absl/flags/parse.h>
 #include <absl/flags/usage.h>

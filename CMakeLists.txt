@@ -67,7 +67,7 @@ install(
   DIRECTORY "${CMAKE_SOURCE_DIR}/include/roq/"
   DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/roq"
   FILES_MATCHING
-  PATTERN "*.h"
+  PATTERN "*.hpp"
   PATTERN "CMakeFiles" EXCLUDE)
 
 # test

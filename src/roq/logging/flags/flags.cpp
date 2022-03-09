@@ -1,6 +1,6 @@
 /* Copyright (c) 2017-2022, Hans Erik Thrane */
 
-#include "roq/logging/flags/flags.h"
+#include "roq/logging/flags/flags.hpp"
 
 #include <absl/flags/flag.h>
 

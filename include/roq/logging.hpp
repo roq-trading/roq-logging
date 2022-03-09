@@ -10,10 +10,10 @@
 #include <string_view>
 #include <utility>
 
-#include "roq/format_str.h"
-#include "roq/source_location.h"
+#include "roq/format_str.hpp"
+#include "roq/source_location.hpp"
 
-#include "roq/compat.h"
+#include "roq/compat.hpp"
 
 namespace roq {
 

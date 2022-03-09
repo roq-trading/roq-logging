@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "roq/logging/flags/flags.h"
+#include "roq/logging/flags/flags.hpp"
 
 namespace roq {
 

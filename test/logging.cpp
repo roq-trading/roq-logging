@@ -2,7 +2,7 @@
 
 #include <catch2/catch.hpp>
 
-#include "roq/logging.h"
+#include "roq/logging.hpp"
 
 // SO5260907
 int my_argc;

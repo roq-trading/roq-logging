@@ -6,16 +6,16 @@
 #include <string_view>
 #include <vector>
 
-#include "roq/logging.h"
+#include "roq/logging.hpp"
 
 namespace roq {
 
 //! Convenience class to wrap \ref roq::Logger, absl::flags, etc.
-class ROQ_PUBLIC Tool {
+class ROQ_PUBLIC Service {
  public:
   struct Info final {
     std::string_view description;
-    std::string_view package_name;
+    std::string_view package_name = {};
     std::string_view build_version = {};
     std::string_view build_number = {};
     std::string_view build_type = {};
@@ -24,12 +24,12 @@ class ROQ_PUBLIC Tool {
     std::string_view compile_time = __TIME__;
   };
 
-  Tool(int argc, char **argv, const Info &);
+  Service(int argc, char **argv, const Info &);
 
-  Tool(const Tool &) = delete;
-  Tool(Tool &&) = default;
+  Service(const Service &) = delete;
+  Service(Service &&) = default;
 
-  virtual ~Tool();
+  virtual ~Service();
 
   //! The main function
   int run();
@@ -39,6 +39,9 @@ class ROQ_PUBLIC Tool {
 
  private:
   std::vector<char *> args_;
+  std::string package_name_;
+  std::string build_version_;
+  std::string build_number_;
   std::string build_type_;
   std::string git_hash_;
   std::string compile_date_;

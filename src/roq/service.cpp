@@ -1,12 +1,12 @@
 /* Copyright (c) 2017-2022, Hans Erik Thrane */
 
-#include "roq/service.h"
+#include "roq/service.hpp"
 
 #include <cassert>
 
-#include "roq/exceptions.h"
+#include "roq/exceptions.hpp"
 
-#include "roq/compat/abseil.h"
+#include "roq/compat/abseil.hpp"
 
 using namespace std::literals;
 

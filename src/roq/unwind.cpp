@@ -1,6 +1,6 @@
 /* Copyright (c) 2017-2022, Hans Erik Thrane */
 
-#include "roq/unwind.h"
+#include "roq/unwind.hpp"
 
 #define UNW_LOCAL_ONLY
 #include <libunwind.h>
