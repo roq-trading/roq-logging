@@ -12,6 +12,7 @@ class TimePeriod final {
  public:
   TimePeriod() = default;
 
+  // cppcheck-suppress noExplicitConstructor
   TimePeriod(const std::chrono::nanoseconds value) : value_(absl::FromChrono(value)) {}  // NOLINT (allow implicit)
 
   operator const absl::Duration &() const { return value_; }

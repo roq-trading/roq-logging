@@ -64,6 +64,7 @@ struct aligned_allocator {
 
   aligned_allocator() = default;
 
+  // cppcheck-suppress unusedFunction
   T *allocate(std::size_t size) {
 #if __APPLE__
     void *result;
@@ -74,6 +75,8 @@ struct aligned_allocator {
 #endif
     return reinterpret_cast<T *>(result);
   }
+
+  // cppcheck-suppress unusedFunction
   void deallocate(T *pointer, std::size_t) noexcept { ::free(pointer); }
 };
 
