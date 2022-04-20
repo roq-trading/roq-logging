@@ -221,22 +221,11 @@ struct critical final {
 
 // fatal (will always abort)
 
-struct fatal final {
-  template <typename... Args>
-  [[noreturn]] constexpr fatal(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
-    detail::helper(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
-    std::abort();
-  }
-
-  // note! experimental
-  struct when final {
-    template <typename... Args>
-    constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
-      if (condition) [[unlikely]]
-        fatal(fmt, std::forward<Args>(args)...);
-    }
-  };
-};
+template <typename... Args>
+[[noreturn]] constexpr void fatal(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
+  detail::helper(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
+  std::abort();
+}
 
 // debug (no-op unless this is a debug build)
 

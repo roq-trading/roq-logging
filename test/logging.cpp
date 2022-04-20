@@ -36,5 +36,4 @@ TEST_CASE("logging_conditional", "[logging]") {
   // log::info::when(true, "{}"sv, 123);
   log::info<0>::when(false, "{}"sv, 123);
   log::info<0>::when(true, "{}"sv, 123);
-  // log::fatal::when(false, "{}"sv, 123);
 }
