@@ -105,7 +105,7 @@ static void helper(roq::detail::sink_t &sink, const roq::format_str<Args...> &fm
   sink(view.finish());
 }
 
-#if !defined(NDEBUG)
+#ifndef NDEBUG
 template <typename... Args>
 static void helper_debug(roq::detail::sink_t &sink, const roq::format_str<Args...> &fmt, Args &&...args) {
   using namespace std::literals;
@@ -173,7 +173,7 @@ struct error final {
 
 // critical (will only abort if this is a debug build)
 
-#if !defined(NDEBUG)
+#ifndef NDEBUG
 template <typename... Args>
 [[noreturn]] constexpr void critical(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
   detail::helper(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
@@ -200,7 +200,7 @@ template <std::size_t level = 0>
 struct debug final {
   template <typename... Args>
   constexpr debug(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
-#if !defined(NDEBUG)
+#ifndef NDEBUG
     if constexpr (level > 0) {
       if (roq::detail::verbosity < level) [[likely]]
         return;
