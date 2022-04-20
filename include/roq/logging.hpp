@@ -141,15 +141,6 @@ struct info final {
     }
     detail::helper(roq::detail::INFO, fmt, std::forward<Args>(args)...);
   }
-
-  // note! experimental (conditional logging currently requires explicit level)
-  struct when final {
-    template <typename... Args>
-    explicit constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
-      if (condition) [[unlikely]]
-        info<level>(fmt, std::forward<Args>(args)...);
-    }
-  };
 };
 
 // warn
@@ -164,15 +155,6 @@ struct warn final {
     }
     detail::helper(roq::detail::WARNING, fmt, std::forward<Args>(args)...);
   }
-
-  // note! experimental (conditional logging currently requires explicit level)
-  struct when final {
-    template <typename... Args>
-    constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
-      if (condition) [[unlikely]]
-        warn<level>(fmt, std::forward<Args>(args)...);
-    }
-  };
 };
 
 // error
@@ -187,37 +169,22 @@ struct error final {
     }
     detail::helper(roq::detail::ERROR, fmt, std::forward<Args>(args)...);
   }
-
-  // note! experimental (conditional logging currently requires explicit level)
-  struct when final {
-    template <typename... Args>
-    constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
-      if (condition) [[unlikely]]
-        error<level>(fmt, std::forward<Args>(args)...);
-    }
-  };
 };
 
 // critical (will only abort if this is a debug build)
 
-struct critical final {
-  template <typename... Args>
-  [[noreturn]] constexpr critical(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
-    detail::helper(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
 #if !defined(NDEBUG)
-    std::abort();
+template <typename... Args>
+[[noreturn]] constexpr void critical(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
+  detail::helper(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
+  std::abort();
+}
+#else
+template <typename... Args>
+constexpr void critical(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
+  detail::helper(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
+}
 #endif
-  }
-
-  // note! experimental
-  struct when final {
-    template <typename... Args>
-    constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
-      if (condition) [[unlikely]]
-        critical(fmt, std::forward<Args>(args)...);
-    }
-  };
-};
 
 // fatal (will always abort)
 
@@ -241,15 +208,6 @@ struct debug final {
     detail::helper_debug(roq::detail::INFO, fmt, std::forward<Args>(args)...);
 #endif
   }
-
-  // note! experimental (conditional logging currently requires explicit level)
-  struct when final {
-    template <typename... Args>
-    constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
-      if (condition) [[unlikely]]
-        debug<level>(fmt, std::forward<Args>(args)...);
-    }
-  };
 };
 
 // system_error
@@ -265,15 +223,6 @@ struct system_error final {
     static_assert(std::is_same<std::decay<decltype(errno)>::type, int>::value);
     detail::helper_system_error(roq::detail::WARNING, errno, fmt, std::forward<Args>(args)...);
   }
-
-  // note! experimental (conditional logging currently requires explicit level)
-  struct when final {
-    template <typename... Args>
-    constexpr when(bool condition, const format_str<Args...> &fmt, Args &&...args) {
-      if (condition) [[unlikely]]
-        system_error<level>(fmt, std::forward<Args>(args)...);
-    }
-  };
 };
 
 }  // namespace log

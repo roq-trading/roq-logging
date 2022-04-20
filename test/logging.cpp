@@ -30,10 +30,3 @@ TEST_CASE("logging_no_init_after", "[logging]") {
   log::error("error"sv);
   CHECK(true == true);
 }
-
-TEST_CASE("logging_conditional", "[logging]") {
-  // log::info::when(false, "{}"sv, 123);
-  // log::info::when(true, "{}"sv, 123);
-  log::info<0>::when(false, "{}"sv, 123);
-  log::info<0>::when(true, "{}"sv, 123);
-}
