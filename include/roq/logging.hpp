@@ -95,35 +95,36 @@ namespace roq {
 namespace log {
 
 namespace detail {
-template <typename... Args>
+template <size_t level, typename... Args>
 static void helper(roq::detail::sink_t &sink, const roq::format_str<Args...> &fmt, Args &&...args) {
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
-  fmt::format_to(std::back_inserter(view), "{}:{}] "sv, fmt.file_name_, fmt.line_);
+  fmt::format_to(std::back_inserter(view), "L{} {}:{}] "sv, level, fmt.file_name_, fmt.line_);
   fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
   sink(view.finish());
 }
 
 #ifndef NDEBUG
-template <typename... Args>
+template <size_t level, typename... Args>
 static void helper_debug(roq::detail::sink_t &sink, const roq::format_str<Args...> &fmt, Args &&...args) {
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
-  fmt::format_to(std::back_inserter(view), "{}:{}] DEBUG: "sv, fmt.file_name_, fmt.line_);
+  fmt::format_to(std::back_inserter(view), "L{} {}:{}] DEBUG: "sv, level, fmt.file_name_, fmt.line_);
   fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
   sink(view.finish());
 }
 #endif
 
-template <typename... Args>
+template <size_t level, typename... Args>
 static void helper_system_error(
     roq::detail::sink_t &sink, int error, const roq::format_str<Args...> &fmt, Args &&...args) {
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
-  fmt::format_to(std::back_inserter(view), "{}:{}] {} [{}] "sv, fmt.file_name_, fmt.line_, std::strerror(error), error);
+  fmt::format_to(
+      std::back_inserter(view), "L{} {}:{}] {} [{}] "sv, level, fmt.file_name_, fmt.line_, std::strerror(error), error);
   fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
   sink(view.finish());
 }
@@ -139,7 +140,7 @@ struct info final {
       if (roq::detail::verbosity < level) [[likely]]
         return;
     }
-    detail::helper(roq::detail::INFO, fmt, std::forward<Args>(args)...);
+    detail::helper<level>(roq::detail::INFO, fmt, std::forward<Args>(args)...);
   }
 };
 
@@ -153,7 +154,7 @@ struct warn final {
       if (roq::detail::verbosity < level) [[likely]]
         return;
     }
-    detail::helper(roq::detail::WARNING, fmt, std::forward<Args>(args)...);
+    detail::helper<level>(roq::detail::WARNING, fmt, std::forward<Args>(args)...);
   }
 };
 
@@ -167,7 +168,7 @@ struct error final {
       if (roq::detail::verbosity < level) [[likely]]
         return;
     }
-    detail::helper(roq::detail::ERROR, fmt, std::forward<Args>(args)...);
+    detail::helper<level>(roq::detail::ERROR, fmt, std::forward<Args>(args)...);
   }
 };
 
@@ -176,13 +177,13 @@ struct error final {
 #ifndef NDEBUG
 template <typename... Args>
 [[noreturn]] constexpr void critical(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
-  detail::helper(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
+  detail::helper<0>(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
   std::abort();
 }
 #else
 template <typename... Args>
 constexpr void critical(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
-  detail::helper(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
+  detail::helper<level>(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
 }
 #endif
 
@@ -190,7 +191,7 @@ constexpr void critical(const format_str<Args...> &fmt, Args &&...args) {  // NO
 
 template <typename... Args>
 [[noreturn]] constexpr void fatal(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
-  detail::helper(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
+  detail::helper<0>(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
   std::abort();
 }
 
@@ -205,7 +206,7 @@ struct debug final {
       if (roq::detail::verbosity < level) [[likely]]
         return;
     }
-    detail::helper_debug(roq::detail::INFO, fmt, std::forward<Args>(args)...);
+    detail::helper_debug<level>(roq::detail::INFO, fmt, std::forward<Args>(args)...);
 #endif
   }
 };
@@ -221,7 +222,7 @@ struct system_error final {
         return;
     }
     static_assert(std::is_same<std::decay<decltype(errno)>::type, int>::value);
-    detail::helper_system_error(roq::detail::WARNING, errno, fmt, std::forward<Args>(args)...);
+    detail::helper_system_error<level>(roq::detail::WARNING, errno, fmt, std::forward<Args>(args)...);
   }
 };
 
