@@ -183,7 +183,7 @@ template <typename... Args>
 #else
 template <typename... Args>
 constexpr void critical(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
-  detail::helper<level>(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
+  detail::helper<0>(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
 }
 #endif
 
