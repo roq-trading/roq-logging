@@ -3,7 +3,7 @@ set(TARGET_NAME "${PROJECT_NAME}")
 add_subdirectory(compat)
 add_subdirectory(logging/flags)
 
-set(SOURCES logging.cpp service.cpp tool.cpp unwind.cpp)
+set(SOURCES logging.cpp service.cpp tool.cpp unwind.cpp utils.cpp)
 
 add_library("${TARGET_NAME}" SHARED ${SOURCES})
 

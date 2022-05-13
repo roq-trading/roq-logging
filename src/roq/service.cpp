@@ -8,6 +8,8 @@
 
 #include "roq/compat/abseil.hpp"
 
+#include "roq/utils.hpp"
+
 using namespace std::literals;
 
 namespace roq {
@@ -52,6 +54,7 @@ int Service::run() {
   log::info("build type    : {}"sv, build_type_);
   log::info("git hash      : {}"sv, git_hash_);
   log::info("compile time  : {} {}"sv, compile_date_, compile_time_);
+  log::info("uname         : {}"sv, logging::get_uname());
   auto res = EXIT_FAILURE;
   try {
     res = main(std::size(args_), std::data(args_));
