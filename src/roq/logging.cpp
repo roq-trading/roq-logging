@@ -77,7 +77,9 @@ struct aligned_allocator {
   }
 
   // cppcheck-suppress unusedFunction
-  void deallocate(T *pointer, std::size_t) noexcept { ::free(pointer); }
+  void deallocate(T *pointer, std::size_t) noexcept {
+    ::free(pointer);
+  }
 };
 
 template <typename T>

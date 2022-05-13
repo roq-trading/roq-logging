@@ -22,8 +22,9 @@ auto initialize_flags(int argc, char **argv, const std::string_view &description
 
 Service::Service(int argc, char **argv, const Info &info)
     : args_(initialize_flags(argc, argv, info.description, info.build_version)), package_name_(info.package_name),
-      build_version_(info.build_version), build_number_(info.build_number), build_type_(info.build_type),
-      git_hash_(info.git_hash), compile_date_(info.compile_date), compile_time_(info.compile_time) {
+      host_(info.host), build_version_(info.build_version), build_number_(info.build_number),
+      build_type_(info.build_type), git_hash_(info.git_hash), compile_date_(info.compile_date),
+      compile_time_(info.compile_time) {
   assert(std::size(args_) > 0);
   // matching spdlog pattern to glog
   // - %L = level (I=INFO|W=WARN|E=ERROR|C=CRITICAL)
@@ -45,6 +46,7 @@ Service::~Service() {
 int Service::run() {
   log::info("===== START ====="sv);
   log::info("package name  : {}"sv, package_name_);
+  log::info("host          : {}"sv, host_);
   log::info("build version : {}"sv, build_version_);
   log::info("build number  : {}"sv, build_number_);
   log::info("build type    : {}"sv, build_type_);
