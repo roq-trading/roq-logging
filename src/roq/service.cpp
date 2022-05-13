@@ -48,13 +48,13 @@ Service::~Service() {
 int Service::run() {
   log::info("===== START ====="sv);
   log::info("package name  : {}"sv, package_name_);
-  log::info("host          : {}"sv, host_);
   log::info("build version : {}"sv, build_version_);
   log::info("build number  : {}"sv, build_number_);
   log::info("build type    : {}"sv, build_type_);
   log::info("git hash      : {}"sv, git_hash_);
   log::info("compile time  : {} {}"sv, compile_date_, compile_time_);
-  log::info("uname         : {}"sv, logging::get_uname());
+  log::info("host          : {}"sv, host_);
+  log::info("uname -v      : {}"sv, logging::get_uname());
   auto res = EXIT_FAILURE;
   try {
     res = main(std::size(args_), std::data(args_));
