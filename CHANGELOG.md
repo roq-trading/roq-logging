@@ -6,6 +6,7 @@ All notable changes will be documented in this file.
 
 ### Changed                                                                                                                
 
+* Services will log `$HOST` and `uname -v` (#217)
 * `log::<...>::when` was a mistake / reverting
 
 ## 0.8.3 &ndash; 2022-03-22
