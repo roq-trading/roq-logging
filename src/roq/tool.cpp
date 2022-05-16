@@ -25,7 +25,7 @@ Tool::Tool(int argc, char **argv, const Info &info)
       git_hash_(info.git_hash), compile_date_(info.compile_date), compile_time_(info.compile_time) {
   assert(std::size(args_) > 0);
   Logger::Config config{
-      .pattern = "%v"sv,
+      .pattern = "%^%v%$"sv,
   };
   Logger::initialize(args_[0], config);
 }

@@ -158,33 +158,37 @@ spdlog::logger *SPDLOG_ERR = nullptr;
 namespace detail {
 int verbosity = 0;
 
-sink_t INFO = [](const std::string_view &message) {
+sink_t INFO = [](const std::string_view &filename, std::uint32_t line, const std::string_view &message) {
   if (SPDLOG_OUT) [[likely]] {
-    SPDLOG_OUT->log(spdlog::source_loc{}, spdlog::level::info, message);
+    const spdlog::source_loc loc{std::data(filename), static_cast<int>(line), nullptr};
+    SPDLOG_OUT->log(loc, spdlog::level::info, message);
   } else {
     std::cout << message << std::endl;
   }
 };
 
-sink_t WARNING = [](const std::string_view &message) {
+sink_t WARNING = [](const std::string_view &filename, std::uint32_t line, const std::string_view &message) {
   if (SPDLOG_OUT) [[likely]] {
-    SPDLOG_OUT->log(spdlog::source_loc{}, spdlog::level::warn, message);
+    const spdlog::source_loc loc{std::data(filename), static_cast<int>(line), nullptr};
+    SPDLOG_OUT->log(loc, spdlog::level::warn, message);
   } else {
     std::cout << message << std::endl;
   }
 };
 
-sink_t ERROR = [](const std::string_view &message) {
+sink_t ERROR = [](const std::string_view &filename, std::uint32_t line, const std::string_view &message) {
   if (SPDLOG_ERR) [[likely]] {
-    SPDLOG_ERR->log(spdlog::source_loc{}, spdlog::level::err, message);
+    const spdlog::source_loc loc{std::data(filename), static_cast<int>(line), nullptr};
+    SPDLOG_ERR->log(loc, spdlog::level::err, message);
   } else {
     std::cerr << message << std::endl;
   }
 };
 
-sink_t CRITICAL = [](const std::string_view &message) {
+sink_t CRITICAL = [](const std::string_view &filename, std::uint32_t line, const std::string_view &message) {
   if (SPDLOG_ERR) [[likely]] {
-    SPDLOG_ERR->log(spdlog::source_loc{}, spdlog::level::critical, message);
+    const spdlog::source_loc loc{std::data(filename), static_cast<int>(line), nullptr};
+    SPDLOG_ERR->log(loc, spdlog::level::critical, message);
     SPDLOG_ERR->flush();
   } else {
     std::cerr << message << std::endl;
@@ -211,7 +215,17 @@ void Logger::initialize(const std::string_view &arg0, const Config &config, bool
     if (terminal) {
       // note! almost similar to stdout/stderr, only using spdlog for buffering
       out = spdlog::stdout_color_mt("spdlog_out"s);
+      {
+        auto color_sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>(out->sinks()[0].get());
+        color_sink->set_color(spdlog::level::info, color_sink->white);
+        color_sink->set_color(spdlog::level::warn, "\033[1m\033[32m"sv);  // bold green
+      }
       err = spdlog::stderr_color_mt("spdlog_err"s);
+      {
+        auto color_sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>(err->sinks()[0].get());
+        color_sink->set_color(spdlog::level::err, color_sink->red_bold);
+        color_sink->set_color(spdlog::level::critical, color_sink->red_bold);
+      }
     } else {
       out = spdlog::stdout_logger_st<spdlog::async_factory>("spdlog"s);
     }
