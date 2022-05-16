@@ -160,7 +160,8 @@ int verbosity = 0;
 
 sink_t INFO = [](const std::string_view &filename, std::uint32_t line, const std::string_view &message) {
   if (SPDLOG_OUT) [[likely]] {
-    const spdlog::source_loc loc{std::data(filename), static_cast<int>(line), nullptr};
+    const std::string tmp{filename};  // FIXME workaround !!!
+    const spdlog::source_loc loc{tmp.c_str(), static_cast<int>(line), nullptr};
     SPDLOG_OUT->log(loc, spdlog::level::info, message);
   } else {
     std::cout << message << std::endl;
@@ -169,7 +170,8 @@ sink_t INFO = [](const std::string_view &filename, std::uint32_t line, const std
 
 sink_t WARNING = [](const std::string_view &filename, std::uint32_t line, const std::string_view &message) {
   if (SPDLOG_OUT) [[likely]] {
-    const spdlog::source_loc loc{std::data(filename), static_cast<int>(line), nullptr};
+    const std::string tmp{filename};  // FIXME workaround !!!
+    const spdlog::source_loc loc{tmp.c_str(), static_cast<int>(line), nullptr};
     SPDLOG_OUT->log(loc, spdlog::level::warn, message);
   } else {
     std::cout << message << std::endl;
@@ -178,7 +180,8 @@ sink_t WARNING = [](const std::string_view &filename, std::uint32_t line, const 
 
 sink_t ERROR = [](const std::string_view &filename, std::uint32_t line, const std::string_view &message) {
   if (SPDLOG_ERR) [[likely]] {
-    const spdlog::source_loc loc{std::data(filename), static_cast<int>(line), nullptr};
+    const std::string tmp{filename};  // FIXME workaround !!!
+    const spdlog::source_loc loc{tmp.c_str(), static_cast<int>(line), nullptr};
     SPDLOG_ERR->log(loc, spdlog::level::err, message);
   } else {
     std::cerr << message << std::endl;
@@ -187,7 +190,8 @@ sink_t ERROR = [](const std::string_view &filename, std::uint32_t line, const st
 
 sink_t CRITICAL = [](const std::string_view &filename, std::uint32_t line, const std::string_view &message) {
   if (SPDLOG_ERR) [[likely]] {
-    const spdlog::source_loc loc{std::data(filename), static_cast<int>(line), nullptr};
+    const std::string tmp{filename};  // FIXME workaround !!!
+    const spdlog::source_loc loc{tmp.c_str(), static_cast<int>(line), nullptr};
     SPDLOG_ERR->log(loc, spdlog::level::critical, message);
     SPDLOG_ERR->flush();
   } else {

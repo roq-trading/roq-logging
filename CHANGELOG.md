@@ -4,7 +4,7 @@ All notable changes will be documented in this file.
 
 ## Head
 
-### Changed                                                                                                                
+### Changed
 
 * Use color output when attached to terminal
 
