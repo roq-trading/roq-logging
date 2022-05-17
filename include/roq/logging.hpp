@@ -22,8 +22,7 @@ extern ROQ_PUBLIC thread_local std::pair<char *, size_t> message_buffer;
 extern ROQ_PUBLIC int verbosity;
 
 // sinks
-typedef std::function<void(const std::string_view &filename, std::uint32_t line, const std::string_view &message)>
-    sink_t;
+typedef std::function<void(const std::string_view &)> sink_t;
 extern ROQ_PUBLIC sink_t INFO;
 extern ROQ_PUBLIC sink_t WARNING;
 extern ROQ_PUBLIC sink_t ERROR;
@@ -101,9 +100,9 @@ static void helper(roq::detail::sink_t &sink, const roq::format_str<Args...> &fm
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
-  fmt::format_to(std::back_inserter(view), "L{} "sv, level);
+  fmt::format_to(std::back_inserter(view), "L{} {}:{}] "sv, level, fmt.file_name_, fmt.line_);
   fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
-  sink(fmt.file_name_, fmt.line_, view.finish());
+  sink(view.finish());
 }
 
 #ifndef NDEBUG
@@ -112,9 +111,9 @@ static void helper_debug(roq::detail::sink_t &sink, const roq::format_str<Args..
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
-  fmt::format_to(std::back_inserter(view), "L{} DEBUG: "sv, level);
+  fmt::format_to(std::back_inserter(view), "L{} {}:{}] DEBUG: "sv, level, fmt.file_name_, fmt.line_);
   fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
-  sink(fmt.file_name_, fmt.line_, view.finish());
+  sink(view.finish());
 }
 #endif
 
@@ -124,9 +123,10 @@ static void helper_system_error(
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
-  fmt::format_to(std::back_inserter(view), "L{} {} [{}] "sv, level, std::strerror(error), error);
+  fmt::format_to(
+      std::back_inserter(view), "L{} {}:{}] {} [{}] "sv, level, fmt.file_name_, fmt.line_, std::strerror(error), error);
   fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
-  sink(fmt.file_name_, fmt.line_, view.finish());
+  sink(view.finish());
 }
 }  // namespace detail
 

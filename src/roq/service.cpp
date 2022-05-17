@@ -37,7 +37,7 @@ Service::Service(int argc, char **argv, const Info &info)
   // - %t = thread (int)
   // - %v = message
   Logger::Config config{
-      .pattern = "%L%m%d %T.%f %t %g:%#] %^%v%$"sv,
+      .pattern = "%L%m%d %T.%f %t ^%v%$"sv,
   };
   Logger::initialize(args_[0], config);
 }
