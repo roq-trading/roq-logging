@@ -15,14 +15,14 @@ using namespace std::literals;
 namespace roq {
 
 namespace {
-auto initialize_flags(int argc, char **argv, const std::string_view &description, const std::string_view &version) {
+auto initialize_flags(int argc, char **argv, std::string_view const &description, std::string_view const &version) {
   compat::Abseil::set_program_usage_message(std::string{description});
   compat::Abseil::set_flags_usage_config(std::string{version});
   return compat::Abseil::parse_command_line(argc, argv);
 }
 }  // namespace
 
-Service::Service(int argc, char **argv, const Info &info)
+Service::Service(int argc, char **argv, Info const &info)
     : args_(initialize_flags(argc, argv, info.description, info.build_version)), package_name_(info.package_name),
       host_(info.host), build_version_(info.build_version), build_number_(info.build_number),
       build_type_(info.build_type), git_hash_(info.git_hash), compile_date_(info.compile_date),
@@ -58,7 +58,7 @@ int Service::run() {
   auto res = EXIT_FAILURE;
   try {
     res = main(std::size(args_), std::data(args_));
-  } catch (const Exception &e) {
+  } catch (Exception const &e) {
     log::error("Exception: {}"sv, e);
   } catch (std::exception &e) {
     log::error(R"(Exception: what="{}")"sv, e.what());

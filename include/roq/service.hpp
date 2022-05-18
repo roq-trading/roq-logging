@@ -25,9 +25,9 @@ class ROQ_PUBLIC Service {
     std::string_view compile_time = __TIME__;
   };
 
-  Service(int argc, char **argv, const Info &);
+  Service(int argc, char **argv, Info const &);
 
-  Service(const Service &) = delete;
+  Service(Service const &) = delete;
   Service(Service &&) = default;
 
   virtual ~Service();

@@ -44,7 +44,7 @@ const size_t MESSAGE_BUFFER_SIZE = 65536;
 const size_t SPDLOG_QUEUE_SIZE = 1024 * 1024;
 const size_t SPDLOG_THREAD_COUNT = 1;
 
-auto merge_config(const Logger::Config &config) {
+auto merge_config(Logger::Config const &config) {
   decltype(config) result{
       .pattern = std::empty(config.pattern) ? Flags::log_pattern() : config.pattern,
       .flush_freq = config.flush_freq.count() == 0 ? Flags::log_flush_freq() : config.flush_freq,
@@ -97,7 +97,7 @@ thread_local std::pair<char *, size_t> message_buffer(std::data(RAW_BUFFER), std
 }  // namespace detail
 
 namespace {
-void initialize_abseil(const std::string_view &arg0) {
+void initialize_abseil(std::string_view const &arg0) {
   std::string tmp(arg0);
   absl::InitializeSymbolizer(tmp.c_str());
 }
@@ -158,7 +158,7 @@ spdlog::logger *SPDLOG_ERR = nullptr;
 namespace detail {
 int verbosity = 0;
 
-sink_t INFO = [](const std::string_view &message) {
+sink_t INFO = [](std::string_view const &message) {
   if (SPDLOG_OUT) [[likely]] {
     const spdlog::source_loc loc{};
     SPDLOG_OUT->log(loc, spdlog::level::info, message);
@@ -167,7 +167,7 @@ sink_t INFO = [](const std::string_view &message) {
   }
 };
 
-sink_t WARNING = [](const std::string_view &message) {
+sink_t WARNING = [](std::string_view const &message) {
   if (SPDLOG_OUT) [[likely]] {
     const spdlog::source_loc loc{};
     SPDLOG_OUT->log(loc, spdlog::level::warn, message);
@@ -176,7 +176,7 @@ sink_t WARNING = [](const std::string_view &message) {
   }
 };
 
-sink_t ERROR = [](const std::string_view &message) {
+sink_t ERROR = [](std::string_view const &message) {
   if (SPDLOG_ERR) [[likely]] {
     const spdlog::source_loc loc{};
     SPDLOG_ERR->log(loc, spdlog::level::err, message);
@@ -185,7 +185,7 @@ sink_t ERROR = [](const std::string_view &message) {
   }
 };
 
-sink_t CRITICAL = [](const std::string_view &message) {
+sink_t CRITICAL = [](std::string_view const &message) {
   if (SPDLOG_ERR) [[likely]] {
     const spdlog::source_loc loc{};
     SPDLOG_ERR->log(loc, spdlog::level::critical, message);
@@ -196,7 +196,7 @@ sink_t CRITICAL = [](const std::string_view &message) {
 };
 }  // namespace detail
 
-void Logger::initialize(const std::string_view &arg0, const Config &config, bool stacktrace) {
+void Logger::initialize(std::string_view const &arg0, Config const &config, bool stacktrace) {
   // abseil:
   initialize_abseil(arg0);
   // spdlog:

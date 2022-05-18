@@ -22,7 +22,7 @@ extern ROQ_PUBLIC thread_local std::pair<char *, size_t> message_buffer;
 extern ROQ_PUBLIC int verbosity;
 
 // sinks
-typedef std::function<void(const std::string_view &)> sink_t;
+typedef std::function<void(std::string_view const &)> sink_t;
 extern ROQ_PUBLIC sink_t INFO;
 extern ROQ_PUBLIC sink_t WARNING;
 extern ROQ_PUBLIC sink_t ERROR;
@@ -45,7 +45,7 @@ class ROQ_PUBLIC basic_memory_view_t final {
       overflow_ = true;
     }
   }
-  void append(const std::string_view &text) { iter_ += text.copy(iter_, remain()); }
+  void append(std::string_view const &text) { iter_ += text.copy(iter_, remain()); }
   std::string_view finish() {
     using namespace std::literals;
     if (overflow_) [[unlikely]] {
@@ -57,8 +57,8 @@ class ROQ_PUBLIC basic_memory_view_t final {
 
  private:
   value_type *iter_;
-  const value_type *begin_;
-  const value_type *end_;
+  value_type const *begin_;
+  value_type const *end_;
   bool overflow_ = false;
 };
 
@@ -79,7 +79,7 @@ struct ROQ_PUBLIC Logger final {
   };
 
   //! Initialize the logger
-  static void initialize(const std::string_view &arg0, const Config &, bool stacktrace = true);
+  static void initialize(std::string_view const &arg0, Config const &, bool stacktrace = true);
 
   //! Shutdown the logger
   static void shutdown();
@@ -96,7 +96,7 @@ namespace log {
 
 namespace detail {
 template <size_t level, typename... Args>
-static void helper(roq::detail::sink_t &sink, const roq::format_str<Args...> &fmt, Args &&...args) {
+static void helper(roq::detail::sink_t &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
@@ -107,7 +107,7 @@ static void helper(roq::detail::sink_t &sink, const roq::format_str<Args...> &fm
 
 #ifndef NDEBUG
 template <size_t level, typename... Args>
-static void helper_debug(roq::detail::sink_t &sink, const roq::format_str<Args...> &fmt, Args &&...args) {
+static void helper_debug(roq::detail::sink_t &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
@@ -119,7 +119,7 @@ static void helper_debug(roq::detail::sink_t &sink, const roq::format_str<Args..
 
 template <size_t level, typename... Args>
 static void helper_system_error(
-    roq::detail::sink_t &sink, int error, const roq::format_str<Args...> &fmt, Args &&...args) {
+    roq::detail::sink_t &sink, int error, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view(buffer.first, buffer.second);
@@ -135,7 +135,7 @@ static void helper_system_error(
 template <std::size_t level = 0>
 struct info final {
   template <typename... Args>
-  constexpr info(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
+  constexpr info(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
       if (roq::detail::verbosity < level) [[likely]]
         return;
@@ -149,7 +149,7 @@ struct info final {
 template <std::size_t level = 0>
 struct warn final {
   template <typename... Args>
-  constexpr warn(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
+  constexpr warn(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
       if (roq::detail::verbosity < level) [[likely]]
         return;
@@ -163,7 +163,7 @@ struct warn final {
 template <std::size_t level = 0>
 struct error final {
   template <typename... Args>
-  constexpr error(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
+  constexpr error(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
       if (roq::detail::verbosity < level) [[likely]]
         return;
@@ -176,13 +176,13 @@ struct error final {
 
 #ifndef NDEBUG
 template <typename... Args>
-[[noreturn]] constexpr void critical(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
+[[noreturn]] constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
   detail::helper<0>(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
   std::abort();
 }
 #else
 template <typename... Args>
-constexpr void critical(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
+constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
   detail::helper<0>(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
 }
 #endif
@@ -190,7 +190,7 @@ constexpr void critical(const format_str<Args...> &fmt, Args &&...args) {  // NO
 // fatal (will always abort)
 
 template <typename... Args>
-[[noreturn]] constexpr void fatal(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
+[[noreturn]] constexpr void fatal(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
   detail::helper<0>(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
   std::abort();
 }
@@ -200,7 +200,7 @@ template <typename... Args>
 template <std::size_t level = 0>
 struct debug final {
   template <typename... Args>
-  constexpr debug(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
+  constexpr debug(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
 #ifndef NDEBUG
     if constexpr (level > 0) {
       if (roq::detail::verbosity < level) [[likely]]
@@ -216,7 +216,7 @@ struct debug final {
 template <std::size_t level = 0>
 struct system_error final {
   template <typename... Args>
-  constexpr system_error(const format_str<Args...> &fmt, Args &&...args) {  // NOLINT
+  constexpr system_error(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
       if (roq::detail::verbosity < level) [[likely]]
         return;

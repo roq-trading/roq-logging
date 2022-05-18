@@ -25,9 +25,9 @@ class ROQ_PUBLIC Tool {
     std::string_view compile_time = __TIME__;
   };
 
-  Tool(int argc, char **argv, const Info &);
+  Tool(int argc, char **argv, Info const &);
 
-  Tool(const Tool &) = delete;
+  Tool(Tool const &) = delete;
   Tool(Tool &&) = default;
 
   virtual ~Tool();

@@ -13,14 +13,14 @@ using namespace std::literals;
 namespace roq {
 
 namespace {
-auto initialize_flags(int argc, char **argv, const std::string_view &description, const std::string_view &version) {
+auto initialize_flags(int argc, char **argv, std::string_view const &description, std::string_view const &version) {
   compat::Abseil::set_program_usage_message(std::string{description});
   compat::Abseil::set_flags_usage_config(std::string{version});
   return compat::Abseil::parse_command_line(argc, argv);
 }
 }  // namespace
 
-Tool::Tool(int argc, char **argv, const Info &info)
+Tool::Tool(int argc, char **argv, Info const &info)
     : args_(initialize_flags(argc, argv, info.description, info.build_version)), build_type_(info.build_type),
       git_hash_(info.git_hash), compile_date_(info.compile_date), compile_time_(info.compile_time) {
   assert(std::size(args_) > 0);

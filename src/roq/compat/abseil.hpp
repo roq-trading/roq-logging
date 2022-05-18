@@ -14,8 +14,8 @@ namespace compat {
 // on osx and c++17 using gcc on linux)
 
 struct Abseil final {
-  static void set_program_usage_message(const std::string &message);
-  static void set_flags_usage_config(const std::string &version);
+  static void set_program_usage_message(std::string const &message);
+  static void set_flags_usage_config(std::string const &version);
   static std::vector<char *> parse_command_line(int argc, char **argv);
 };
 

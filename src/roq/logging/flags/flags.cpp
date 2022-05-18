@@ -15,9 +15,9 @@ class TimePeriod final {
   // cppcheck-suppress noExplicitConstructor
   TimePeriod(const std::chrono::nanoseconds value) : value_(absl::FromChrono(value)) {}  // NOLINT (allow implicit)
 
-  operator const absl::Duration &() const { return value_; }
+  operator absl::Duration const &() const { return value_; }
 
-  static std::string unparse(const TimePeriod &flag) { return absl::AbslUnparseFlag(flag.value_); }
+  static std::string unparse(TimePeriod const &flag) { return absl::AbslUnparseFlag(flag.value_); }
 
   static bool parse(absl::string_view text, TimePeriod *flag, std::string *error) {
     if (!absl::ParseFlag(text, &flag->value_, error)) {
@@ -107,7 +107,7 @@ uint32_t Flags::log_max_files() {
 }
 
 bool Flags::log_rotate_on_open() {
-  static const bool result = absl::GetFlag(FLAGS_log_rotate_on_open);
+  static bool const result = absl::GetFlag(FLAGS_log_rotate_on_open);
   return result;
 }
 

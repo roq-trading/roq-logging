@@ -27,14 +27,14 @@ const std::regex REGEX(".*/opt/conda/.*work/(src/)?(.*)"s);
 #endif
 }  // namespace
 
-void Abseil::set_program_usage_message(const std::string &message) {
+void Abseil::set_program_usage_message(std::string const &message) {
 #if (__cplusplus >= 201703L)
   assert(!std::empty(message));
 #endif
   absl::SetProgramUsageMessage(message);
 }
 
-void Abseil::set_flags_usage_config(const std::string &version) {
+void Abseil::set_flags_usage_config(std::string const &version) {
 #if (__cplusplus >= 201703L)
   assert(!std::empty(version));
 #endif
@@ -43,7 +43,7 @@ void Abseil::set_flags_usage_config(const std::string &version) {
       .contains_help_flags = [](auto) { return true; },
       .contains_helppackage_flags = {},
       .version_string = [version]() -> std::string { return version; },
-      .normalize_filename = [](const auto &file) -> std::string {
+      .normalize_filename = [](auto const &file) -> std::string {
 #if (__cplusplus >= 201703L)
         auto [whole, dummy, sub] = ctre::match<PATTERN>(file);
         return whole ? std::string{sub} : std::string{file};
