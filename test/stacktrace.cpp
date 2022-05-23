@@ -3,7 +3,7 @@
 #include <absl/debugging/stacktrace.h>
 #include <absl/debugging/symbolize.h>
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 namespace {
 static auto stack_frames_function() {

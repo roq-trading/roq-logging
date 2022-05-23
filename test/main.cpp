@@ -4,7 +4,7 @@
 
 #define CATCH_CONFIG_RUNNER
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 // SO5260907
 extern int my_argc;
