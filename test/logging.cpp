@@ -4,9 +4,7 @@
 
 #include "roq/logging.hpp"
 
-// SO5260907
-int my_argc;
-char **my_argv;
+#include "./shared.hpp"
 
 using namespace roq;
 

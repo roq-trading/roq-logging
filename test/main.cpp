@@ -6,9 +6,10 @@
 
 #include <catch2/catch_all.hpp>
 
-// SO5260907
-extern int my_argc;
-extern char **my_argv;
+#include "./shared.hpp"
+
+int my_argc;
+char **my_argv;
 
 int main(int argc, char **argv) {
   ::absl::InitializeSymbolizer(argv[0]);
