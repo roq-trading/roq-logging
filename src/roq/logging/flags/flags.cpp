@@ -77,6 +77,12 @@ ABSL_FLAG(  //
     true,
     "rotate log file on open? (only if path is non-empty)"s);
 
+ABSL_FLAG(  //
+    std::string,
+    color,
+    "always"s,
+    "use terminal colors? (one of: always, auto, none)");
+
 namespace roq {
 namespace logging {
 namespace flags {
@@ -108,6 +114,11 @@ uint32_t Flags::log_max_files() {
 
 bool Flags::log_rotate_on_open() {
   static bool const result = absl::GetFlag(FLAGS_log_rotate_on_open);
+  return result;
+}
+
+std::string_view Flags::color() {
+  static const std::string result = absl::GetFlag(FLAGS_color);
   return result;
 }
 

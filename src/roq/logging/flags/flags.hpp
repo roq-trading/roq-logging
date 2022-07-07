@@ -17,6 +17,7 @@ struct Flags final {
   static uint32_t log_max_size();
   static uint32_t log_max_files();
   static bool log_rotate_on_open();
+  static std::string_view color();
 };
 
 }  // namespace flags

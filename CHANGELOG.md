@@ -4,6 +4,10 @@ All notable changes will be documented in this file.
 
 ## Head
 
+### Added
+
+* Flag to control terminal color output (#245)
+
 ## 0.8.5 &ndash; 2022-06-06
 
 ### Changed

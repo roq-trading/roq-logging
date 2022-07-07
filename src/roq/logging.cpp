@@ -34,6 +34,8 @@
 
 #include "roq/flags.hpp"
 
+#include "roq/utils/compare.hpp"
+
 using namespace std::literals;         // NOLINT
 using namespace std::chrono_literals;  // NOLINT
 
@@ -52,6 +54,7 @@ auto merge_config(Logger::Config const &config) {
       .max_size = config.max_size == 0 ? Flags::log_max_size() : config.max_size,
       .max_files = config.max_files == 0 ? Flags::log_max_files() : config.max_files,
       .rotate_on_open = !config.rotate_on_open ? Flags::log_rotate_on_open() : config.rotate_on_open,
+      .color = std::empty(config.color) ? Flags::color() : config.color,
   };
   return result;
 }
@@ -157,6 +160,7 @@ spdlog::logger *SPDLOG_ERR = nullptr;
 
 namespace detail {
 int verbosity = 0;
+bool terminal_color = true;
 
 sink_t INFO = [](std::string_view const &message) {
   if (SPDLOG_OUT) [[likely]] {
@@ -203,6 +207,17 @@ void Logger::initialize(std::string_view const &arg0, Config const &config, bool
   auto final_config = merge_config(config);
   // note! to detach from terminal: use nohup, systemd, etc.
   auto terminal = ::isatty(fileno(stdout));
+  // terminal color
+  if (utils::case_insensitive_compare(final_config.color, "always"sv) == std::strong_ordering::equal) {
+    detail::terminal_color = true;
+  } else if (utils::case_insensitive_compare(final_config.color, "auto"sv) == std::strong_ordering::equal) {
+    detail::terminal_color = terminal;
+  } else if (utils::case_insensitive_compare(final_config.color, "none"sv) == std::strong_ordering::equal) {
+    detail::terminal_color = false;
+  } else {
+    fmt::print(stderr, R"(Unknown color: "{}")"sv, final_config.color);
+    std::exit(EXIT_FAILURE);
+  }
   // note! non-interactive sessions are asynchronous
   auto interactive = std::empty(final_config.path) && terminal;
   if (!interactive) {
@@ -214,17 +229,22 @@ void Logger::initialize(std::string_view const &arg0, Config const &config, bool
   if (std::empty(final_config.path)) {
     if (terminal) {
       // note! almost similar to stdout/stderr, only using spdlog for buffering
-      out = spdlog::stdout_color_mt("spdlog_out"s);
-      {
-        auto color_sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>(out->sinks()[0].get());
-        color_sink->set_color(spdlog::level::info, color_sink->white);
-        color_sink->set_color(spdlog::level::warn, "\033[1m\033[32m"sv);  // bold green
-      }
-      err = spdlog::stderr_color_mt("spdlog_err"s);
-      {
-        auto color_sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>(err->sinks()[0].get());
-        color_sink->set_color(spdlog::level::err, color_sink->red_bold);
-        color_sink->set_color(spdlog::level::critical, color_sink->red_bold);
+      if (detail::terminal_color) {
+        out = spdlog::stdout_color_mt("spdlog_out"s);
+        {
+          auto color_sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>(out->sinks()[0].get());
+          color_sink->set_color(spdlog::level::info, color_sink->white);
+          color_sink->set_color(spdlog::level::warn, "\033[1m\033[32m"sv);  // bold green
+        }
+        err = spdlog::stderr_color_mt("spdlog_err"s);
+        {
+          auto color_sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>(err->sinks()[0].get());
+          color_sink->set_color(spdlog::level::err, color_sink->red_bold);
+          color_sink->set_color(spdlog::level::critical, color_sink->red_bold);
+        }
+      } else {
+        out = spdlog::stdout_logger_st("spdlog_out"s);
+        err = spdlog::stderr_logger_st("spdlog_err"s);
       }
     } else {
       out = spdlog::stdout_logger_st<spdlog::async_factory>("spdlog"s);
@@ -250,9 +270,11 @@ void Logger::initialize(std::string_view const &arg0, Config const &config, bool
   // note! spdlog uses reference count
   SPDLOG_OUT = out.get();
   SPDLOG_ERR = err ? err.get() : SPDLOG_OUT;
+  // verbosity
   auto verbosity = std::getenv("ROQ_v");
   if (verbosity != nullptr && std::strlen(verbosity) > 0)
     detail::verbosity = std::atoi(verbosity);
+  // stacktrace
   if (stacktrace)
     install_failure_signal_handler();
 }

@@ -26,6 +26,12 @@ Tool::Tool(int argc, char **argv, Info const &info)
   assert(std::size(args_) > 0);
   Logger::Config config{
       .pattern = "%^%v%$"sv,
+      .flush_freq = {},
+      .path = {},
+      .max_size = {},
+      .max_files = {},
+      .rotate_on_open = {},
+      .color = {},
   };
   Logger::initialize(args_[0], config);
 }

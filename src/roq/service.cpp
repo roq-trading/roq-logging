@@ -38,6 +38,12 @@ Service::Service(int argc, char **argv, Info const &info)
   // - %v = message
   Logger::Config config{
       .pattern = "%L%m%d %T.%f %t %^%v%$"sv,
+      .flush_freq = {},
+      .path = {},
+      .max_size = {},
+      .max_files = {},
+      .rotate_on_open = {},
+      .color = {},
   };
   Logger::initialize(args_[0], config);
 }

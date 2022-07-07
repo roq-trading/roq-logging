@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <fmt/color.h>
 #include <fmt/format.h>
 
 #include <cassert>
@@ -20,6 +21,7 @@ namespace roq {
 namespace detail {
 extern ROQ_PUBLIC thread_local std::pair<char *, size_t> message_buffer;
 extern ROQ_PUBLIC int verbosity;
+extern ROQ_PUBLIC bool terminal_color;
 
 // sinks
 typedef std::function<void(std::string_view const &)> sink_t;
@@ -76,6 +78,7 @@ struct ROQ_PUBLIC Logger final {
     size_t max_size = {};
     size_t max_files = {};
     bool rotate_on_open = {};
+    std::string_view color = {};
   };
 
   //! Initialize the logger
@@ -223,6 +226,19 @@ struct system_error final {
     }
     static_assert(std::is_same<std::decay<decltype(errno)>::type, int>::value);
     detail::helper_system_error<level>(roq::detail::WARNING, errno, fmt, std::forward<Args>(args)...);
+  }
+};
+
+// print
+
+struct print final {
+  template <typename... Args>
+  constexpr print(fmt::text_style text_style, Args &&...args) {
+    fmt::print(roq::detail::terminal_color ? text_style : fmt::text_style{}, std::forward<Args>(args)...);
+  }
+  template <typename... Args>
+  constexpr print(fmt::format_string<Args...> const &format_str, Args &&...args) {
+    fmt::print(format_str, std::forward<Args>(args)...);
   }
 };
 
