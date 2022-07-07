@@ -240,6 +240,10 @@ struct print final {
   constexpr print(fmt::format_string<Args...> const &format_str, Args &&...args) {
     fmt::print(format_str, std::forward<Args>(args)...);
   }
+  template <typename... Args>
+  constexpr print(std::FILE *file, fmt::format_string<Args...> const &format_str, Args &&...args) {
+    fmt::print(file, format_str, std::forward<Args>(args)...);
+  }
 };
 
 }  // namespace log
