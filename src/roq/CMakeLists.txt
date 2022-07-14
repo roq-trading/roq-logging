@@ -9,10 +9,10 @@ add_library("${TARGET_NAME}" SHARED ${SOURCES})
 
 target_link_libraries(
   "${TARGET_NAME}"
+  PUBLIC roq-api::roq-api
   PRIVATE ${PROJECT_NAME}-compat ${PROJECT_NAME}-flags
   INTERFACE fmt::fmt
-  PRIVATE roq-api::roq-api absl::flags_parse absl::flags_usage absl::symbolize spdlog::spdlog
-          ${LIBUNWIND_LIBRARIES})
+  PRIVATE absl::flags_parse absl::flags_usage absl::symbolize spdlog::spdlog ${LIBUNWIND_LIBRARIES})
 
 target_compile_features("${TARGET_NAME}" PUBLIC cxx_std_20)
 
