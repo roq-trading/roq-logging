@@ -7,7 +7,9 @@
 namespace roq {
 namespace logging {
 
-extern std::string get_uname();
+extern std::string get_uname_v();
+extern std::string get_uname_s();
+extern std::string get_uname_r();
 
 }  // namespace logging
 }  // namespace roq

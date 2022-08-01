@@ -60,7 +60,9 @@ int Service::run() {
   log::info("git hash      : {}"sv, git_hash_);
   log::info("compile time  : {} {}"sv, compile_date_, compile_time_);
   log::info("host          : {}"sv, host_);
-  log::info("uname -v      : {}"sv, logging::get_uname());
+  log::info("uname -v      : {}"sv, logging::get_uname_v());
+  log::info("uname -s      : {}"sv, logging::get_uname_s());
+  log::info("uname -r      : {}"sv, logging::get_uname_r());
   auto res = EXIT_FAILURE;
   try {
     res = main(std::size(args_), std::data(args_));
