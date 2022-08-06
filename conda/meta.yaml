@@ -22,7 +22,7 @@ requirements:
   host:
     - fmt
     - roq-api
-    - roq-oss-abseil-cpp
+    - abseil-cpp
     - roq-oss-catch2
     - roq-oss-ctre
     - roq-oss-libunwind  # [linux]
