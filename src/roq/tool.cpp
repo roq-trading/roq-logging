@@ -2,21 +2,38 @@
 
 #include "roq/tool.hpp"
 
+#include <absl/flags/parse.h>
+#include <absl/flags/usage.h>
+#include <absl/flags/usage_config.h>
+
 #include <cassert>
 
-#include "roq/exceptions.hpp"
+#include <ctre.hpp>
 
-#include "roq/compat/abseil.hpp"
+#include "roq/exceptions.hpp"
 
 using namespace std::literals;
 
 namespace roq {
 
 namespace {
+const constexpr auto PATTERN = ctll::fixed_string{".*/opt/conda/.*work/(src/)?(.*)"};
+
 auto initialize_flags(int argc, char **argv, std::string_view const &description, std::string_view const &version) {
-  compat::Abseil::set_program_usage_message(std::string{description});
-  compat::Abseil::set_flags_usage_config(std::string{version});
-  return compat::Abseil::parse_command_line(argc, argv);
+  absl::SetProgramUsageMessage(description);
+  assert(!std::empty(version));
+  absl::FlagsUsageConfig config{
+      .contains_helpshort_flags = {},
+      .contains_help_flags = [](auto) { return true; },
+      .contains_helppackage_flags = {},
+      .version_string = [version = std::string{version}]() { return version; },
+      .normalize_filename = [](auto const &file) -> std::string {
+        auto [whole, dummy, sub] = ctre::match<PATTERN>(file);
+        return whole ? std::string{sub} : std::string{file};
+      },
+  };
+  absl::SetFlagsUsageConfig(config);
+  return absl::ParseCommandLine(argc, argv);
 }
 }  // namespace
 
