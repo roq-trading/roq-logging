@@ -12,7 +12,6 @@
 #include <utility>
 
 #include "roq/format_str.hpp"
-#include "roq/source_location.hpp"
 
 #include "roq/compat.hpp"
 
