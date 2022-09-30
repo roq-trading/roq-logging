@@ -24,7 +24,8 @@ requirements:
     - fmt
     - roq-api
     - abseil-cpp
-    - catch2
+    - catch2  # [linux]
+    - roq-oss-catch2  # [osx]
     - roq-oss-ctre
     - roq-oss-libunwind  # [linux]
     - roq-oss-magic_enum
