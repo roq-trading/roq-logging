@@ -89,8 +89,8 @@ template <typename T>
 struct page_aligned_allocator : public aligned_allocator<T, ROQ_PAGE_SIZE> {};
 
 template <typename T>
-struct page_aligned_vector : public std::vector<T, page_aligned_allocator<T> > {
-  using base_type = std::vector<T, page_aligned_allocator<T> >;
+struct page_aligned_vector : public std::vector<T, page_aligned_allocator<T>> {
+  using base_type = std::vector<T, page_aligned_allocator<T>>;
   using base_type::base_type;
 };
 
