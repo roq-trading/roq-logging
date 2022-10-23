@@ -15,5 +15,5 @@ int main(int argc, char **argv) {
   ::absl::InitializeSymbolizer(argv[0]);
   my_argc = argc;
   my_argv = argv;
-  return Catch::Session().run(argc, argv);
+  return Catch::Session{}.run(argc, argv);
 }

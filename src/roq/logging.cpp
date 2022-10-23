@@ -42,12 +42,13 @@ using namespace std::chrono_literals;  // NOLINT
 namespace roq {
 
 namespace {
-const size_t MESSAGE_BUFFER_SIZE = 65536;
-const size_t SPDLOG_QUEUE_SIZE = 1024 * 1024;
-const size_t SPDLOG_THREAD_COUNT = 1;
+constexpr auto const MESSAGE_BUFFER_SIZE = size_t{65536};
+constexpr auto const SPDLOG_QUEUE_SIZE = size_t{1024 * 1024};
+constexpr auto const SPDLOG_THREAD_COUNT = size_t{1};
 
-auto merge_config(Logger::Config const &config) {
-  decltype(config) result{
+template <typename T>
+auto merge_config(T const &config) {
+  T result{
       .pattern = std::empty(config.pattern) ? Flags::log_pattern() : config.pattern,
       .flush_freq = config.flush_freq.count() == 0 ? Flags::log_flush_freq() : config.flush_freq,
       .path = std::empty(config.path) ? Flags::log_path() : config.path,
@@ -72,7 +73,7 @@ struct aligned_allocator {
 #if __APPLE__
     void *result;
     if (posix_memalign(&result, alignment, size) != 0)
-      throw std::bad_alloc();
+      throw std::bad_alloc{};
 #else
     auto result = std::aligned_alloc(alignment, size);
 #endif
@@ -94,12 +95,12 @@ struct page_aligned_vector : public std::vector<T, page_aligned_allocator<T>> {
 
 thread_local page_aligned_vector<char> RAW_BUFFER(MESSAGE_BUFFER_SIZE);
 
-thread_local std::pair<char *, size_t> message_buffer(std::data(RAW_BUFFER), std::size(RAW_BUFFER));
+thread_local std::pair<char *, size_t> message_buffer{std::data(RAW_BUFFER), std::size(RAW_BUFFER)};
 }  // namespace detail
 
 namespace {
 void initialize_abseil(std::string_view const &arg0) {
-  std::string tmp(arg0);
+  std::string tmp{arg0};
   absl::InitializeSymbolizer(tmp.c_str());
 }
 }  // namespace
@@ -129,7 +130,7 @@ void termination_handler(int sig, siginfo_t *info, void *) {
       char const *symbol = "(unknown)";
       // note! this signature does not include the arguments
       // --> so we still prefer libunwind
-      auto result = absl::Symbolize(addr[i], std::data(name), std::size(name));
+      auto result = absl::Symbolize{addr[i], std::data(name), std::size(name)};
       if (result)
         symbol = std::data(name);
       fprintf(stderr, "[%2d] %p %s\n", i, addr[i], symbol);
@@ -163,7 +164,7 @@ bool terminal_color = true;
 sink_t INFO = [](std::string_view const &message) {
   if (SPDLOG_OUT) [[likely]] {
     const spdlog::source_loc loc{};
-    SPDLOG_OUT->log(loc, spdlog::level::info, message);
+    (*SPDLOG_OUT).log(loc, spdlog::level::info, message);
   } else {
     std::cout << message << std::endl;
   }
@@ -172,7 +173,7 @@ sink_t INFO = [](std::string_view const &message) {
 sink_t WARNING = [](std::string_view const &message) {
   if (SPDLOG_OUT) [[likely]] {
     const spdlog::source_loc loc{};
-    SPDLOG_OUT->log(loc, spdlog::level::warn, message);
+    (*SPDLOG_OUT).log(loc, spdlog::level::warn, message);
   } else {
     std::cout << message << std::endl;
   }
@@ -181,7 +182,7 @@ sink_t WARNING = [](std::string_view const &message) {
 sink_t ERROR = [](std::string_view const &message) {
   if (SPDLOG_ERR) [[likely]] {
     const spdlog::source_loc loc{};
-    SPDLOG_ERR->log(loc, spdlog::level::err, message);
+    (*SPDLOG_ERR).log(loc, spdlog::level::err, message);
   } else {
     std::cerr << message << std::endl;
   }
@@ -190,8 +191,8 @@ sink_t ERROR = [](std::string_view const &message) {
 sink_t CRITICAL = [](std::string_view const &message) {
   if (SPDLOG_ERR) [[likely]] {
     const spdlog::source_loc loc{};
-    SPDLOG_ERR->log(loc, spdlog::level::critical, message);
-    SPDLOG_ERR->flush();
+    (*SPDLOG_ERR).log(loc, spdlog::level::critical, message);
+    (*SPDLOG_ERR).flush();
   } else {
     std::cerr << message << std::endl;
   }
@@ -230,15 +231,15 @@ void Logger::initialize(std::string_view const &arg0, Config const &config, bool
       if (detail::terminal_color) {
         out = spdlog::stdout_color_mt("spdlog_out"s);
         {
-          auto color_sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>(out->sinks()[0].get());
-          color_sink->set_color(spdlog::level::info, color_sink->white);
-          color_sink->set_color(spdlog::level::warn, "\033[1m\033[32m"sv);  // bold green
+          auto color_sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>((*out).sinks()[0].get());
+          (*color_sink).set_color(spdlog::level::info, (*color_sink).white);
+          (*color_sink).set_color(spdlog::level::warn, "\033[1m\033[32m"sv);  // bold green
         }
         err = spdlog::stderr_color_mt("spdlog_err"s);
         {
-          auto color_sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>(err->sinks()[0].get());
-          color_sink->set_color(spdlog::level::err, color_sink->red_bold);
-          color_sink->set_color(spdlog::level::critical, color_sink->red_bold);
+          auto color_sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>((*err).sinks()[0].get());
+          (*color_sink).set_color(spdlog::level::err, (*color_sink).red_bold);
+          (*color_sink).set_color(spdlog::level::critical, (*color_sink).red_bold);
         }
       } else {
         out = spdlog::stdout_logger_st("spdlog_out"s);
@@ -256,14 +257,14 @@ void Logger::initialize(std::string_view const &arg0, Config const &config, bool
         final_config.rotate_on_open);
   }
   if (!std::empty(final_config.pattern))
-    out->set_pattern(std::string{final_config.pattern});
-  out->flush_on(spdlog::level::warn);
+    (*out).set_pattern(std::string{final_config.pattern});
+  (*out).flush_on(spdlog::level::warn);
   // note! async logging does not use a dedicated err stream
   // reason: avoid potential timing issues when interleaving two streams
   if (err) {
     if (!std::empty(final_config.pattern))
-      err->set_pattern(std::string{final_config.pattern});
-    err->flush_on(spdlog::level::warn);
+      (*err).set_pattern(std::string{final_config.pattern});
+    (*err).flush_on(spdlog::level::warn);
   }
   // note! spdlog uses reference count
   SPDLOG_OUT = out.get();
@@ -280,11 +281,11 @@ void Logger::initialize(std::string_view const &arg0, Config const &config, bool
 void Logger::shutdown() {
   // note! not thread-safe
   if (SPDLOG_OUT) {
-    SPDLOG_OUT->flush();
+    (*SPDLOG_OUT).flush();
     SPDLOG_OUT = nullptr;
   }
   if (SPDLOG_ERR) {
-    SPDLOG_ERR->flush();
+    (*SPDLOG_ERR).flush();
     SPDLOG_ERR = nullptr;
   }
   spdlog::drop_all();

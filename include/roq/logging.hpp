@@ -34,7 +34,7 @@ template <typename T>
 class ROQ_PUBLIC basic_memory_view_t final {
  public:
   using value_type = T;
-  basic_memory_view_t(value_type *buffer, size_t length) : iter_(buffer), begin_(buffer), end_(buffer + length) {
+  basic_memory_view_t(value_type *buffer, size_t length) : iter_{buffer}, begin_{buffer}, end_{buffer + length} {
     assert(length > 4);
   }
   size_t size() const { return iter_ - begin_; }
@@ -53,7 +53,7 @@ class ROQ_PUBLIC basic_memory_view_t final {
       assert((end_ - iter_) == 4);
       " ..."sv.copy(iter_, 4);
     }
-    return std::string_view(begin_, size());
+    return {begin_, size()};
   }
 
  private:
@@ -101,7 +101,7 @@ template <size_t level, typename... Args>
 static void helper(roq::detail::sink_t &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
-  roq::detail::memory_view_t view(buffer.first, buffer.second);
+  roq::detail::memory_view_t view{buffer.first, buffer.second};
   fmt::format_to(std::back_inserter(view), "L{} {}:{}] "sv, level, fmt.file_name_, fmt.line_);
   fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
   sink(view.finish());
@@ -112,7 +112,7 @@ template <size_t level, typename... Args>
 static void helper_debug(roq::detail::sink_t &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
-  roq::detail::memory_view_t view(buffer.first, buffer.second);
+  roq::detail::memory_view_t view{buffer.first, buffer.second};
   fmt::format_to(std::back_inserter(view), "L{} {}:{}] DEBUG: "sv, level, fmt.file_name_, fmt.line_);
   fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
   sink(view.finish());
@@ -124,7 +124,7 @@ static void helper_system_error(
     roq::detail::sink_t &sink, int error, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace std::literals;
   auto &buffer = roq::detail::message_buffer;
-  roq::detail::memory_view_t view(buffer.first, buffer.second);
+  roq::detail::memory_view_t view{buffer.first, buffer.second};
   fmt::format_to(
       std::back_inserter(view), "L{} {}:{}] {} [{}] "sv, level, fmt.file_name_, fmt.line_, std::strerror(error), error);
   fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));

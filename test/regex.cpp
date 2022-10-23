@@ -9,7 +9,7 @@
 using namespace std::literals;
 
 namespace {
-const constexpr auto PATTERN = ctll::fixed_string{".*/opt/conda/.*work/(src/)?(.*)"};
+constexpr auto const PATTERN = ctll::fixed_string{".*/opt/conda/.*work/(src/)?(.*)"};
 }
 
 TEST_CASE("regex_simple", "[regex]") {

@@ -17,7 +17,7 @@ using namespace std::literals;
 namespace roq {
 
 namespace {
-const constexpr auto PATTERN = ctll::fixed_string{".*/opt/conda/.*work/(src/)?(.*)"};
+constexpr auto const PATTERN = ctll::fixed_string{".*/opt/conda/.*work/(src/)?(.*)"};
 
 auto initialize_flags(int argc, char **argv, std::string_view const &description, std::string_view const &version) {
   absl::SetProgramUsageMessage(description);
@@ -38,8 +38,8 @@ auto initialize_flags(int argc, char **argv, std::string_view const &description
 }  // namespace
 
 Tool::Tool(int argc, char **argv, Info const &info)
-    : args_(initialize_flags(argc, argv, info.description, info.build_version)), build_type_(info.build_type),
-      git_hash_(info.git_hash), compile_date_(info.compile_date), compile_time_(info.compile_time) {
+    : args_{initialize_flags(argc, argv, info.description, info.build_version)}, build_type_{info.build_type},
+      git_hash_{info.git_hash}, compile_date_{info.compile_date}, compile_time_{info.compile_time} {
   assert(std::size(args_) > 0);
   Logger::Config config{
       .pattern = "%^%v%$"sv,

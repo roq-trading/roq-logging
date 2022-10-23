@@ -7,14 +7,14 @@
 
 namespace {
 static auto stack_frames_function() {
-  const constexpr size_t max_depth = 10;
+  constexpr auto const max_depth = size_t{10};
   void *result[max_depth];
   int sizes[max_depth];
   int depth = absl::GetStackFrames(result, sizes, max_depth, 0);
   return depth;
 }
 static auto stack_trace_function() {
-  const constexpr size_t max_depth = 10;
+  constexpr auto const max_depth = size_t{10};
   void *result[max_depth];
   int depth = absl::GetStackTrace(result, max_depth, 0);
   return depth;
