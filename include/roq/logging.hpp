@@ -201,16 +201,20 @@ template <typename... Args>
 
 template <std::size_t level = 0>
 struct debug final {
+#ifndef NDEBUG
   template <typename... Args>
   constexpr debug(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
-#ifndef NDEBUG
     if constexpr (level > 0) {
       if (roq::detail::verbosity < level) [[likely]]
         return;
     }
     detail::helper_debug<level>(roq::detail::INFO, fmt, std::forward<Args>(args)...);
-#endif
   }
+#else
+  template <typename... Args>
+  constexpr debug(format_str<Args...> const &, Args &&...) {  // NOLINT
+  }
+#endif
 };
 
 // system_error
