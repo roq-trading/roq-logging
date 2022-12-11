@@ -20,6 +20,7 @@ requirements:
     - cmake
     - doxygen
     - make
+    - pkg-config
   host:
     - fmt
     - roq-api

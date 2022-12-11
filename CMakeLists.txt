@@ -44,14 +44,20 @@ include(GNUInstallDirs)
 
 # dependencies
 
-if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  find_package(Libunwind REQUIRED)
-endif()
+# - cmake
 
 find_package(absl REQUIRED)
 find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(roq-api REQUIRED)
+
+# - pkgconfig
+
+find_package(PkgConfig REQUIRED)
+
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+pkg_check_modules(LIBUNWIND REQUIRED libunwind)
+endif()
 
 # include
 
