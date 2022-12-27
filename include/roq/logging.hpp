@@ -3,6 +3,7 @@
 #pragma once
 
 #include <fmt/color.h>
+#include <fmt/compile.h>
 #include <fmt/format.h>
 
 #include <cassert>
@@ -99,10 +100,10 @@ namespace log {
 namespace detail {
 template <size_t level, typename... Args>
 static void helper(roq::detail::sink_t &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
-  using namespace std::literals;
+  using namespace fmt::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view{buffer.first, buffer.second};
-  fmt::format_to(std::back_inserter(view), "L{} {}:{}] "sv, level, fmt.file_name_, fmt.line_);
+  fmt::format_to(std::back_inserter(view), "L{} {}:{}] "_cf, level, fmt.file_name_, fmt.line_);
   fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
   sink(view.finish());
 }
@@ -110,10 +111,10 @@ static void helper(roq::detail::sink_t &sink, roq::format_str<Args...> const &fm
 #ifndef NDEBUG
 template <size_t level, typename... Args>
 static void helper_debug(roq::detail::sink_t &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
-  using namespace std::literals;
+  using namespace fmt::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view{buffer.first, buffer.second};
-  fmt::format_to(std::back_inserter(view), "L{} {}:{}] DEBUG: "sv, level, fmt.file_name_, fmt.line_);
+  fmt::format_to(std::back_inserter(view), "L{} {}:{}] DEBUG: "_cf, level, fmt.file_name_, fmt.line_);
   fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
   sink(view.finish());
 }
@@ -122,11 +123,17 @@ static void helper_debug(roq::detail::sink_t &sink, roq::format_str<Args...> con
 template <size_t level, typename... Args>
 static void helper_system_error(
     roq::detail::sink_t &sink, int error, roq::format_str<Args...> const &fmt, Args &&...args) {
-  using namespace std::literals;
+  using namespace fmt::literals;
   auto &buffer = roq::detail::message_buffer;
   roq::detail::memory_view_t view{buffer.first, buffer.second};
   fmt::format_to(
-      std::back_inserter(view), "L{} {}:{}] {} [{}] "sv, level, fmt.file_name_, fmt.line_, std::strerror(error), error);
+      std::back_inserter(view),
+      "L{} {}:{}] {} [{}] "_cf,
+      level,
+      fmt.file_name_,
+      fmt.line_,
+      std::strerror(error),
+      error);
   fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
   sink(view.finish());
 }
