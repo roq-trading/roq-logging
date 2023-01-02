@@ -4,15 +4,9 @@ set(SOURCES main.cpp logging.cpp regex.cpp stacktrace.cpp)
 
 add_executable("${TARGET_NAME}" ${SOURCES})
 
-add_compile_definitions(GTEST_HAS_ABSL)
-
-# target
-
 target_link_libraries("${TARGET_NAME}" PRIVATE ${PROJECT_NAME} absl::stacktrace absl::symbolize
                                                Catch2::Catch2)
 
 target_compile_features("${TARGET_NAME}" PUBLIC cxx_std_20)
-
-# run
 
 add_test(NAME "${TARGET_NAME}" COMMAND "${TARGET_NAME}")

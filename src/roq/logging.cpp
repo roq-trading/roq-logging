@@ -36,14 +36,13 @@
 
 #include "roq/utils/compare.hpp"
 
-using namespace std::literals;         // NOLINT
+using namespace std::literals;
 using namespace std::chrono_literals;  // NOLINT
 
 namespace roq {
 
 namespace {
-constexpr auto const MESSAGE_BUFFER_SIZE = size_t{65536};
-constexpr auto const SPDLOG_QUEUE_SIZE = size_t{1024 * 1024};
+constexpr auto const SPDLOG_QUEUE_SIZE = size_t{1048576};
 constexpr auto const SPDLOG_THREAD_COUNT = size_t{1};
 
 template <typename T>
@@ -62,40 +61,7 @@ auto merge_config(T const &config) {
 }  // namespace
 
 namespace detail {
-template <typename T, std::size_t alignment>
-struct aligned_allocator {
-  using value_type = T;
-
-  aligned_allocator() = default;
-
-  // cppcheck-suppress unusedFunction
-  T *allocate(std::size_t size) {
-#if __APPLE__
-    void *result;
-    if (posix_memalign(&result, alignment, size) != 0)
-      throw std::bad_alloc{};
-#else
-    auto result = std::aligned_alloc(alignment, size);
-#endif
-    return reinterpret_cast<T *>(result);
-  }
-
-  // cppcheck-suppress unusedFunction
-  void deallocate(T *pointer, std::size_t) noexcept { ::free(pointer); }
-};
-
-template <typename T>
-struct page_aligned_allocator : public aligned_allocator<T, ROQ_PAGE_SIZE> {};
-
-template <typename T>
-struct page_aligned_vector : public std::vector<T, page_aligned_allocator<T>> {
-  using base_type = std::vector<T, page_aligned_allocator<T>>;
-  using base_type::base_type;
-};
-
-thread_local page_aligned_vector<char> RAW_BUFFER(MESSAGE_BUFFER_SIZE);
-
-thread_local std::pair<char *, size_t> message_buffer{std::data(RAW_BUFFER), std::size(RAW_BUFFER)};
+thread_local std::string message_buffer;
 }  // namespace detail
 
 namespace {
@@ -161,37 +127,33 @@ namespace detail {
 int verbosity = 0;
 bool terminal_color = true;
 
-sink_t INFO = [](std::string_view const &message) {
+sink_type INFO = [](std::string_view const &message) {
   if (SPDLOG_OUT) [[likely]] {
-    const spdlog::source_loc loc{};
-    (*SPDLOG_OUT).log(loc, spdlog::level::info, message);
+    (*SPDLOG_OUT).log(spdlog::level::info, message);
   } else {
     std::cout << message << std::endl;
   }
 };
 
-sink_t WARNING = [](std::string_view const &message) {
+sink_type WARNING = [](std::string_view const &message) {
   if (SPDLOG_OUT) [[likely]] {
-    const spdlog::source_loc loc{};
-    (*SPDLOG_OUT).log(loc, spdlog::level::warn, message);
+    (*SPDLOG_OUT).log(spdlog::level::warn, message);
   } else {
     std::cout << message << std::endl;
   }
 };
 
-sink_t ERROR = [](std::string_view const &message) {
+sink_type ERROR = [](std::string_view const &message) {
   if (SPDLOG_ERR) [[likely]] {
-    const spdlog::source_loc loc{};
-    (*SPDLOG_ERR).log(loc, spdlog::level::err, message);
+    (*SPDLOG_ERR).log(spdlog::level::err, message);
   } else {
     std::cerr << message << std::endl;
   }
 };
 
-sink_t CRITICAL = [](std::string_view const &message) {
+sink_type CRITICAL = [](std::string_view const &message) {
   if (SPDLOG_ERR) [[likely]] {
-    const spdlog::source_loc loc{};
-    (*SPDLOG_ERR).log(loc, spdlog::level::critical, message);
+    (*SPDLOG_ERR).log(spdlog::level::critical, message);
     (*SPDLOG_ERR).flush();
   } else {
     std::cerr << message << std::endl;
@@ -207,14 +169,14 @@ void Logger::initialize(std::string_view const &arg0, Config const &config, bool
   // note! to detach from terminal: use nohup, systemd, etc.
   auto terminal = ::isatty(fileno(stdout));
   // terminal color
-  if (utils::case_insensitive_compare(final_config.color, "always"sv) == std::strong_ordering::equal) {
+  if (utils::case_insensitive_compare(final_config.color, "always"sv) == 0) {
     detail::terminal_color = true;
-  } else if (utils::case_insensitive_compare(final_config.color, "auto"sv) == std::strong_ordering::equal) {
+  } else if (utils::case_insensitive_compare(final_config.color, "auto"sv) == 0) {
     detail::terminal_color = terminal;
-  } else if (utils::case_insensitive_compare(final_config.color, "none"sv) == std::strong_ordering::equal) {
+  } else if (utils::case_insensitive_compare(final_config.color, "none"sv) == 0) {
     detail::terminal_color = false;
   } else {
-    fmt::print(stderr, R"(Unknown color: "{}")"sv, final_config.color);
+    fmt::print(stderr, R"(Unknown color: "{}"\n)"sv, final_config.color);
     std::exit(EXIT_FAILURE);
   }
   // note! non-interactive sessions are asynchronous
@@ -250,7 +212,7 @@ void Logger::initialize(std::string_view const &arg0, Config const &config, bool
     }
   } else {
     out = spdlog::rotating_logger_st<spdlog::async_factory>(
-        "spdlog",
+        "spdlog"s,
         std::string{final_config.path},
         final_config.max_size,
         final_config.max_files,

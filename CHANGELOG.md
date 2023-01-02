@@ -4,6 +4,10 @@ All notable changes will be documented in this file.
 
 ## Head
 
+### Changed
+
+* Use `std::string` (thread-local storage) for buffering
+
 ## 0.9.0 &ndash; 2022-12-22
 
 ## 0.8.9 &ndash; 2022-11-14

@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "roq/compat.hpp"
+
 #include <fmt/color.h>
 #include <fmt/compile.h>
 #include <fmt/format.h>
@@ -9,63 +11,26 @@
 #include <cassert>
 #include <chrono>
 #include <functional>
+#include <string>
 #include <string_view>
 #include <utility>
 
 #include "roq/format_str.hpp"
 
-#include "roq/compat.hpp"
-
 namespace roq {
 
 namespace detail {
-extern ROQ_PUBLIC thread_local std::pair<char *, size_t> message_buffer;
+extern ROQ_PUBLIC thread_local std::string message_buffer;
+
 extern ROQ_PUBLIC int verbosity;
 extern ROQ_PUBLIC bool terminal_color;
 
-// sinks
-typedef std::function<void(std::string_view const &)> sink_t;
-extern ROQ_PUBLIC sink_t INFO;
-extern ROQ_PUBLIC sink_t WARNING;
-extern ROQ_PUBLIC sink_t ERROR;
-extern ROQ_PUBLIC sink_t CRITICAL;
+using sink_type = std::function<void(std::string_view const &)>;
 
-// memory_view to support std::back_inserter
-template <typename T>
-class ROQ_PUBLIC basic_memory_view_t final {
- public:
-  using value_type = T;
-  basic_memory_view_t(value_type *buffer, size_t length) : iter_{buffer}, begin_{buffer}, end_{buffer + length} {
-    assert(length > 4);
-  }
-  size_t size() const { return iter_ - begin_; }
-  size_t remain() const { return end_ - iter_ - 4; }
-  void push_back(char value) {
-    if (remain() > 0) [[likely]] {
-      *(iter_++) = value;
-    } else {
-      overflow_ = true;
-    }
-  }
-  void append(std::string_view const &text) { iter_ += text.copy(iter_, remain()); }
-  std::string_view finish() {
-    using namespace std::literals;
-    if (overflow_) [[unlikely]] {
-      assert((end_ - iter_) == 4);
-      " ..."sv.copy(iter_, 4);
-    }
-    return {begin_, size()};
-  }
-
- private:
-  value_type *iter_;
-  value_type const *begin_;
-  value_type const *end_;
-  bool overflow_ = false;
-};
-
-using memory_view_t = basic_memory_view_t<char>;
-
+extern ROQ_PUBLIC sink_type INFO;
+extern ROQ_PUBLIC sink_type WARNING;
+extern ROQ_PUBLIC sink_type ERROR;
+extern ROQ_PUBLIC sink_type CRITICAL;
 }  // namespace detail
 
 //! Interface to manage the lifetime of the single static logger.
@@ -99,43 +64,48 @@ namespace log {
 
 namespace detail {
 template <size_t level, typename... Args>
-static void helper(roq::detail::sink_t &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
+static void helper(roq::detail::sink_type &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace fmt::literals;
-  auto &buffer = roq::detail::message_buffer;
-  roq::detail::memory_view_t view{buffer.first, buffer.second};
-  fmt::format_to(std::back_inserter(view), "L{} {}:{}] "_cf, level, fmt.file_name_, fmt.line_);
-  fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
-  sink(view.finish());
+  auto &message = roq::detail::message_buffer;
+#ifndef NDEBUG
+  auto capacity = message.capacity();
+#endif
+  message.clear();  // note! capacity is in reality preserved but it is not guaranteed by the standard
+#ifndef NDEBUG
+  assert(capacity == message.capacity());
+#endif
+  fmt::format_to(std::back_inserter(message), "L{} {}:{}] "_cf, level, fmt.file_name_, fmt.line_);
+  fmt::vformat_to(std::back_inserter(message), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
+  sink(message);
 }
 
 #ifndef NDEBUG
 template <size_t level, typename... Args>
-static void helper_debug(roq::detail::sink_t &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
+static void helper_debug(roq::detail::sink_type &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace fmt::literals;
-  auto &buffer = roq::detail::message_buffer;
-  roq::detail::memory_view_t view{buffer.first, buffer.second};
-  fmt::format_to(std::back_inserter(view), "L{} {}:{}] DEBUG: "_cf, level, fmt.file_name_, fmt.line_);
-  fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
-  sink(view.finish());
+  auto &message = roq::detail::message_buffer;
+  message.clear();  // note! capacity is in reality preserved but it is not guaranteed by the standard
+  fmt::format_to(std::back_inserter(message), "L{} {}:{}] DEBUG: "_cf, level, fmt.file_name_, fmt.line_);
+  fmt::vformat_to(std::back_inserter(message), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
+  sink(message);
 }
 #endif
 
 template <size_t level, typename... Args>
 static void helper_system_error(
-    roq::detail::sink_t &sink, int error, roq::format_str<Args...> const &fmt, Args &&...args) {
+    roq::detail::sink_type &sink, int error, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace fmt::literals;
-  auto &buffer = roq::detail::message_buffer;
-  roq::detail::memory_view_t view{buffer.first, buffer.second};
+  auto &message = roq::detail::message_buffer;
   fmt::format_to(
-      std::back_inserter(view),
+      std::back_inserter(message),
       "L{} {}:{}] {} [{}] "_cf,
       level,
       fmt.file_name_,
       fmt.line_,
       std::strerror(error),
       error);
-  fmt::vformat_to(std::back_inserter(view), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
-  sink(view.finish());
+  fmt::vformat_to(std::back_inserter(message), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
+  sink(message);
 }
 }  // namespace detail
 
