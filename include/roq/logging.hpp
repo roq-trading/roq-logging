@@ -96,6 +96,7 @@ static void helper_system_error(
     roq::detail::sink_type &sink, int error, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace fmt::literals;
   auto &message = roq::detail::message_buffer;
+  message.clear();
   fmt::format_to(
       std::back_inserter(message),
       "L{} {}:{}] {} [{}] "_cf,
