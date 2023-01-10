@@ -22,7 +22,7 @@ namespace roq {
 namespace detail {
 extern ROQ_PUBLIC thread_local std::string message_buffer;
 
-extern ROQ_PUBLIC int verbosity;
+extern ROQ_PUBLIC size_t verbosity;
 extern ROQ_PUBLIC bool terminal_color;
 
 using sink_type = std::function<void(std::string_view const &)>;

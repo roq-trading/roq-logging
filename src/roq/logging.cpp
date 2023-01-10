@@ -124,7 +124,7 @@ spdlog::logger *SPDLOG_ERR = nullptr;
 }  // namespace
 
 namespace detail {
-int verbosity = 0;
+size_t verbosity = 0;
 bool terminal_color = true;
 
 sink_type INFO = [](std::string_view const &message) {
@@ -233,8 +233,11 @@ void Logger::initialize(std::string_view const &arg0, Config const &config, bool
   SPDLOG_ERR = err ? err.get() : SPDLOG_OUT;
   // verbosity
   auto verbosity = std::getenv("ROQ_v");
-  if (verbosity != nullptr && std::strlen(verbosity) > 0)
-    detail::verbosity = std::atoi(verbosity);
+  if (verbosity != nullptr && std::strlen(verbosity) > 0) {
+    auto tmp = std::atoi(verbosity);
+    if (tmp >= 0)
+      detail::verbosity = tmp;
+  }
   // stacktrace
   if (stacktrace)
     install_failure_signal_handler();
