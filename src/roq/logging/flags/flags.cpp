@@ -8,8 +8,7 @@ using namespace std::literals;
 using namespace std::chrono_literals;  // NOLINT
 
 namespace {
-class TimePeriod final {
- public:
+struct TimePeriod final {
   TimePeriod() = default;
 
   // cppcheck-suppress noExplicitConstructor

@@ -11,8 +11,7 @@
 namespace roq {
 
 //! Convenience class to wrap \ref roq::Logger, absl::flags, etc.
-class ROQ_PUBLIC Tool {
- public:
+struct ROQ_PUBLIC Tool {
   struct Info final {
     std::string_view description;
     std::string_view package_name;
