@@ -80,6 +80,7 @@ int Service::run() {
   log::info("uname -v      : {}"sv, logging::get_uname_v());
   log::info("uname -s      : {}"sv, logging::get_uname_s());
   log::info("uname -r      : {}"sv, logging::get_uname_r());
+  log::info("cwd           : {}"sv, logging::get_cwd());
   auto res = EXIT_FAILURE;
   try {
     res = main(std::size(args_), std::data(args_));

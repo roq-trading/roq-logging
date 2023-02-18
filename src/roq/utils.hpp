@@ -11,5 +11,7 @@ extern std::string get_uname_v();
 extern std::string get_uname_s();
 extern std::string get_uname_r();
 
+extern std::string get_cwd();
+
 }  // namespace logging
 }  // namespace roq

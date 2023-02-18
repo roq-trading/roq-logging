@@ -2,6 +2,9 @@
 
 #include "roq/utils.hpp"
 
+#include <limits.h>
+#include <unistd.h>
+
 #include <sys/utsname.h>
 
 namespace roq {
@@ -25,6 +28,13 @@ std::string get_uname_r() {
   struct utsname utsname = {};
   if (uname(&utsname) == 0)
     return {utsname.release};
+  return {};
+}
+
+std::string get_cwd() {
+  char cwd[PATH_MAX];
+  if (getcwd(cwd, sizeof(cwd)))
+    return cwd;
   return {};
 }
 
