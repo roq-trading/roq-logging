@@ -78,7 +78,7 @@ ABSL_FLAG(  //
 ABSL_FLAG(  //
     std::string,
     color,
-    "always"s,
+    "auto"s,
     "use terminal colors? (one of: always, auto, none)");
 
 namespace roq {

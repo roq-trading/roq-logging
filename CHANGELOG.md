@@ -4,6 +4,10 @@ All notable changes will be documented in this file.
 
 ## Head
 
+### Changed
+
+* The `--color` flag now has "auto" as default value (#318)
+
 ## 0.9.2 &ndash; 2023-02-22
 
 ## 0.9.1 &ndash; 2023-01-12
