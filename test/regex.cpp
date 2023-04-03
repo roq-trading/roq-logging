@@ -6,13 +6,8 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <ctll/fixed_string.hpp>
-#include <ctll/utilities.hpp>
 
-#include <ctre.hpp>  // IWYU pragma: keep
-
-#include <ctre/flags_and_modes.hpp>
-#include <ctre/return_type.hpp>
-#include <ctre/wrapper.hpp>
+#include <ctre.hpp>
 
 using namespace std::literals;
 
