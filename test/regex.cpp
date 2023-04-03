@@ -1,10 +1,18 @@
 /* Copyright (c) 2017-2023, Hans Erik Thrane */
 
 #include <string>
+#include <string_view>
 
-#include <catch2/catch_all.hpp>
+#include <catch2/catch_test_macros.hpp>
 
-#include <ctre.hpp>
+#include <ctll/fixed_string.hpp>
+#include <ctll/utilities.hpp>
+
+#include <ctre.hpp>  // IWYU pragma: keep
+
+#include <ctre/flags_and_modes.hpp>
+#include <ctre/return_type.hpp>
+#include <ctre/wrapper.hpp>
 
 using namespace std::literals;
 

@@ -3,6 +3,14 @@
 #include "roq/logging/flags/flags.hpp"
 
 #include <absl/flags/flag.h>
+#include <absl/flags/marshalling.h>
+
+#include <absl/strings/string_view.h>
+
+#include <absl/time/time.h>
+
+#include <cstdint>
+#include <string>
 
 using namespace std::literals;
 using namespace std::chrono_literals;  // NOLINT

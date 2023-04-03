@@ -4,9 +4,9 @@
 
 #define CATCH_CONFIG_RUNNER
 
-#include <catch2/catch_all.hpp>
+#include <catch2/catch_session.hpp>
 
-#include "./shared.hpp"
+#include "./shared.hpp"  // IWYU pragma: keep
 
 int my_argc;
 char **my_argv;

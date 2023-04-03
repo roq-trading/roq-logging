@@ -3,7 +3,7 @@
 #include "roq/unwind.hpp"
 
 #define UNW_LOCAL_ONLY
-#include <libunwind.h>
+#include <libunwind.h>  // IWYU pragma: keep
 
 #include <cxxabi.h>
 #include <stdio.h>
