@@ -10,6 +10,8 @@
 namespace roq {
 namespace logging {
 
+// === IMPLEMENTATION ===
+
 std::string get_uname_v() {
   struct utsname utsname = {};
   if (uname(&utsname) == 0)

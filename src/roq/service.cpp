@@ -18,26 +18,36 @@ using namespace std::literals;
 
 namespace roq {
 
+// === CONSTANTS ===
+
 namespace {
 constexpr auto const PATTERN = ctll::fixed_string{".*/opt/conda/.*work/(src/)?(.*)"};
+}
 
+// === HELPERS ===
+
+namespace {
 auto initialize_flags(int argc, char **argv, std::string_view const &description, std::string_view const &version) {
   absl::SetProgramUsageMessage(description);
   assert(!std::empty(version));
-  absl::FlagsUsageConfig config{
+  auto version_string = [version = std::string{version}]() { return version; };
+  auto normalize_filename = [](auto const &file) -> std::string {
+    auto [whole, dummy, sub] = ctre::match<PATTERN>(file);
+    return whole ? std::string{sub} : std::string{file};
+  };
+  auto config = absl::FlagsUsageConfig{
       .contains_helpshort_flags = {},
       .contains_help_flags = [](auto) { return true; },
       .contains_helppackage_flags = {},
-      .version_string = [version = std::string{version}]() { return version; },
-      .normalize_filename = [](auto const &file) -> std::string {
-        auto [whole, dummy, sub] = ctre::match<PATTERN>(file);
-        return whole ? std::string{sub} : std::string{file};
-      },
+      .version_string = version_string,
+      .normalize_filename = normalize_filename,
   };
   absl::SetFlagsUsageConfig(config);
   return absl::ParseCommandLine(argc, argv);
 }
 }  // namespace
+
+// === IMPLEMENTATION ===
 
 Service::Service(int argc, char **argv, Info const &info)
     : args_{initialize_flags(argc, argv, info.description, info.build_version)}, package_name_{info.package_name},
@@ -53,7 +63,7 @@ Service::Service(int argc, char **argv, Info const &info)
   // - %f = fraction (microseconds)
   // - %t = thread (int)
   // - %v = message
-  Logger::Config config{
+  auto config = Logger::Config{
       .pattern = "%L%m%d %T.%f %t %^%v%$"sv,
       .flush_freq = {},
       .path = {},

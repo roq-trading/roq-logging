@@ -41,13 +41,19 @@ using namespace std::chrono_literals;  // NOLINT
 
 namespace roq {
 
+// === CONSTANTS ===
+
 namespace {
 constexpr auto const SPDLOG_QUEUE_SIZE = size_t{1048576};
 constexpr auto const SPDLOG_THREAD_COUNT = size_t{1};
+}  // namespace
 
+// === HELPERS ===
+
+namespace {
 template <typename T>
-auto merge_config(T const &config) {
-  T result{
+auto merge_config(T const &config) -> T {
+  return {
       .pattern = std::empty(config.pattern) ? Flags::log_pattern() : config.pattern,
       .flush_freq = config.flush_freq.count() == 0 ? Flags::log_flush_freq() : config.flush_freq,
       .path = std::empty(config.path) ? Flags::log_path() : config.path,
@@ -56,22 +62,13 @@ auto merge_config(T const &config) {
       .rotate_on_open = !config.rotate_on_open ? Flags::log_rotate_on_open() : config.rotate_on_open,
       .color = std::empty(config.color) ? Flags::color() : config.color,
   };
-  return result;
 }
-}  // namespace
 
-namespace detail {
-thread_local std::string message_buffer;
-}  // namespace detail
-
-namespace {
 void initialize_abseil(std::string_view const &arg0) {
   std::string tmp{arg0};
   absl::InitializeSymbolizer(tmp.c_str());
 }
-}  // namespace
 
-namespace {
 void invoke_default_signal_handler(int signal) {
   struct sigaction sa = {};
   sigemptyset(&sa.sa_mask);
@@ -118,12 +115,18 @@ void install_failure_signal_handler() {
 }
 }  // namespace
 
+// === GLOBAL ===
+
 namespace {
 spdlog::logger *SPDLOG_OUT = nullptr;
 spdlog::logger *SPDLOG_ERR = nullptr;
 }  // namespace
 
+// === EXTERN ===
+
 namespace detail {
+thread_local std::string message_buffer;
+
 size_t verbosity = 0;
 bool terminal_color = true;
 
@@ -160,6 +163,8 @@ sink_type CRITICAL = [](std::string_view const &message) {
   }
 };
 }  // namespace detail
+
+// === IMPLEMENTATION ===
 
 void Logger::initialize(std::string_view const &arg0, Config const &config, bool stacktrace) {
   // abseil:
