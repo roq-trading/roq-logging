@@ -22,7 +22,7 @@ requirements:
     - make
     - pkg-config
   host:
-    - fmt
+    - fmt==9.1
     - roq-api
     - abseil-cpp
     - catch2  # [linux]
