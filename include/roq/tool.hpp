@@ -29,7 +29,7 @@ struct ROQ_PUBLIC Tool {
   Tool(int argc, char **argv, Info const &);
 
   Tool(Tool const &) = delete;
-  Tool(Tool &&) = default;
+  Tool(Tool &&) = delete;
 
   virtual ~Tool();
 

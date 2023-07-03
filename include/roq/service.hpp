@@ -29,7 +29,7 @@ struct ROQ_PUBLIC Service {
   Service(int argc, char **argv, Info const &);
 
   Service(Service const &) = delete;
-  Service(Service &&) = default;
+  Service(Service &&) = delete;
 
   virtual ~Service();
 

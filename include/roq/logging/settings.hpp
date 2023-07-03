@@ -42,7 +42,7 @@ struct fmt::formatter<roq::logging::detail::Log> {
   }
   template <typename Context>
   auto format(roq::logging::detail::Log const &value, Context &context) const {
-    using namespace fmt::literals;
+    using namespace std::literals;
     return fmt::format_to(
         context.out(),
         R"({{)"
@@ -53,7 +53,7 @@ struct fmt::formatter<roq::logging::detail::Log> {
         R"(max_files={}, )"
         R"(rotate_on_open={}, )"
         R"(color="{}")"
-        R"(}})"_cf,
+        R"(}})"sv,
         value.pattern,
         value.flush_freq,
         value.path,
@@ -72,12 +72,12 @@ struct fmt::formatter<roq::logging::Settings> {
   }
   template <typename Context>
   auto format(roq::logging::Settings const &value, Context &context) const {
-    using namespace fmt::literals;
+    using namespace std::literals;
     return fmt::format_to(
         context.out(),
         R"({{)"
         R"(log={})"
-        R"(}})"_cf,
+        R"(}})"sv,
         value.log);
   }
 };
