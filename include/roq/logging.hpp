@@ -17,56 +17,17 @@
 
 #include "roq/format_str.hpp"
 
-namespace roq {
-
-namespace detail {
-extern ROQ_PUBLIC thread_local std::string message_buffer;
-
-extern ROQ_PUBLIC size_t verbosity;
-extern ROQ_PUBLIC bool terminal_color;
-
-using sink_type = std::function<void(std::string_view const &)>;
-
-extern ROQ_PUBLIC sink_type INFO;
-extern ROQ_PUBLIC sink_type WARNING;
-extern ROQ_PUBLIC sink_type ERROR;
-extern ROQ_PUBLIC sink_type CRITICAL;
-}  // namespace detail
-
-//! Interface to manage the lifetime of the single static logger.
-struct ROQ_PUBLIC Logger final {
-  //! Config
-  struct Config final {
-    std::string_view pattern = {};
-    std::chrono::nanoseconds flush_freq = {};
-    std::string_view path = {};
-    size_t max_size = {};
-    size_t max_files = {};
-    bool rotate_on_open = {};
-    std::string_view color = {};
-  };
-
-  //! Initialize the logger
-  static void initialize(std::string_view const &arg0, Config const &, bool stacktrace = true);
-
-  //! Shutdown the logger
-  static void shutdown();
-};
-
-}  // namespace roq
-
-// logging interface using source_location and deduction guides
-// references:
-//   https://stackoverflow.com/a/66380209
+#include "roq/logging/settings.hpp"
+#include "roq/logging/shared.hpp"
 
 namespace roq {
 namespace log {
 
 namespace detail {
 template <size_t level, typename... Args>
-static void helper(roq::detail::sink_type &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
+static void helper(roq::logging::sink_type &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace fmt::literals;
-  auto &message = roq::detail::message_buffer;
+  auto &message = roq::logging::message_buffer;
 #ifndef NDEBUG
   auto capacity = message.capacity();
 #endif
@@ -81,9 +42,9 @@ static void helper(roq::detail::sink_type &sink, roq::format_str<Args...> const 
 
 #ifndef NDEBUG
 template <size_t level, typename... Args>
-static void helper_debug(roq::detail::sink_type &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
+static void helper_debug(roq::logging::sink_type &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace fmt::literals;
-  auto &message = roq::detail::message_buffer;
+  auto &message = roq::logging::message_buffer;
   message.clear();  // note! capacity is in reality preserved but it is not guaranteed by the standard
   fmt::format_to(std::back_inserter(message), "L{} {}:{}] DEBUG: "_cf, level, fmt.file_name_, fmt.line_);
   fmt::vformat_to(std::back_inserter(message), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
@@ -93,9 +54,9 @@ static void helper_debug(roq::detail::sink_type &sink, roq::format_str<Args...> 
 
 template <size_t level, typename... Args>
 static void helper_system_error(
-    roq::detail::sink_type &sink, int error, roq::format_str<Args...> const &fmt, Args &&...args) {
+    roq::logging::sink_type &sink, int error, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace fmt::literals;
-  auto &message = roq::detail::message_buffer;
+  auto &message = roq::logging::message_buffer;
   message.clear();
   fmt::format_to(
       std::back_inserter(message),
@@ -117,10 +78,10 @@ struct info final {
   template <typename... Args>
   constexpr info(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
-      if (roq::detail::verbosity < level) [[likely]]
+      if (roq::logging::verbosity < level) [[likely]]
         return;
     }
-    detail::helper<level>(roq::detail::INFO, fmt, std::forward<Args>(args)...);
+    detail::helper<level>(roq::logging::INFO, fmt, std::forward<Args>(args)...);
   }
 };
 
@@ -131,10 +92,10 @@ struct warn final {
   template <typename... Args>
   constexpr warn(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
-      if (roq::detail::verbosity < level) [[likely]]
+      if (roq::logging::verbosity < level) [[likely]]
         return;
     }
-    detail::helper<level>(roq::detail::WARNING, fmt, std::forward<Args>(args)...);
+    detail::helper<level>(roq::logging::WARNING, fmt, std::forward<Args>(args)...);
   }
 };
 
@@ -145,10 +106,10 @@ struct error final {
   template <typename... Args>
   constexpr error(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
-      if (roq::detail::verbosity < level) [[likely]]
+      if (roq::logging::verbosity < level) [[likely]]
         return;
     }
-    detail::helper<level>(roq::detail::ERROR, fmt, std::forward<Args>(args)...);
+    detail::helper<level>(roq::logging::ERROR, fmt, std::forward<Args>(args)...);
   }
 };
 
@@ -157,13 +118,13 @@ struct error final {
 #ifndef NDEBUG
 template <typename... Args>
 [[noreturn]] constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
-  detail::helper<0>(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
+  detail::helper<0>(roq::logging::CRITICAL, fmt, std::forward<Args>(args)...);
   std::abort();
 }
 #else
 template <typename... Args>
 constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
-  detail::helper<0>(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
+  detail::helper<0>(roq::logging::CRITICAL, fmt, std::forward<Args>(args)...);
 }
 #endif
 
@@ -171,7 +132,7 @@ constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {  // NO
 
 template <typename... Args>
 [[noreturn]] constexpr void fatal(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
-  detail::helper<0>(roq::detail::CRITICAL, fmt, std::forward<Args>(args)...);
+  detail::helper<0>(roq::logging::CRITICAL, fmt, std::forward<Args>(args)...);
   std::abort();
 }
 
@@ -183,10 +144,10 @@ struct debug final {
   template <typename... Args>
   constexpr debug(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
-      if (roq::detail::verbosity < level) [[likely]]
+      if (roq::logging::verbosity < level) [[likely]]
         return;
     }
-    detail::helper_debug<level>(roq::detail::INFO, fmt, std::forward<Args>(args)...);
+    detail::helper_debug<level>(roq::logging::INFO, fmt, std::forward<Args>(args)...);
   }
 #else
   template <typename... Args>
@@ -202,11 +163,11 @@ struct system_error final {
   template <typename... Args>
   constexpr system_error(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
     if constexpr (level > 0) {
-      if (roq::detail::verbosity < level) [[likely]]
+      if (roq::logging::verbosity < level) [[likely]]
         return;
     }
     static_assert(std::is_same<std::decay<decltype(errno)>::type, int>::value);
-    detail::helper_system_error<level>(roq::detail::WARNING, errno, fmt, std::forward<Args>(args)...);
+    detail::helper_system_error<level>(roq::logging::WARNING, errno, fmt, std::forward<Args>(args)...);
   }
 };
 
@@ -215,7 +176,7 @@ struct system_error final {
 struct print final {
   template <typename... Args>
   constexpr print(fmt::text_style text_style, Args &&...args) {
-    fmt::print(roq::detail::terminal_color ? text_style : fmt::text_style{}, std::forward<Args>(args)...);
+    fmt::print(roq::logging::terminal_color ? text_style : fmt::text_style{}, std::forward<Args>(args)...);
   }
   template <typename... Args>
   constexpr print(fmt::format_string<Args...> const &format_str, Args &&...args) {

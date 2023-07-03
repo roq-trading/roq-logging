@@ -6,7 +6,9 @@
 #include <string_view>
 #include <vector>
 
-#include "roq/logging.hpp"
+#include "roq/logging.hpp"  // XXX TODO remove
+
+#include "roq/logging/logger.hpp"
 
 namespace roq {
 
@@ -43,6 +45,8 @@ struct ROQ_PUBLIC Tool {
   std::string git_hash_;
   std::string compile_date_;
   std::string compile_time_;
+  logging::Settings settings_;
+  logging::Logger logger_;
 };
 
 }  // namespace roq

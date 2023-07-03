@@ -4,6 +4,10 @@
 
 #include "roq/logging.hpp"
 
+#include "roq/logging/logger.hpp"
+
+#include "roq/logging/flags/settings.hpp"
+
 #include "./shared.hpp"
 
 using namespace roq;
@@ -18,9 +22,9 @@ TEST_CASE("logging_no_init_before", "[logging]") {
 
 TEST_CASE("logging_start_stop", "[logging]") {
   assert(my_argc > 0);
-  Logger::Config config{};
-  Logger::initialize(my_argv[0], config);
-  Logger::shutdown();
+  logging::Logger::initialize_0(my_argv[0]);
+  auto settings = logging::flags::create_settings();
+  logging::Logger logger{settings};
 }
 
 TEST_CASE("logging_no_init_after", "[logging]") {

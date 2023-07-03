@@ -12,6 +12,12 @@
 
 #include "roq/exceptions.hpp"
 
+#include "roq/logging.hpp"
+
+#include "roq/logging/logger.hpp"
+
+#include "roq/logging/flags/settings.hpp"
+
 using namespace std::literals;
 
 namespace roq {
@@ -20,12 +26,14 @@ namespace roq {
 
 namespace {
 constexpr auto const PATTERN = ctll::fixed_string{".*/opt/conda/.*work/(src/)?(.*)"};
-}
+auto const DEFAULT_LOG_PATTERN = "%^%v%$"sv;
+}  // namespace
 
 // === HELPERS ===
 
 namespace {
 auto initialize_flags(int argc, char **argv, std::string_view const &description, std::string_view const &version) {
+  assert(argc > 0);
   absl::SetProgramUsageMessage(description);
   assert(!std::empty(version));
   auto version_string = [version = std::string{version}]() { return version; };
@@ -41,7 +49,17 @@ auto initialize_flags(int argc, char **argv, std::string_view const &description
       .normalize_filename = normalize_filename,
   };
   absl::SetFlagsUsageConfig(config);
-  return absl::ParseCommandLine(argc, argv);
+  auto result = absl::ParseCommandLine(argc, argv);
+  assert(std::size(result) > 0);
+  logging::Logger::initialize_0(result[0]);
+  return result;
+}
+
+auto create_settings() {
+  auto result = logging::flags::create_settings();
+  if (std::empty(result.log.pattern))
+    result.log.pattern = DEFAULT_LOG_PATTERN;
+  return result;
 }
 }  // namespace
 
@@ -49,18 +67,8 @@ auto initialize_flags(int argc, char **argv, std::string_view const &description
 
 Tool::Tool(int argc, char **argv, Info const &info)
     : args_{initialize_flags(argc, argv, info.description, info.build_version)}, build_type_{info.build_type},
-      git_hash_{info.git_hash}, compile_date_{info.compile_date}, compile_time_{info.compile_time} {
-  assert(std::size(args_) > 0);
-  auto config = Logger::Config{
-      .pattern = "%^%v%$"sv,
-      .flush_freq = {},
-      .path = {},
-      .max_size = {},
-      .max_files = {},
-      .rotate_on_open = {},
-      .color = {},
-  };
-  Logger::initialize(args_[0], config);
+      git_hash_{info.git_hash}, compile_date_{info.compile_date}, compile_time_{info.compile_time},
+      settings_{create_settings()}, logger_{settings_} {
 }
 
 Tool::~Tool() {

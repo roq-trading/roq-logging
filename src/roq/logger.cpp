@@ -6,7 +6,7 @@
 #define UNW_LOCAL_ONLY
 #endif
 
-#include "roq/logging.hpp"
+#include "roq/logging/logger.hpp"
 
 #include <absl/debugging/stacktrace.h>
 #include <absl/debugging/symbolize.h>
@@ -32,14 +32,15 @@
 #include "roq/unwind.hpp"
 #endif
 
-#include "roq/flags.hpp"
-
 #include "roq/utils/compare.hpp"
+
+#include "roq/logging/shared.hpp"
 
 using namespace std::literals;
 using namespace std::chrono_literals;  // NOLINT
 
 namespace roq {
+namespace logging {
 
 // === CONSTANTS ===
 
@@ -51,19 +52,6 @@ constexpr auto const SPDLOG_THREAD_COUNT = size_t{1};
 // === HELPERS ===
 
 namespace {
-template <typename T>
-auto merge_config(T const &config) -> T {
-  return {
-      .pattern = std::empty(config.pattern) ? Flags::log_pattern() : config.pattern,
-      .flush_freq = config.flush_freq.count() == 0 ? Flags::log_flush_freq() : config.flush_freq,
-      .path = std::empty(config.path) ? Flags::log_path() : config.path,
-      .max_size = config.max_size == 0 ? Flags::log_max_size() : config.max_size,
-      .max_files = config.max_files == 0 ? Flags::log_max_files() : config.max_files,
-      .rotate_on_open = !config.rotate_on_open ? Flags::log_rotate_on_open() : config.rotate_on_open,
-      .color = std::empty(config.color) ? Flags::color() : config.color,
-  };
-}
-
 void initialize_abseil(std::string_view const &arg0) {
   std::string tmp{arg0};
   absl::InitializeSymbolizer(tmp.c_str());
@@ -124,7 +112,6 @@ spdlog::logger *SPDLOG_ERR = nullptr;
 
 // === EXTERN ===
 
-namespace detail {
 thread_local std::string message_buffer;
 
 size_t verbosity = 0;
@@ -162,40 +149,39 @@ sink_type CRITICAL = [](std::string_view const &message) {
     std::cerr << message << std::endl;
   }
 };
-}  // namespace detail
 
 // === IMPLEMENTATION ===
 
-void Logger::initialize(std::string_view const &arg0, Config const &config, bool stacktrace) {
-  // abseil:
+void Logger::initialize_0(std::string_view const &arg0) {
   initialize_abseil(arg0);
-  // spdlog:
-  auto final_config = merge_config(config);
+}
+
+Logger::Logger(logging::Settings const &settings, bool stacktrace) {
   // note! to detach from terminal: use nohup, systemd, etc.
   auto terminal = ::isatty(fileno(stdout));
   // terminal color
-  if (utils::case_insensitive_compare(final_config.color, "always"sv) == 0) {
-    detail::terminal_color = true;
-  } else if (utils::case_insensitive_compare(final_config.color, "auto"sv) == 0) {
-    detail::terminal_color = terminal;
-  } else if (utils::case_insensitive_compare(final_config.color, "none"sv) == 0) {
-    detail::terminal_color = false;
+  if (utils::case_insensitive_compare(settings.log.color, "always"sv) == 0) {
+    terminal_color = true;
+  } else if (utils::case_insensitive_compare(settings.log.color, "auto"sv) == 0) {
+    terminal_color = terminal;
+  } else if (utils::case_insensitive_compare(settings.log.color, "none"sv) == 0) {
+    terminal_color = false;
   } else {
-    fmt::print(stderr, R"(Unknown color: "{}"\n)"sv, final_config.color);
+    fmt::print(stderr, R"(Unknown color: "{}"\n)"sv, settings.log.color);
     std::exit(EXIT_FAILURE);
   }
   // note! non-interactive sessions are asynchronous
-  auto interactive = std::empty(final_config.path) && terminal;
+  auto interactive = std::empty(settings.log.path) && terminal;
   if (!interactive) {
     spdlog::init_thread_pool(SPDLOG_QUEUE_SIZE, SPDLOG_THREAD_COUNT);
-    if (final_config.flush_freq.count())
-      spdlog::flush_every(std::chrono::duration_cast<std::chrono::seconds>(final_config.flush_freq));
+    if (settings.log.flush_freq.count())
+      spdlog::flush_every(std::chrono::duration_cast<std::chrono::seconds>(settings.log.flush_freq));
   }
   std::shared_ptr<spdlog::logger> out, err;
-  if (std::empty(final_config.path)) {
+  if (std::empty(settings.log.path)) {
     if (terminal) {
       // note! almost similar to stdout/stderr, only using spdlog for buffering
-      if (detail::terminal_color) {
+      if (terminal_color) {
         out = spdlog::stdout_color_mt("spdlog_out"s);
         {
           auto color_sink = static_cast<spdlog::sinks::stdout_color_sink_mt *>((*out).sinks()[0].get());
@@ -218,47 +204,52 @@ void Logger::initialize(std::string_view const &arg0, Config const &config, bool
   } else {
     out = spdlog::rotating_logger_st<spdlog::async_factory>(
         "spdlog"s,
-        std::string{final_config.path},
-        final_config.max_size,
-        final_config.max_files,
-        final_config.rotate_on_open);
+        std::string{settings.log.path},
+        settings.log.max_size,
+        settings.log.max_files,
+        settings.log.rotate_on_open);
   }
-  if (!std::empty(final_config.pattern))
-    (*out).set_pattern(std::string{final_config.pattern});
+  if (!std::empty(settings.log.pattern))
+    (*out).set_pattern(std::string{settings.log.pattern});
   (*out).flush_on(spdlog::level::warn);
   // note! async logging does not use a dedicated err stream
   // reason: avoid potential timing issues when interleaving two streams
   if (err) {
-    if (!std::empty(final_config.pattern))
-      (*err).set_pattern(std::string{final_config.pattern});
+    if (!std::empty(settings.log.pattern))
+      (*err).set_pattern(std::string{settings.log.pattern});
     (*err).flush_on(spdlog::level::warn);
   }
   // note! spdlog uses reference count
   SPDLOG_OUT = out.get();
   SPDLOG_ERR = err ? err.get() : SPDLOG_OUT;
   // verbosity
-  auto verbosity = std::getenv("ROQ_v");
-  if (verbosity != nullptr && std::strlen(verbosity) > 0) {
-    auto tmp = std::atoi(verbosity);
+  auto verbosity_2 = std::getenv("ROQ_v");
+  if (verbosity_2 != nullptr && std::strlen(verbosity_2) > 0) {
+    auto tmp = std::atoi(verbosity_2);
     if (tmp >= 0)
-      detail::verbosity = tmp;
+      verbosity = tmp;
   }
   // stacktrace
   if (stacktrace)
     install_failure_signal_handler();
 }
 
-void Logger::shutdown() {
-  // note! not thread-safe
-  if (SPDLOG_OUT) {
-    (*SPDLOG_OUT).flush();
-    SPDLOG_OUT = nullptr;
+Logger::~Logger() {
+  try {
+    // note! not thread-safe
+    if (SPDLOG_OUT) {
+      (*SPDLOG_OUT).flush();
+      SPDLOG_OUT = nullptr;
+    }
+    if (SPDLOG_ERR) {
+      (*SPDLOG_ERR).flush();
+      SPDLOG_ERR = nullptr;
+    }
+    spdlog::drop_all();
+  } catch (...) {
+    // note! silent
   }
-  if (SPDLOG_ERR) {
-    (*SPDLOG_ERR).flush();
-    SPDLOG_ERR = nullptr;
-  }
-  spdlog::drop_all();
 }
 
+}  // namespace logging
 }  // namespace roq
