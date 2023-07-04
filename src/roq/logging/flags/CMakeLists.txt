@@ -4,4 +4,4 @@ set(SOURCES flags.cpp parser.cpp main.cpp)
 
 add_library("${TARGET_NAME}" SHARED ${SOURCES})
 
-target_link_libraries("${TARGET_NAME}" PRIVATE absl::flags)
+target_link_libraries("${TARGET_NAME}" PRIVATE absl::flags_parse absl::flags_usage absl::symbolize)
