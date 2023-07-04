@@ -10,7 +10,6 @@
 
 #include "roq/format_str.hpp"
 
-#include "roq/logging/settings.hpp"
 #include "roq/logging/shared.hpp"
 
 namespace roq {
@@ -29,8 +28,8 @@ static void helper(roq::logging::sink_type &sink, roq::format_str<Args...> const
 #ifndef NDEBUG
   assert(capacity == message.capacity());
 #endif
-  fmt::format_to(std::back_inserter(message), "L{} {}:{}] "_cf, level, fmt.file_name_, fmt.line_);
-  fmt::vformat_to(std::back_inserter(message), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
+  fmt::format_to(std::back_inserter(message), "L{} {}:{}] "_cf, level, fmt.file_name, fmt.line);
+  fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(std::forward<Args>(args)...));
   sink(message);
 }
 
@@ -40,8 +39,8 @@ static void helper_debug(roq::logging::sink_type &sink, roq::format_str<Args...>
   using namespace fmt::literals;
   auto &message = roq::logging::message_buffer;
   message.clear();  // note! capacity is in reality preserved but it is not guaranteed by the standard
-  fmt::format_to(std::back_inserter(message), "L{} {}:{}] DEBUG: "_cf, level, fmt.file_name_, fmt.line_);
-  fmt::vformat_to(std::back_inserter(message), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
+  fmt::format_to(std::back_inserter(message), "L{} {}:{}] DEBUG: "_cf, level, fmt.file_name, fmt.line);
+  fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(std::forward<Args>(args)...));
   sink(message);
 }
 #endif
@@ -56,11 +55,11 @@ static void helper_system_error(
       std::back_inserter(message),
       "L{} {}:{}] {} [{}] "_cf,
       level,
-      fmt.file_name_,
-      fmt.line_,
+      fmt.file_name,
+      fmt.line,
       std::strerror(error),
       error);
-  fmt::vformat_to(std::back_inserter(message), fmt.str_, fmt::make_format_args(std::forward<Args>(args)...));
+  fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(std::forward<Args>(args)...));
   sink(message);
 }
 }  // namespace detail
