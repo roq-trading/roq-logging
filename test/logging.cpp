@@ -6,11 +6,13 @@
 
 #include "roq/logging/logger.hpp"
 
+#include "roq/logging/flags/parser.hpp"
 #include "roq/logging/flags/settings.hpp"
 
 #include "./shared.hpp"
 
 using namespace roq;
+using namespace roq::logging;
 
 using namespace std::literals;
 
@@ -22,9 +24,9 @@ TEST_CASE("logging_no_init_before", "[logging]") {
 
 TEST_CASE("logging_start_stop", "[logging]") {
   assert(my_argc > 0);
-  logging::Logger::initialize_0(my_argv[0]);
+  flags::Parser parser{{my_argv, static_cast<size_t>(my_argc)}, "test"sv, "test"sv};
   auto settings = logging::flags::create_settings();
-  logging::Logger logger{settings};
+  logging::Logger logger{parser, settings};
 }
 
 TEST_CASE("logging_no_init_after", "[logging]") {

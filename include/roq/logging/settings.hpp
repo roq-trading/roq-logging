@@ -9,7 +9,6 @@
 #include <fmt/format.h>
 
 #include <chrono>
-#include <span>
 #include <string_view>
 
 namespace roq {

@@ -2,13 +2,16 @@
 
 #pragma once
 
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
 
-#include "roq/logging.hpp"  // XXX TODO remove
+#include "roq/logging.hpp"  // XXX TODO remove (keeping for now to minimize downstream issues)
 
 #include "roq/logging/logger.hpp"
+
+#include "roq/logging/flags/parser.hpp"
 
 namespace roq {
 
@@ -26,7 +29,7 @@ struct ROQ_PUBLIC Tool {
     std::string_view compile_time = __TIME__;
   };
 
-  Tool(int argc, char **argv, Info const &);
+  Tool(std::span<std::string_view> const &, logging::Settings const &, Info const &);
 
   Tool(Tool const &) = delete;
   Tool(Tool &&) = delete;
@@ -40,12 +43,12 @@ struct ROQ_PUBLIC Tool {
   virtual int main(int argc, char **argv) = 0;
 
  private:
-  std::vector<char *> args_;
   std::string build_type_;
   std::string git_hash_;
   std::string compile_date_;
   std::string compile_time_;
-  logging::Settings settings_;
+  std::vector<std::string_view> args_;
+  logging::Settings const settings_;
   logging::Logger logger_;
 };
 

@@ -2,11 +2,12 @@
 
 #pragma once
 
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
 
-#include "roq/logging.hpp"  // XXX TODO remove
+#include "roq/logging.hpp"  // XXX TODO remove (keeping for now to minimize downstream issues)
 
 #include "roq/logging/logger.hpp"
 
@@ -26,7 +27,8 @@ struct ROQ_PUBLIC Service {
     std::string_view compile_time = __TIME__;
   };
 
-  Service(int argc, char **argv, Info const &);
+  Service(std::span<std::string_view> const &args, logging::Settings const &, Info const &);
+  Service(int argc, char **argv, Info const &);  // XXX LEGACY
 
   Service(Service const &) = delete;
   Service(Service &&) = delete;
@@ -40,7 +42,6 @@ struct ROQ_PUBLIC Service {
   virtual int main(int argc, char **argv) = 0;
 
  private:
-  std::vector<char *> args_;
   std::string package_name_;
   std::string host_;
   std::string build_version_;
@@ -49,7 +50,8 @@ struct ROQ_PUBLIC Service {
   std::string git_hash_;
   std::string compile_date_;
   std::string compile_time_;
-  logging::Settings settings_;
+  std::vector<std::string_view> args_;
+  logging::Settings const settings_;
   logging::Logger logger_;
 };
 

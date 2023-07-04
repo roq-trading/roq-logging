@@ -2,18 +2,11 @@
 
 #pragma once
 
-#include "roq/compat.hpp"
-
 #include <fmt/color.h>
 #include <fmt/compile.h>
 #include <fmt/format.h>
 
 #include <cassert>
-#include <chrono>
-#include <functional>
-#include <string>
-#include <string_view>
-#include <utility>
 
 #include "roq/format_str.hpp"
 
@@ -21,6 +14,7 @@
 #include "roq/logging/shared.hpp"
 
 namespace roq {
+
 namespace log {
 
 namespace detail {
@@ -171,7 +165,7 @@ struct system_error final {
   }
 };
 
-// print
+}  // namespace log
 
 struct print final {
   template <typename... Args>
@@ -188,5 +182,4 @@ struct print final {
   }
 };
 
-}  // namespace log
 }  // namespace roq

@@ -52,11 +52,6 @@ constexpr auto const SPDLOG_THREAD_COUNT = size_t{1};
 // === HELPERS ===
 
 namespace {
-void initialize_abseil(std::string_view const &arg0) {
-  std::string tmp{arg0};
-  absl::InitializeSymbolizer(tmp.c_str());
-}
-
 void invoke_default_signal_handler(int signal) {
   struct sigaction sa = {};
   sigemptyset(&sa.sa_mask);
@@ -112,11 +107,6 @@ spdlog::logger *SPDLOG_ERR = nullptr;
 
 // === EXTERN ===
 
-thread_local std::string message_buffer;
-
-size_t verbosity = 0;
-bool terminal_color = true;
-
 sink_type INFO = [](std::string_view const &message) {
   if (SPDLOG_OUT) [[likely]] {
     (*SPDLOG_OUT).log(spdlog::level::info, message);
@@ -152,11 +142,11 @@ sink_type CRITICAL = [](std::string_view const &message) {
 
 // === IMPLEMENTATION ===
 
-void Logger::initialize_0(std::string_view const &arg0) {
-  initialize_abseil(arg0);
-}
-
-Logger::Logger(logging::Settings const &settings, bool stacktrace) {
+Logger::Logger(std::span<std::string_view> const &args, logging::Settings const &settings, bool stacktrace) {
+  if (!std::empty(args)) {
+    std::string arg0{args[0]};
+    absl::InitializeSymbolizer(arg0.c_str());
+  }
   // note! to detach from terminal: use nohup, systemd, etc.
   auto terminal = ::isatty(fileno(stdout));
   // terminal color
