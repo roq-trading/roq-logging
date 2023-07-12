@@ -4,8 +4,7 @@
 
 #include "roq/compat.hpp"
 
-#include <span>
-#include <string_view>
+#include "roq/args/parser.hpp"
 
 #include "roq/logging/settings.hpp"
 
@@ -14,7 +13,7 @@ namespace logging {
 
 // note! should only be used once
 struct ROQ_PUBLIC Logger final {
-  Logger(std::span<std::string_view> const &args, logging::Settings const &, bool stacktrace = true);
+  Logger(args::Parser const &, logging::Settings const &, bool stacktrace = true);
 
   Logger(Logger const &) = delete;
   Logger(Logger &&) = delete;

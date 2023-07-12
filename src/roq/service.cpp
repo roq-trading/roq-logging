@@ -12,7 +12,6 @@
 
 #include "roq/logging/logger.hpp"
 
-#include "roq/logging/flags/parser.hpp"
 #include "roq/logging/flags/settings.hpp"
 
 using namespace std::literals;
@@ -36,45 +35,21 @@ auto const DEFAULT_LOG_PATTERN = "%L%m%d %T.%f %t %^%v%$"sv;
 // === HELPERS ===
 
 namespace {
-template <typename R>
-R create_args(auto argc, auto argv, auto &info) {
-  using result_type = std::remove_cvref<R>::type;
-  logging::flags::Parser parser{{argv, static_cast<size_t>(argc)}, info.description, info.build_version};
-  auto tmp = static_cast<std::span<std::string_view>>(parser);
-  result_type result;
-  for (auto &item : tmp)
-    result.emplace_back(item);
-  return result;
-}
-
 auto create_settings(auto &settings) {
   auto result = settings;
   if (std::empty(result.log.pattern))
     result.log.pattern = DEFAULT_LOG_PATTERN;
   return result;
 }
-
-auto create_settings_LEGACY() {  // XXX LEGACY
-  auto settings = logging::flags::create_settings();
-  return create_settings(settings);
-}
 }  // namespace
 
 // === IMPLEMENTATION ===
 
-Service::Service(std::span<std::string_view> const &args, logging::Settings const &settings, Info const &info)
+Service::Service(args::Parser const &args, logging::Settings const &settings, Info const &info)
     : package_name_{info.package_name}, host_{info.host}, build_version_{info.build_version},
       build_number_{info.build_number}, build_type_{info.build_type}, git_hash_{info.git_hash},
-      compile_date_{info.compile_date}, compile_time_{info.compile_time}, args_{std::begin(args), std::end(args)},
+      compile_date_{info.compile_date}, compile_time_{info.compile_time}, args_{args},
       settings_{create_settings(settings)}, logger_{args_, settings_} {
-}
-
-Service::Service(int argc, char **argv, Info const &info)  // XXX LEGACY
-    : package_name_{info.package_name}, host_{info.host}, build_version_{info.build_version},
-      build_number_{info.build_number}, build_type_{info.build_type}, git_hash_{info.git_hash},
-      compile_date_{info.compile_date}, compile_time_{info.compile_time},
-      args_{create_args<decltype(args_)>(argc, argv, info)}, settings_{create_settings_LEGACY()},
-      logger_{args_, settings_} {
 }
 
 Service::~Service() {
@@ -95,11 +70,7 @@ int Service::run() {
   log::info("cwd           : {}"sv, logging::get_cwd());
   auto res = EXIT_FAILURE;
   try {
-    // XXX LEGACY
-    std::vector<char *> tmp;
-    for (auto &item : args_)
-      tmp.emplace_back(const_cast<char *>(std::data(item)));
-    res = main(std::size(tmp), std::data(tmp));
+    res = main(args_);
   } catch (Exception const &e) {
     log::error("Exception: {}"sv, e);
   } catch (std::exception &e) {

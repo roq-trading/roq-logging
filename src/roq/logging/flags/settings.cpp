@@ -8,9 +8,10 @@ namespace roq {
 namespace logging {
 namespace flags {
 
-// === IMPLEMENTATION ===
+// === HELPER ===
 
-Settings create_settings() {
+namespace {
+auto create_settings() -> roq::logging::Settings {
   return {
       .log{
           .pattern = Flags::log_pattern(),
@@ -22,6 +23,12 @@ Settings create_settings() {
           .color = Flags::color(),
       },
   };
+}
+}  // namespace
+
+// === IMPLEMENTATION ===
+
+Settings::Settings(args::Parser const &) : roq::logging::Settings{create_settings()} {
 }
 
 }  // namespace flags

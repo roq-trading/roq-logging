@@ -142,11 +142,9 @@ sink_type CRITICAL = [](std::string_view const &message) {
 
 // === IMPLEMENTATION ===
 
-Logger::Logger(std::span<std::string_view> const &args, logging::Settings const &settings, bool stacktrace) {
-  if (!std::empty(args)) {
-    std::string arg0{args[0]};
-    absl::InitializeSymbolizer(arg0.c_str());
-  }
+Logger::Logger(args::Parser const &args, logging::Settings const &settings, bool stacktrace) {
+  std::string arg0{args.program_name()};
+  absl::InitializeSymbolizer(arg0.c_str());
   // note! to detach from terminal: use nohup, systemd, etc.
   auto terminal = ::isatty(fileno(stdout));
   // terminal color

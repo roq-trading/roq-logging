@@ -4,13 +4,17 @@
 
 #include "roq/compat.hpp"
 
+#include "roq/args/parser.hpp"
+
 #include "roq/logging/settings.hpp"
 
 namespace roq {
 namespace logging {
 namespace flags {
 
-extern Settings ROQ_PUBLIC create_settings();
+struct ROQ_PUBLIC Settings final : public roq::logging::Settings {
+  explicit Settings(args::Parser const &);
+};
 
 }  // namespace flags
 }  // namespace logging

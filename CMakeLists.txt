@@ -50,6 +50,7 @@ find_package(absl REQUIRED)
 find_package(fmt REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(roq-api REQUIRED)
+find_package(roq-flags REQUIRED)
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   find_package(PkgConfig REQUIRED)

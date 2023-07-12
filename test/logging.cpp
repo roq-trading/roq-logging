@@ -2,11 +2,12 @@
 
 #include <catch2/catch_all.hpp>
 
+#include "roq/flags/args.hpp"
+
 #include "roq/logging.hpp"
 
 #include "roq/logging/logger.hpp"
 
-#include "roq/logging/flags/parser.hpp"
 #include "roq/logging/flags/settings.hpp"
 
 #include "./shared.hpp"
@@ -24,9 +25,9 @@ TEST_CASE("logging_no_init_before", "[logging]") {
 
 TEST_CASE("logging_start_stop", "[logging]") {
   assert(my_argc > 0);
-  flags::Parser parser{{my_argv, static_cast<size_t>(my_argc)}, "test"sv, "test"sv};
-  auto settings = logging::flags::create_settings();
-  logging::Logger logger{parser, settings};
+  roq::flags::Args args{my_argc, my_argv, "test"sv, "test"sv};
+  logging::flags::Settings settings{args};
+  logging::Logger logger{args, settings};
 }
 
 TEST_CASE("logging_no_init_after", "[logging]") {

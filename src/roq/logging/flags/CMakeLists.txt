@@ -1,6 +1,6 @@
 set(TARGET_NAME "${PROJECT_NAME}-flags")
 
-set(SOURCES flags.cpp parser.cpp main.cpp)
+set(SOURCES flags.cpp settings.cpp)
 
 add_library("${TARGET_NAME}" SHARED ${SOURCES})
 

@@ -33,10 +33,9 @@ auto create_settings(auto &settings) {
 
 // === IMPLEMENTATION ===
 
-Tool::Tool(std::span<std::string_view> const &args, logging::Settings const &settings, Info const &info)
+Tool::Tool(args::Parser const &args, logging::Settings const &settings, Info const &info)
     : build_type_{info.build_type}, git_hash_{info.git_hash}, compile_date_{info.compile_date},
-      compile_time_{info.compile_time}, args_{std::begin(args), std::end(args)}, settings_{create_settings(settings)},
-      logger_{args_, settings_} {
+      compile_time_{info.compile_time}, args_{args}, settings_{create_settings(settings)}, logger_{args_, settings_} {
 }
 
 Tool::~Tool() {
@@ -45,11 +44,7 @@ Tool::~Tool() {
 int Tool::run() {
   auto res = EXIT_FAILURE;
   try {
-    // XXX LEGACY
-    std::vector<char *> tmp;
-    for (auto &item : args_)
-      tmp.emplace_back(const_cast<char *>(std::data(item)));
-    res = main(std::size(tmp), std::data(tmp));
+    res = main(args_);
   } catch (Exception &e) {
     log::error("Exception: {}"sv, e);
   } catch (std::exception &e) {
