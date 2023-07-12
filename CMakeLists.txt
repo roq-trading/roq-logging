@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.12)
 
 # cmake
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 
 # version (using git tag)
 
@@ -59,17 +59,17 @@ endif()
 
 # include
 
-include_directories("${CMAKE_SOURCE_DIR}/include" "${CMAKE_SOURCE_DIR}/src")
+include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
 # sub-projects
 
-add_subdirectory("${CMAKE_SOURCE_DIR}/src/roq")
+add_subdirectory(${CMAKE_SOURCE_DIR}/src/roq)
 
 # install (public headers)
 
 install(
-  DIRECTORY "${CMAKE_SOURCE_DIR}/include/roq/"
-  DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/roq"
+  DIRECTORY ${CMAKE_SOURCE_DIR}/include/roq/
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/roq
   FILES_MATCHING
   PATTERN "*.hpp"
   PATTERN "CMakeFiles" EXCLUDE)
@@ -82,7 +82,7 @@ endif()
 
 if(BUILD_TESTING)
   find_package(Catch2 REQUIRED)
-  add_subdirectory("${CMAKE_SOURCE_DIR}/test")
+  add_subdirectory(${CMAKE_SOURCE_DIR}/test)
 endif(BUILD_TESTING)
 
 # doxygen
@@ -91,25 +91,25 @@ option(BUILD_DOCS "Enable doxygen" OFF)
 
 if(BUILD_DOCS)
   find_package(Doxygen)
-  add_subdirectory("${CMAKE_SOURCE_DIR}/doxygen")
+  add_subdirectory(${CMAKE_SOURCE_DIR}/doxygen)
   add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}-doxygen)
 endif(BUILD_DOCS)
 
 # install (cmake)
 
-install(TARGETS ${PROJECT_NAME} "${PROJECT_NAME}-flags" EXPORT ${PROJECT_NAME}-config)
+install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}-flags EXPORT ${PROJECT_NAME}-config)
 
-install(FILES "${CMAKE_SOURCE_DIR}/CHANGELOG.md"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/doc/${PROJECT_NAME}")
+install(FILES ${CMAKE_SOURCE_DIR}/CHANGELOG.md
+        DESTINATION ${CMAKE_INSTALL_DATADIR}/doc/${PROJECT_NAME})
 
-set(CMAKE_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+set(CMAKE_LIB_DIR ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME})
 
 export(
-  TARGETS ${PROJECT_NAME} "${PROJECT_NAME}-flags"
+  TARGETS ${PROJECT_NAME} ${PROJECT_NAME}-flags
   NAMESPACE ${PROJECT_NAME}::
-  FILE "${CMAKE_LIB_DIR}/${PROJECT_NAME}-config.cmake")
+  FILE ${CMAKE_LIB_DIR}/${PROJECT_NAME}-config.cmake)
 
 install(
   EXPORT ${PROJECT_NAME}-config
   NAMESPACE ${PROJECT_NAME}::
-  DESTINATION "${CMAKE_LIB_DIR}")
+  DESTINATION ${CMAKE_LIB_DIR})
