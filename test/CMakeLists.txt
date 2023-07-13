@@ -2,7 +2,7 @@ set(TARGET_NAME ${PROJECT_NAME}-test)
 
 set(SOURCES main.cpp logging.cpp regex.cpp stacktrace.cpp)
 
-add_executable("${TARGET_NAME}" ${SOURCES})
+add_executable(${TARGET_NAME} ${SOURCES})
 
 target_link_libraries(
   ${TARGET_NAME} PRIVATE ${PROJECT_NAME} ${PROJECT_NAME}-flags roq-flags::roq-flags
