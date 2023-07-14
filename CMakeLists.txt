@@ -40,7 +40,7 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
   message("Setting default visibility to hidden")
   set(CMAKE_CXX_VISIBILITY_PRESET hidden)
   set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
-endif(CMAKE_BUILD_TYPE STREQUAL "Release")
+endif()
 
 # filesystem
 
@@ -85,7 +85,7 @@ endif()
 if(BUILD_TESTING)
   find_package(Catch2 REQUIRED)
   add_subdirectory(${CMAKE_SOURCE_DIR}/test)
-endif(BUILD_TESTING)
+endif()
 
 # doxygen
 
@@ -95,7 +95,7 @@ if(BUILD_DOCS)
   find_package(Doxygen)
   add_subdirectory(${CMAKE_SOURCE_DIR}/doxygen)
   add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}-doxygen)
-endif(BUILD_DOCS)
+endif()
 
 # install (cmake)
 
