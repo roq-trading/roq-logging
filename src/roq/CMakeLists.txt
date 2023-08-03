@@ -2,7 +2,17 @@ set(TARGET_NAME ${PROJECT_NAME})
 
 add_subdirectory(logging/flags)
 
-set(SOURCES logging/logger.cpp logging/shared.cpp service.cpp tool.cpp unwind.cpp utils.cpp)
+set(SOURCES
+    logging/spdlog/logger.cpp
+    logging/standard/logger.cpp
+    logging/factory.cpp
+    logging/handler.cpp
+    logging/logger.cpp
+    logging/shared.cpp
+    service.cpp
+    tool.cpp
+    unwind.cpp
+    utils.cpp)
 
 add_library(${TARGET_NAME} SHARED ${SOURCES})
 

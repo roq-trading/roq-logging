@@ -17,7 +17,7 @@ namespace roq {
 // === CONSTANTS ===
 
 namespace {
-auto const DEFAULT_LOG_PATTERN = "%^%v%$"sv;
+auto const DEFAULT_LOG_PATTERN = "%^%v%$"sv;  // XXX TODO spdlog specific
 }  // namespace
 
 // === HELPERS ===

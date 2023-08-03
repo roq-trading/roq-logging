@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <memory>
 #include <string>
 #include <string_view>
 
@@ -9,6 +10,7 @@
 
 #include "roq/logging.hpp"  // XXX TODO remove (keeping for now to minimize downstream issues)
 
+#include "roq/logging/handler.hpp"
 #include "roq/logging/logger.hpp"
 
 namespace roq {
@@ -28,6 +30,7 @@ struct ROQ_PUBLIC Service {
   };
 
   Service(args::Parser const &, logging::Settings const &, Info const &);
+  Service(args::Parser const &, logging::Settings const &, logging::Handler &, Info const &);
 
   Service(Service const &) = delete;
   Service(Service &&) = delete;
@@ -51,6 +54,8 @@ struct ROQ_PUBLIC Service {
   std::string const compile_time_;
   args::Parser const &args_;
   logging::Settings const settings_;
+  std::unique_ptr<logging::Handler> handler_2_;  // XXX TODO must be external
+  logging::Handler &handler_;
   logging::Logger logger_;
 };
 

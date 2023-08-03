@@ -10,6 +10,7 @@
 
 #include "roq/format_str.hpp"
 
+#include "roq/logging/handler.hpp"
 #include "roq/logging/shared.hpp"
 
 namespace roq {
@@ -18,7 +19,7 @@ namespace log {
 
 namespace detail {
 template <size_t level, typename... Args>
-static void helper(roq::logging::sink_type &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
+static void helper(roq::logging::Level log_level, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace fmt::literals;
   auto &message = roq::logging::message_buffer;
 #ifndef NDEBUG
@@ -30,24 +31,24 @@ static void helper(roq::logging::sink_type &sink, roq::format_str<Args...> const
 #endif
   fmt::format_to(std::back_inserter(message), "L{} {}:{}] "_cf, level, fmt.file_name, fmt.line);
   fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(std::forward<Args>(args)...));
-  sink(message);
+  (*roq::logging::Handler::INSTANCE)(log_level, message);
 }
 
 #ifndef NDEBUG
 template <size_t level, typename... Args>
-static void helper_debug(roq::logging::sink_type &sink, roq::format_str<Args...> const &fmt, Args &&...args) {
+static void helper_debug(roq::logging::Level log_level, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace fmt::literals;
   auto &message = roq::logging::message_buffer;
   message.clear();  // note! capacity is in reality preserved but it is not guaranteed by the standard
   fmt::format_to(std::back_inserter(message), "L{} {}:{}] DEBUG: "_cf, level, fmt.file_name, fmt.line);
   fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(std::forward<Args>(args)...));
-  sink(message);
+  (*roq::logging::Handler::INSTANCE)(log_level, message);
 }
 #endif
 
 template <size_t level, typename... Args>
 static void helper_system_error(
-    roq::logging::sink_type &sink, int error, roq::format_str<Args...> const &fmt, Args &&...args) {
+    roq::logging::Level log_level, int error, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace fmt::literals;
   auto &message = roq::logging::message_buffer;
   message.clear();
@@ -60,7 +61,7 @@ static void helper_system_error(
       std::strerror(error),
       error);
   fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(std::forward<Args>(args)...));
-  sink(message);
+  (*roq::logging::Handler::INSTANCE)(log_level, message);
 }
 }  // namespace detail
 
@@ -74,7 +75,7 @@ struct info final {
       if (roq::logging::verbosity < level) [[likely]]
         return;
     }
-    detail::helper<level>(roq::logging::INFO, fmt, std::forward<Args>(args)...);
+    detail::helper<level>(roq::logging::Level::INFO, fmt, std::forward<Args>(args)...);
   }
 };
 
@@ -88,7 +89,7 @@ struct warn final {
       if (roq::logging::verbosity < level) [[likely]]
         return;
     }
-    detail::helper<level>(roq::logging::WARNING, fmt, std::forward<Args>(args)...);
+    detail::helper<level>(roq::logging::Level::WARNING, fmt, std::forward<Args>(args)...);
   }
 };
 
@@ -102,7 +103,7 @@ struct error final {
       if (roq::logging::verbosity < level) [[likely]]
         return;
     }
-    detail::helper<level>(roq::logging::ERROR, fmt, std::forward<Args>(args)...);
+    detail::helper<level>(roq::logging::Level::ERROR, fmt, std::forward<Args>(args)...);
   }
 };
 
@@ -111,13 +112,13 @@ struct error final {
 #ifndef NDEBUG
 template <typename... Args>
 [[noreturn]] constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
-  detail::helper<0>(roq::logging::CRITICAL, fmt, std::forward<Args>(args)...);
+  detail::helper<0>(roq::logging::Level::CRITICAL, fmt, std::forward<Args>(args)...);
   std::abort();
 }
 #else
 template <typename... Args>
 constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
-  detail::helper<0>(roq::logging::CRITICAL, fmt, std::forward<Args>(args)...);
+  detail::helper<0>(roq::logging::Level::CRITICAL, fmt, std::forward<Args>(args)...);
 }
 #endif
 
@@ -125,7 +126,7 @@ constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {  // NO
 
 template <typename... Args>
 [[noreturn]] constexpr void fatal(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
-  detail::helper<0>(roq::logging::CRITICAL, fmt, std::forward<Args>(args)...);
+  detail::helper<0>(roq::logging::Level::CRITICAL, fmt, std::forward<Args>(args)...);
   std::abort();
 }
 
@@ -140,7 +141,7 @@ struct debug final {
       if (roq::logging::verbosity < level) [[likely]]
         return;
     }
-    detail::helper_debug<level>(roq::logging::INFO, fmt, std::forward<Args>(args)...);
+    detail::helper_debug<level>(roq::logging::Level::INFO, fmt, std::forward<Args>(args)...);
   }
 #else
   template <typename... Args>
@@ -160,7 +161,7 @@ struct system_error final {
         return;
     }
     static_assert(std::is_same<std::decay<decltype(errno)>::type, int>::value);
-    detail::helper_system_error<level>(roq::logging::WARNING, errno, fmt, std::forward<Args>(args)...);
+    detail::helper_system_error<level>(roq::logging::Level::WARNING, errno, fmt, std::forward<Args>(args)...);
   }
 };
 
