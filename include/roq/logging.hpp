@@ -30,7 +30,7 @@ static void helper(roq::logging::Level log_level, roq::format_str<Args...> const
   assert(capacity == message.capacity());
 #endif
   fmt::format_to(std::back_inserter(message), "L{} {}:{}] "_cf, level, fmt.file_name, fmt.line);
-  fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(std::forward<Args>(args)...));
+  fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(args...));
   (*roq::logging::Handler::INSTANCE)(log_level, message);
 }
 
@@ -41,7 +41,7 @@ static void helper_debug(roq::logging::Level log_level, roq::format_str<Args...>
   auto &message = roq::logging::message_buffer;
   message.clear();  // note! capacity is in reality preserved but it is not guaranteed by the standard
   fmt::format_to(std::back_inserter(message), "L{} {}:{}] DEBUG: "_cf, level, fmt.file_name, fmt.line);
-  fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(std::forward<Args>(args)...));
+  fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(args...));
   (*roq::logging::Handler::INSTANCE)(log_level, message);
 }
 #endif
@@ -60,7 +60,7 @@ static void helper_system_error(
       fmt.line,
       std::strerror(error),
       error);
-  fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(std::forward<Args>(args)...));
+  fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(args...));
   (*roq::logging::Handler::INSTANCE)(log_level, message);
 }
 }  // namespace detail
