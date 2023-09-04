@@ -22,4 +22,6 @@ target_link_libraries(
   INTERFACE fmt::fmt
   PRIVATE ${PROJECT_NAME}-flags absl::symbolize spdlog::spdlog ${LIBUNWIND_LIBRARIES})
 
-set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_RELEASE -s) # strip symbols
+if(ROQ_BUILD_TYPE STREQUAL "Release")
+  set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_RELEASE -s)
+endif()
