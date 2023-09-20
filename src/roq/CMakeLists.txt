@@ -1,6 +1,6 @@
 set(TARGET_NAME ${PROJECT_NAME})
 
-add_subdirectory(logging/flags)
+add_subdirectory(logging)
 
 set(SOURCES
     logging/spdlog/logger.cpp
