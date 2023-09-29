@@ -20,7 +20,7 @@ struct TimePeriod final {
   TimePeriod() = default;
 
   // cppcheck-suppress noExplicitConstructor
-  TimePeriod(const std::chrono::nanoseconds value) : value_{absl::FromChrono(value)} {}  // NOLINT (allow implicit)
+  TimePeriod(std::chrono::nanoseconds const value) : value_{absl::FromChrono(value)} {}  // NOLINT (allow implicit)
 
   operator absl::Duration const &() const { return value_; }
 
@@ -94,27 +94,27 @@ namespace logging {
 namespace flags {
 
 std::string_view Flags::log_pattern() {
-  static const std::string result = absl::GetFlag(FLAGS_log_pattern);
+  static std::string const result = absl::GetFlag(FLAGS_log_pattern);
   return result;
 }
 
 std::chrono::nanoseconds Flags::log_flush_freq() {
-  static const std::chrono::nanoseconds result{absl::ToChronoNanoseconds(absl::GetFlag(FLAGS_log_flush_freq))};
+  static std::chrono::nanoseconds const result{absl::ToChronoNanoseconds(absl::GetFlag(FLAGS_log_flush_freq))};
   return result;
 }
 
 std::string_view Flags::log_path() {
-  static const std::string result = absl::GetFlag(FLAGS_log_path);
+  static std::string const result = absl::GetFlag(FLAGS_log_path);
   return result;
 }
 
 uint32_t Flags::log_max_size() {
-  static const uint32_t result = absl::GetFlag(FLAGS_log_max_size);
+  static uint32_t const result = absl::GetFlag(FLAGS_log_max_size);
   return result;
 }
 
 uint32_t Flags::log_max_files() {
-  static const uint32_t result = absl::GetFlag(FLAGS_log_max_files);
+  static uint32_t const result = absl::GetFlag(FLAGS_log_max_files);
   return result;
 }
 
@@ -124,7 +124,7 @@ bool Flags::log_rotate_on_open() {
 }
 
 std::string_view Flags::color() {
-  static const std::string result = absl::GetFlag(FLAGS_color);
+  static std::string const result = absl::GetFlag(FLAGS_color);
   return result;
 }
 
