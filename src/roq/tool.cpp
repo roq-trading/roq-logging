@@ -45,6 +45,8 @@ int Tool::run() {
   auto res = EXIT_FAILURE;
   try {
     res = main(args_);
+  } catch (SystemError const &e) {
+    log::error("Exception: {}, error_code={}"sv, e, e.code().value());
   } catch (Exception &e) {
     log::error("Exception: {}"sv, e);
   } catch (std::exception &e) {
