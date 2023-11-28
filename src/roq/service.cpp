@@ -82,10 +82,10 @@ int Service::run() {
   try {
     res = main(args_);
   } catch (SystemError const &e) {
-    log::error("Exception: {}, error_code={}"sv, e, e.code().value());
+    log::error("Exception: {}"sv, e);
   } catch (Exception const &e) {
     log::error("Exception: {}"sv, e);
-  } catch (std::exception &e) {
+  } catch (std::exception const &e) {
     log::error(R"(Exception: what="{}")"sv, e.what());
   } catch (...) {
     log::error("Exception: <unknown>"sv);
