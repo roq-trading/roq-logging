@@ -78,6 +78,7 @@ int Service::run() {
   log::info("uname -s      : {}"sv, logging::get_uname_s());
   log::info("uname -r      : {}"sv, logging::get_uname_r());
   log::info("cwd           : {}"sv, logging::get_cwd());
+  log::info("pid           : {}"sv, ::getpid());
   auto res = EXIT_FAILURE;
   try {
     res = main(args_);
