@@ -2,6 +2,8 @@
 
 #include "roq/service.hpp"
 
+#include <unistd.h>
+
 #include <cassert>
 
 #include "roq/exceptions.hpp"
