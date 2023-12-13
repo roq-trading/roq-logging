@@ -83,6 +83,8 @@ Logger::Logger(Settings const &settings) {
   // note! spdlog uses reference count
   out_ = out.get();
   err_ = err ? err.get() : out_;
+  auto message = fmt::format("logging: {}"sv, interactive ? "sync"sv : "async"sv);
+  (*out_).log(::spdlog::level::info, message);
 }
 
 Logger::~Logger() {
