@@ -20,7 +20,7 @@ namespace log {
 namespace detail {
 template <size_t level, typename... Args>
 static void helper(roq::logging::Level log_level, roq::format_str<Args...> const &fmt, Args &&...args) {
-  using namespace fmt::literals;
+  using namespace std::literals;
   auto &message = roq::logging::message_buffer;
 #ifndef NDEBUG
   auto capacity = message.capacity();
@@ -29,7 +29,7 @@ static void helper(roq::logging::Level log_level, roq::format_str<Args...> const
 #ifndef NDEBUG
   assert(capacity == message.capacity());
 #endif
-  fmt::format_to(std::back_inserter(message), "L{} {}:{}] "_cf, level, fmt.file_name, fmt.line);
+  fmt::format_to(std::back_inserter(message), "L{} {}:{}] "sv, level, fmt.file_name, fmt.line);
   fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(args...));
   (*roq::logging::Handler::INSTANCE)(log_level, message);
 }
@@ -37,10 +37,10 @@ static void helper(roq::logging::Level log_level, roq::format_str<Args...> const
 #ifndef NDEBUG
 template <size_t level, typename... Args>
 static void helper_debug(roq::logging::Level log_level, roq::format_str<Args...> const &fmt, Args &&...args) {
-  using namespace fmt::literals;
+  using namespace std::literals;
   auto &message = roq::logging::message_buffer;
   message.clear();  // note! capacity is in reality preserved but it is not guaranteed by the standard
-  fmt::format_to(std::back_inserter(message), "L{} {}:{}] DEBUG: "_cf, level, fmt.file_name, fmt.line);
+  fmt::format_to(std::back_inserter(message), "L{} {}:{}] DEBUG: "sv, level, fmt.file_name, fmt.line);
   fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(args...));
   (*roq::logging::Handler::INSTANCE)(log_level, message);
 }
@@ -49,12 +49,12 @@ static void helper_debug(roq::logging::Level log_level, roq::format_str<Args...>
 template <size_t level, typename... Args>
 static void helper_system_error(
     roq::logging::Level log_level, int error, roq::format_str<Args...> const &fmt, Args &&...args) {
-  using namespace fmt::literals;
+  using namespace std::literals;
   auto &message = roq::logging::message_buffer;
   message.clear();
   fmt::format_to(
       std::back_inserter(message),
-      "L{} {}:{}] {} [{}] "_cf,
+      "L{} {}:{}] {} [{}] "sv,
       level,
       fmt.file_name,
       fmt.line,
