@@ -26,12 +26,11 @@ requirements:
     - pkg-config
   host:
     - abseil-cpp
-    - catch2  # [linux]
+    - catch2
+    - ctre
     - fmt
     - roq-api
     - roq-flags
-    - roq-oss-catch2  # [osx]
-    - roq-oss-ctre
     - roq-oss-libunwind  # [linux]
     - roq-oss-magic_enum
     - roq-oss-spdlog
