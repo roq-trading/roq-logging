@@ -26,6 +26,7 @@ include(GNUInstallDirs)
 
 find_package(absl REQUIRED)
 find_package(fmt REQUIRED)
+find_package(magic_enum REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(roq-api REQUIRED)
 find_package(roq-flags REQUIRED)
