@@ -25,7 +25,7 @@ requirements:
     - make
     - pkg-config
   host:
-    - libabseil
+    - abseil-cpp
     - catch2
     - ctre
     - fmt
