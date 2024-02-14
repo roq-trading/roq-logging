@@ -25,10 +25,10 @@ requirements:
     - make
     - pkg-config
   host:
-    - libabseil
     - catch2
     - ctre
     - fmt
+    - libabseil
     - roq-api
     - roq-flags
     - roq-oss-libunwind  # [linux]
