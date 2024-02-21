@@ -39,7 +39,7 @@ static void helper_debug(roq::logging::Level log_level, roq::format_str<Args...>
   using namespace std::literals;
   auto &message = roq::logging::message_buffer;
   message.clear();  // note! capacity is in reality preserved but it is not guaranteed by the standard
-  fmt::format_to(std::back_inserter(message), "L{} {}:{}] DEBUG: "sv, level, fmt.file_name, fmt.line);
+  fmt::format_to(std::back_inserter(message), "L{} {}:{}] "sv, level, fmt.file_name, fmt.line);
   fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(args...));
   (*roq::logging::Handler::INSTANCE)(log_level, message);
 }

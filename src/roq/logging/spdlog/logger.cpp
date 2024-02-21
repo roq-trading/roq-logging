@@ -20,6 +20,8 @@ namespace roq {
 namespace logging {
 namespace spdlog {
 
+// note! avoid red/green and green/blue combinations
+
 // === CONSTANTS ===
 
 namespace {
@@ -44,12 +46,11 @@ Logger::Logger(Settings const &settings) {
       // note! almost similar to stdout/stderr, only using spdlog for buffering
       if (terminal_color) {
         out = ::spdlog::stdout_color_mt("spdlog_out"s);
-        (*out).set_level(::spdlog::level::debug);
         {
           auto color_sink = static_cast<::spdlog::sinks::stdout_color_sink_mt *>((*out).sinks()[0].get());
-          (*color_sink).set_color(::spdlog::level::debug, "\033[1m\033[94m"sv);  // bold blue
+          (*color_sink).set_color(::spdlog::level::debug, "\033[1m\033[93m"sv);  // yellow
           (*color_sink).set_color(::spdlog::level::info, (*color_sink).white);
-          (*color_sink).set_color(::spdlog::level::warn, "\033[1m\033[32m"sv);  // bold green
+          (*color_sink).set_color(::spdlog::level::warn, "\033[1m\033[97m"sv);  // white
         }
         err = ::spdlog::stderr_color_mt("spdlog_err"s);
         {
@@ -84,7 +85,17 @@ Logger::Logger(Settings const &settings) {
   }
   // note! spdlog uses reference count
   out_ = out.get();
-  err_ = err ? err.get() : out_;
+#ifndef NDEBUG
+  (*out_).set_level(::spdlog::level::debug);
+#endif
+  if (err) {
+    err_ = err.get();
+#ifndef NDEBUG
+    (*err).set_level(::spdlog::level::debug);
+#endif
+  } else {
+    err_ = out_;
+  }
   auto message = fmt::format("logging: {}"sv, interactive ? "sync"sv : "async"sv);
   (*out_).log(::spdlog::level::info, message);
 }
