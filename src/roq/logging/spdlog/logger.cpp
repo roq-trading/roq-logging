@@ -20,13 +20,11 @@ namespace roq {
 namespace logging {
 namespace spdlog {
 
-// note! avoid red/green and green/blue combinations
-
 // === CONSTANTS ===
 
 namespace {
-auto const SPDLOG_QUEUE_SIZE = size_t{1048576};
-auto const SPDLOG_THREAD_COUNT = size_t{1};
+auto const SPDLOG_QUEUE_SIZE = 1048576uz;
+auto const SPDLOG_THREAD_COUNT = 1uz;
 }  // namespace
 
 // === IMPLEMENTATION ===
@@ -48,15 +46,15 @@ Logger::Logger(Settings const &settings) {
         out = ::spdlog::stdout_color_mt("spdlog_out"s);
         {
           auto color_sink = static_cast<::spdlog::sinks::stdout_color_sink_mt *>((*out).sinks()[0].get());
-          (*color_sink).set_color(::spdlog::level::debug, "\033[1m\033[93m"sv);  // yellow
-          (*color_sink).set_color(::spdlog::level::info, (*color_sink).white);
-          (*color_sink).set_color(::spdlog::level::warn, "\033[1m\033[97m"sv);  // white
+          (*color_sink).set_color(::spdlog::level::debug, "\e[1;94m"sv);  // blue
+          (*color_sink).set_color(::spdlog::level::info, "\e[0;37m"sv);   // grey
+          (*color_sink).set_color(::spdlog::level::warn, "\e[1;92m"sv);   // green
         }
         err = ::spdlog::stderr_color_mt("spdlog_err"s);
         {
           auto color_sink = static_cast<::spdlog::sinks::stdout_color_sink_mt *>((*err).sinks()[0].get());
-          (*color_sink).set_color(::spdlog::level::err, (*color_sink).red_bold);
-          (*color_sink).set_color(::spdlog::level::critical, (*color_sink).red_bold);
+          (*color_sink).set_color(::spdlog::level::err, "\e[0;101m"sv);       // red background
+          (*color_sink).set_color(::spdlog::level::critical, "\e[0;101m"sv);  // red background
         }
       } else {
         out = ::spdlog::stdout_logger_st("spdlog_out"s);
