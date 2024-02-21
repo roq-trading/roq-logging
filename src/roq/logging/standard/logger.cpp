@@ -20,6 +20,7 @@ Logger::Logger(Settings const &) {
 void Logger::operator()(Level level, std::string_view const &message) {
   switch (level) {
     using enum Level;
+    case DEBUG:
     case INFO:
     case WARNING:
       std::cout << message << std::endl;

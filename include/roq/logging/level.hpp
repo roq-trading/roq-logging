@@ -10,6 +10,7 @@ namespace roq {
 namespace logging {
 
 enum class Level {
+  DEBUG,
   INFO,
   WARNING,
   ERROR,

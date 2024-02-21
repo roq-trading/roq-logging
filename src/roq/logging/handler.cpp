@@ -28,6 +28,7 @@ struct Default final : public Handler {
   void operator()(Level level, std::string_view const &message) override {
     switch (level) {
       using enum Level;
+      case DEBUG:
       case INFO:
       case WARNING:
         std::cout << message << std::endl;

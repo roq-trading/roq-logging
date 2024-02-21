@@ -140,7 +140,7 @@ struct debug final {
       if (roq::logging::verbosity < level) [[likely]]
         return;
     }
-    detail::helper_debug<level>(roq::logging::Level::INFO, fmt, std::forward<Args>(args)...);
+    detail::helper_debug<level>(roq::logging::Level::DEBUG, fmt, std::forward<Args>(args)...);
   }
 #else
   template <typename... Args>

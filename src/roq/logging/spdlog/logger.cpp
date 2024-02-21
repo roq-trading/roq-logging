@@ -44,8 +44,10 @@ Logger::Logger(Settings const &settings) {
       // note! almost similar to stdout/stderr, only using spdlog for buffering
       if (terminal_color) {
         out = ::spdlog::stdout_color_mt("spdlog_out"s);
+        (*out).set_level(::spdlog::level::debug);
         {
           auto color_sink = static_cast<::spdlog::sinks::stdout_color_sink_mt *>((*out).sinks()[0].get());
+          (*color_sink).set_color(::spdlog::level::debug, "\033[1m\033[94m"sv);  // bold blue
           (*color_sink).set_color(::spdlog::level::info, (*color_sink).white);
           (*color_sink).set_color(::spdlog::level::warn, "\033[1m\033[32m"sv);  // bold green
         }
@@ -103,6 +105,9 @@ Logger::~Logger() {
 void Logger::operator()(Level level, std::string_view const &message) {
   switch (level) {
     using enum Level;
+    case DEBUG:
+      (*out_).log(::spdlog::level::debug, message);
+      break;
     case INFO:
       (*out_).log(::spdlog::level::info, message);
       break;
