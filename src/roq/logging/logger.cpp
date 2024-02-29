@@ -29,7 +29,7 @@
 #include "roq/logging/shared.hpp"
 
 using namespace std::literals;
-using namespace std::chrono_literals;
+using namespace std::chrono_literals;  // NOLINT
 
 namespace roq {
 namespace logging {
