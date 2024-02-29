@@ -69,7 +69,7 @@ static void helper_system_error(
 template <std::size_t level = 0>
 struct info final {
   template <typename... Args>
-  constexpr info(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
+  constexpr info(format_str<Args...> const &fmt, Args &&...args) {
     if constexpr (level > 0) {
       if (roq::logging::verbosity < level) [[likely]]
         return;
@@ -83,7 +83,7 @@ struct info final {
 template <std::size_t level = 0>
 struct warn final {
   template <typename... Args>
-  constexpr warn(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
+  constexpr warn(format_str<Args...> const &fmt, Args &&...args) {
     if constexpr (level > 0) {
       if (roq::logging::verbosity < level) [[likely]]
         return;
@@ -97,7 +97,7 @@ struct warn final {
 template <std::size_t level = 0>
 struct error final {
   template <typename... Args>
-  constexpr error(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
+  constexpr error(format_str<Args...> const &fmt, Args &&...args) {
     if constexpr (level > 0) {
       if (roq::logging::verbosity < level) [[likely]]
         return;
@@ -110,13 +110,13 @@ struct error final {
 
 #ifndef NDEBUG
 template <typename... Args>
-[[noreturn]] constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
+[[noreturn]] constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {
   detail::helper<0>(roq::logging::Level::CRITICAL, fmt, std::forward<Args>(args)...);
   std::abort();
 }
 #else
 template <typename... Args>
-constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
+constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {
   detail::helper<0>(roq::logging::Level::CRITICAL, fmt, std::forward<Args>(args)...);
 }
 #endif
@@ -124,7 +124,7 @@ constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {  // NO
 // fatal (will always abort)
 
 template <typename... Args>
-[[noreturn]] constexpr void fatal(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
+[[noreturn]] constexpr void fatal(format_str<Args...> const &fmt, Args &&...args) {
   detail::helper<0>(roq::logging::Level::CRITICAL, fmt, std::forward<Args>(args)...);
   std::abort();
 }
@@ -135,7 +135,7 @@ template <std::size_t level = 0>
 struct debug final {
 #ifndef NDEBUG
   template <typename... Args>
-  constexpr debug(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
+  constexpr debug(format_str<Args...> const &fmt, Args &&...args) {
     if constexpr (level > 0) {
       if (roq::logging::verbosity < level) [[likely]]
         return;
@@ -144,8 +144,7 @@ struct debug final {
   }
 #else
   template <typename... Args>
-  constexpr debug(format_str<Args...> const &, Args &&...) {  // NOLINT
-  }
+  constexpr debug(format_str<Args...> const &, Args &&...) {}
 #endif
 };
 
@@ -154,7 +153,7 @@ struct debug final {
 template <std::size_t level = 0>
 struct system_error final {
   template <typename... Args>
-  constexpr system_error(format_str<Args...> const &fmt, Args &&...args) {  // NOLINT
+  constexpr system_error(format_str<Args...> const &fmt, Args &&...args) {
     if constexpr (level > 0) {
       if (roq::logging::verbosity < level) [[likely]]
         return;

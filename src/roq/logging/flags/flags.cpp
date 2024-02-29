@@ -13,14 +13,13 @@
 #include <string>
 
 using namespace std::literals;
-using namespace std::chrono_literals;  // NOLINT
+using namespace std::chrono_literals;
 
 namespace {
 struct TimePeriod final {
   TimePeriod() = default;
 
-  // cppcheck-suppress noExplicitConstructor
-  TimePeriod(std::chrono::nanoseconds const value) : value_{absl::FromChrono(value)} {}  // NOLINT (allow implicit)
+  TimePeriod(std::chrono::nanoseconds const value) : value_{absl::FromChrono(value)} {}
 
   operator absl::Duration const &() const { return value_; }
 
