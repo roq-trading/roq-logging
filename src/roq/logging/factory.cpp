@@ -18,8 +18,7 @@ namespace logging {
 // === IMPLEMENTATION ===
 
 std::unique_ptr<Handler> Factory::create(std::string_view const &type, Settings const &settings) {
-  if (std::empty(type) || utils::case_insensitive_compare(type, "std"sv) == 0 ||
-      utils::case_insensitive_compare(type, "standard"sv) == 0)
+  if (std::empty(type) || utils::case_insensitive_compare(type, "std"sv) == 0 || utils::case_insensitive_compare(type, "standard"sv) == 0)
     return std::make_unique<standard::Logger>(settings);
   if (utils::case_insensitive_compare(type, "spdlog"sv) == 0)
     return std::make_unique<spdlog::Logger>(settings);

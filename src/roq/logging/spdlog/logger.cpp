@@ -65,11 +65,7 @@ Logger::Logger(Settings const &settings) {
     }
   } else {
     out = ::spdlog::rotating_logger_st<::spdlog::async_factory>(
-        "spdlog"s,
-        std::string{settings.log.path},
-        settings.log.max_size,
-        settings.log.max_files,
-        settings.log.rotate_on_open);
+        "spdlog"s, std::string{settings.log.path}, settings.log.max_size, settings.log.max_files, settings.log.rotate_on_open);
   }
   if (!std::empty(settings.log.pattern))
     (*out).set_pattern(std::string{settings.log.pattern});

@@ -49,19 +49,15 @@ auto create_settings(auto &settings) {
 // === IMPLEMENTATION ===
 
 Service::Service(args::Parser const &args, logging::Settings const &settings, Info const &info)
-    : package_name_{info.package_name}, host_{info.host}, build_version_{info.build_version},
-      build_number_{info.build_number}, build_type_{info.build_type}, git_hash_{info.git_hash},
-      compile_date_{info.compile_date}, compile_time_{info.compile_time}, args_{args},
-      settings_{create_settings(settings)}, handler_2_{logging::Factory::create("spdlog"sv, settings_)},
-      handler_{*handler_2_}, logger_{args_, settings_} {
+    : package_name_{info.package_name}, host_{info.host}, build_version_{info.build_version}, build_number_{info.build_number}, build_type_{info.build_type},
+      git_hash_{info.git_hash}, compile_date_{info.compile_date}, compile_time_{info.compile_time}, args_{args}, settings_{create_settings(settings)},
+      handler_2_{logging::Factory::create("spdlog"sv, settings_)}, handler_{*handler_2_}, logger_{args_, settings_} {
 }
 
-Service::Service(
-    args::Parser const &args, logging::Settings const &settings, logging::Handler &handler, Info const &info)
-    : package_name_{info.package_name}, host_{info.host}, build_version_{info.build_version},
-      build_number_{info.build_number}, build_type_{info.build_type}, git_hash_{info.git_hash},
-      compile_date_{info.compile_date}, compile_time_{info.compile_time}, args_{args},
-      settings_{create_settings(settings)}, handler_{handler}, logger_{args_, settings_} {
+Service::Service(args::Parser const &args, logging::Settings const &settings, logging::Handler &handler, Info const &info)
+    : package_name_{info.package_name}, host_{info.host}, build_version_{info.build_version}, build_number_{info.build_number}, build_type_{info.build_type},
+      git_hash_{info.git_hash}, compile_date_{info.compile_date}, compile_time_{info.compile_time}, args_{args}, settings_{create_settings(settings)},
+      handler_{handler}, logger_{args_, settings_} {
 }
 
 Service::~Service() {

@@ -46,19 +46,11 @@ static void helper_debug(roq::logging::Level log_level, roq::format_str<Args...>
 #endif
 
 template <size_t level, typename... Args>
-static void helper_system_error(
-    roq::logging::Level log_level, int error, roq::format_str<Args...> const &fmt, Args &&...args) {
+static void helper_system_error(roq::logging::Level log_level, int error, roq::format_str<Args...> const &fmt, Args &&...args) {
   using namespace std::literals;
   auto &message = roq::logging::message_buffer;
   message.clear();
-  fmt::format_to(
-      std::back_inserter(message),
-      "L{} {}:{}] {} [{}] "sv,
-      level,
-      fmt.file_name,
-      fmt.line,
-      std::strerror(error),
-      error);
+  fmt::format_to(std::back_inserter(message), "L{} {}:{}] {} [{}] "sv, level, fmt.file_name, fmt.line, std::strerror(error), error);
   fmt::vformat_to(std::back_inserter(message), fmt.str, fmt::make_format_args(args...));
   (*roq::logging::Handler::INSTANCE)(log_level, message);
 }

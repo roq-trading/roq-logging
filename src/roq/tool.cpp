@@ -34,8 +34,8 @@ auto create_settings(auto &settings) {
 // === IMPLEMENTATION ===
 
 Tool::Tool(args::Parser const &args, logging::Settings const &settings, Info const &info)
-    : build_type_{info.build_type}, git_hash_{info.git_hash}, compile_date_{info.compile_date},
-      compile_time_{info.compile_time}, args_{args}, settings_{create_settings(settings)}, logger_{args_, settings_} {
+    : build_type_{info.build_type}, git_hash_{info.git_hash}, compile_date_{info.compile_date}, compile_time_{info.compile_time}, args_{args},
+      settings_{create_settings(settings)}, logger_{args_, settings_} {
 }
 
 Tool::~Tool() {
