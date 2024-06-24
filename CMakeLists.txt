@@ -50,7 +50,11 @@ include_directories(${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src)
 
 # sub-projects
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/src/roq)
+add_subdirectory(${CMAKE_SOURCE_DIR}/src)
+
+if(BUILD_TESTING)
+  add_subdirectory(${CMAKE_SOURCE_DIR}/test)
+endif()
 
 # install (public headers)
 
