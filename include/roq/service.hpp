@@ -32,7 +32,6 @@ struct ROQ_PUBLIC Service {
   Service(args::Parser const &, logging::Settings const &, Info const &);
   Service(args::Parser const &, logging::Settings const &, logging::Handler &, Info const &);
 
-  Service(Service &&) = default;
   Service(Service const &) = delete;
 
   virtual ~Service();
