@@ -29,8 +29,8 @@ struct ROQ_PUBLIC Tool {
 
   Tool(args::Parser const &, logging::Settings const &, Info const &);
 
+  Tool(Tool &&) = default;
   Tool(Tool const &) = delete;
-  Tool(Tool &&) = delete;
 
   virtual ~Tool();
 
