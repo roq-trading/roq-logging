@@ -15,7 +15,7 @@ build:
     - CPPFLAGS=-O3  # [linux]
     - CPPFLAGS=-O3 -D_LIBCPP_DISABLE_AVAILABILITY  # [osx]
   run_exports:
-    - {{ pin_subpackage('roq-logging', max_pin='x.x.x') }}
+    - roq-logging
 
 requirements:
   build:
@@ -26,7 +26,6 @@ requirements:
     - pkg-config
   host:
     - catch2
-    - ctre
     - fmt
     - libabseil
     - roq-api
