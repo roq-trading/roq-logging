@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <algorithm>  // note! used by fmt/color.h without including
+
 #include <fmt/color.h>
 #include <fmt/format.h>
 
