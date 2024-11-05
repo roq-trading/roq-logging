@@ -21,6 +21,9 @@ struct ROQ_PUBLIC Handler {
 
   virtual void operator()(Level, std::string_view const &message) = 0;
 
+  static Handler &get_instance() { return *INSTANCE; }
+
+ private:
   static Handler *INSTANCE;
 };
 

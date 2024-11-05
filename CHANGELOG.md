@@ -4,6 +4,10 @@ All notable changes will be documented in this file.
 
 ## Head
 
+### Fixed
+
+* Hide (singleton) instance variable from `logging::Handler` public interface.
+
 ## 1.0.2 &ndash; 2024-07-14
 
 ## 1.0.1 &ndash; 2024-04-14
