@@ -18,8 +18,8 @@ add_library(${TARGET_NAME} SHARED ${SOURCES})
 
 target_link_libraries(
   ${TARGET_NAME}
-  PUBLIC roq-api::roq-api
-  INTERFACE fmt::fmt
+  INTERFACE roq-api::roq-api magic_enum::magic_enum
+  PUBLIC fmt::fmt
   PRIVATE ${PROJECT_NAME}-flags absl::symbolize spdlog::spdlog ${LIBUNWIND_LIBRARIES})
 
 if(ROQ_BUILD_TYPE STREQUAL "Release")
