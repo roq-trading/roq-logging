@@ -24,8 +24,6 @@
 #include "roq/unwind.hpp"
 #endif
 
-#include "roq/utils/compare.hpp"
-
 #include "roq/logging/shared.hpp"
 
 using namespace std::literals;
@@ -91,11 +89,11 @@ Logger::Logger(args::Parser const &args, logging::Settings const &settings, bool
   // note! to detach from terminal: use nohup, systemd, etc.
   auto terminal = ::isatty(fileno(stdout));
   // terminal color
-  if (std::empty(settings.log.color) || utils::case_insensitive_compare(settings.log.color, "auto"sv) == 0) {
+  if (std::empty(settings.log.color) || settings.log.color.compare("auto"sv) == 0) {
     terminal_color = terminal;
-  } else if (utils::case_insensitive_compare(settings.log.color, "always"sv) == 0) {
+  } else if (settings.log.color.compare("always"sv) == 0) {
     terminal_color = true;
-  } else if (utils::case_insensitive_compare(settings.log.color, "none"sv) == 0) {
+  } else if (settings.log.color.compare("none"sv) == 0) {
     terminal_color = false;
   } else {
     fmt::print(stderr, R"(Unknown color: "{}"\n)"sv, settings.log.color);

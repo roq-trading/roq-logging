@@ -4,8 +4,6 @@
 
 #include "roq/exceptions.hpp"
 
-#include "roq/utils/compare.hpp"
-
 #include "roq/logging/spdlog/logger.hpp"
 
 #include "roq/logging/standard/logger.hpp"
@@ -18,9 +16,9 @@ namespace logging {
 // === IMPLEMENTATION ===
 
 std::unique_ptr<Handler> Factory::create(std::string_view const &type, Settings const &settings) {
-  if (std::empty(type) || utils::case_insensitive_compare(type, "std"sv) == 0 || utils::case_insensitive_compare(type, "standard"sv) == 0)
+  if (std::empty(type) || type.compare("std"sv) == 0 || type.compare("standard"sv) == 0)
     return std::make_unique<standard::Logger>(settings);
-  if (utils::case_insensitive_compare(type, "spdlog"sv) == 0)
+  if (type.compare("spdlog"sv) == 0)
     return std::make_unique<spdlog::Logger>(settings);
   throw RuntimeError{R"(Unknown logging type: "{}")"sv, type};
 }
