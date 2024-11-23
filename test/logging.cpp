@@ -12,10 +12,10 @@
 
 #include "./shared.hpp"
 
+using namespace std::literals;
+
 using namespace roq;
 using namespace roq::logging;
-
-using namespace std::literals;
 
 TEST_CASE("logging_no_init_before", "[logging]") {
   log::info("info"sv);

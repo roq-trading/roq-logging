@@ -3,7 +3,7 @@
 #include "roq/unwind.hpp"
 
 #define UNW_LOCAL_ONLY
-#include <libunwind.h>  // IWYU pragma: keep
+#include <libunwind.h>
 
 #include <cxxabi.h>
 #include <stdio.h>
@@ -12,10 +12,14 @@
 namespace roq {
 namespace unwind {
 
+// === CONSTANTS ===
+
 namespace {
 static char proc_name[1024];
 constexpr int width = (2 * sizeof(void *)) + 2;
 }  // namespace
+
+// === IMPLEMENTATION ===
 
 void print_stacktrace([[maybe_unused]] int signal, [[maybe_unused]] siginfo_t *info) {
 #if defined(__linux__)

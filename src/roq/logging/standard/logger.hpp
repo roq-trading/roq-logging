@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <spdlog/logger.h>
-
 #include "roq/logging/handler.hpp"
 #include "roq/logging/settings.hpp"
 

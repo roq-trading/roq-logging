@@ -6,7 +6,7 @@
 
 #include <catch2/catch_session.hpp>
 
-#include "./shared.hpp"  // IWYU pragma: keep
+#include "./shared.hpp"
 
 int my_argc;
 char **my_argv;
