@@ -4,6 +4,10 @@ All notable changes will be documented in this file.
 
 ## Head
 
+### Added
+
+* Support `log_verbosity` command-line flag as lower priority alternative to the `ROQ_v` environment variable
+
 ## 1.0.3 &ndash; 2024-11-26
 
 ### Fixed

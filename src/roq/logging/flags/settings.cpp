@@ -21,6 +21,7 @@ auto create_settings() -> roq::logging::Settings {
           .max_files = Flags::log_max_files(),
           .rotate_on_open = Flags::log_rotate_on_open(),
           .color = Flags::color(),
+          .verbosity = Flags::log_verbosity(),
       },
   };
 }

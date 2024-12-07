@@ -105,6 +105,8 @@ Logger::Logger(args::Parser const &args, logging::Settings const &settings, bool
     auto tmp = std::atoi(verbosity_2);
     if (tmp >= 0)
       verbosity = tmp;
+  } else {
+    verbosity = settings.log.verbosity;
   }
   // stacktrace
   if (stacktrace)

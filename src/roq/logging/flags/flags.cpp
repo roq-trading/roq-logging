@@ -88,6 +88,12 @@ ABSL_FLAG(  //
     "auto"s,
     "use terminal colors? (one of: always, auto, none)");
 
+ABSL_FLAG(  //
+    uint32_t,
+    log_verbosity,
+    0,
+    "verbosity (0-5), ROQ_v environment variable has priority"s);
+
 namespace roq {
 namespace logging {
 namespace flags {
@@ -124,6 +130,11 @@ bool Flags::log_rotate_on_open() {
 
 std::string_view Flags::color() {
   static std::string const result = absl::GetFlag(FLAGS_color);
+  return result;
+}
+
+uint32_t Flags::log_verbosity() {
+  static uint32_t const result = absl::GetFlag(FLAGS_log_verbosity);
   return result;
 }
 

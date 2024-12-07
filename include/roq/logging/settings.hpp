@@ -22,6 +22,7 @@ struct Log final {
   uint32_t max_files = {};
   bool rotate_on_open = {};
   std::string_view color;
+  size_t verbosity = {};
 };
 }  // namespace detail
 
@@ -46,7 +47,8 @@ struct fmt::formatter<roq::logging::detail::Log> {
         R"(max_size={}, )"
         R"(max_files={}, )"
         R"(rotate_on_open={}, )"
-        R"(color="{}")"
+        R"(color="{}", )"
+        R"(verbosity={})"
         R"(}})"sv,
         value.pattern,
         value.flush_freq,
@@ -54,7 +56,8 @@ struct fmt::formatter<roq::logging::detail::Log> {
         value.max_size,
         value.max_files,
         value.rotate_on_open,
-        value.color);
+        value.color,
+        value.verbosity);
   }
 };
 
