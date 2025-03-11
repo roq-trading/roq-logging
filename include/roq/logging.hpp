@@ -20,7 +20,7 @@ namespace log {
 
 namespace detail {
 template <size_t level, typename... Args>
-static void helper(roq::logging::Level log_level, roq::format_str<Args...> const &fmt, Args &&...args) {
+static void helper(roq::logging::Level log_level, roq::format_str const &fmt, Args &&...args) {
   using namespace std::literals;
   auto &message = roq::logging::message_buffer;
 #ifndef NDEBUG
@@ -37,7 +37,7 @@ static void helper(roq::logging::Level log_level, roq::format_str<Args...> const
 
 #ifndef NDEBUG
 template <size_t level, typename... Args>
-static void helper_debug(roq::logging::Level log_level, roq::format_str<Args...> const &fmt, Args &&...args) {
+static void helper_debug(roq::logging::Level log_level, roq::format_str const &fmt, Args &&...args) {
   using namespace std::literals;
   auto &message = roq::logging::message_buffer;
   message.clear();  // note! capacity is in reality preserved but it is not guaranteed by the standard
@@ -48,7 +48,7 @@ static void helper_debug(roq::logging::Level log_level, roq::format_str<Args...>
 #endif
 
 template <size_t level, typename... Args>
-static void helper_system_error(roq::logging::Level log_level, int error, roq::format_str<Args...> const &fmt, Args &&...args) {
+static void helper_system_error(roq::logging::Level log_level, int error, roq::format_str const &fmt, Args &&...args) {
   using namespace std::literals;
   auto &message = roq::logging::message_buffer;
   message.clear();
@@ -63,7 +63,7 @@ static void helper_system_error(roq::logging::Level log_level, int error, roq::f
 template <std::size_t level = 0>
 struct info final {
   template <typename... Args>
-  constexpr info(format_str<Args...> const &fmt, Args &&...args) {
+  constexpr info(format_str const &fmt, Args &&...args) {
     if constexpr (level > 0) {
       if (roq::logging::verbosity < level) [[likely]]
         return;
@@ -77,7 +77,7 @@ struct info final {
 template <std::size_t level = 0>
 struct warn final {
   template <typename... Args>
-  constexpr warn(format_str<Args...> const &fmt, Args &&...args) {
+  constexpr warn(format_str const &fmt, Args &&...args) {
     if constexpr (level > 0) {
       if (roq::logging::verbosity < level) [[likely]]
         return;
@@ -91,7 +91,7 @@ struct warn final {
 template <std::size_t level = 0>
 struct error final {
   template <typename... Args>
-  constexpr error(format_str<Args...> const &fmt, Args &&...args) {
+  constexpr error(format_str const &fmt, Args &&...args) {
     if constexpr (level > 0) {
       if (roq::logging::verbosity < level) [[likely]]
         return;
@@ -104,13 +104,13 @@ struct error final {
 
 #ifndef NDEBUG
 template <typename... Args>
-[[noreturn]] constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {
+[[noreturn]] constexpr void critical(format_str const &fmt, Args &&...args) {
   detail::helper<0>(roq::logging::Level::CRITICAL, fmt, std::forward<Args>(args)...);
   std::abort();
 }
 #else
 template <typename... Args>
-constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {
+constexpr void critical(format_str const &fmt, Args &&...args) {
   detail::helper<0>(roq::logging::Level::CRITICAL, fmt, std::forward<Args>(args)...);
 }
 #endif
@@ -118,7 +118,7 @@ constexpr void critical(format_str<Args...> const &fmt, Args &&...args) {
 // fatal (will always abort)
 
 template <typename... Args>
-[[noreturn]] constexpr void fatal(format_str<Args...> const &fmt, Args &&...args) {
+[[noreturn]] constexpr void fatal(format_str const &fmt, Args &&...args) {
   detail::helper<0>(roq::logging::Level::CRITICAL, fmt, std::forward<Args>(args)...);
   std::abort();
 }
@@ -129,7 +129,7 @@ template <std::size_t level = 0>
 struct debug final {
 #ifndef NDEBUG
   template <typename... Args>
-  constexpr debug(format_str<Args...> const &fmt, Args &&...args) {
+  constexpr debug(format_str const &fmt, Args &&...args) {
     if constexpr (level > 0) {
       if (roq::logging::verbosity < level) [[likely]]
         return;
@@ -138,7 +138,7 @@ struct debug final {
   }
 #else
   template <typename... Args>
-  constexpr debug(format_str<Args...> const &, Args &&...) {}
+  constexpr debug(format_str const &, Args &&...) {}
 #endif
 };
 
@@ -147,7 +147,7 @@ struct debug final {
 template <std::size_t level = 0>
 struct system_error final {
   template <typename... Args>
-  constexpr system_error(format_str<Args...> const &fmt, Args &&...args) {
+  constexpr system_error(format_str const &fmt, Args &&...args) {
     if constexpr (level > 0) {
       if (roq::logging::verbosity < level) [[likely]]
         return;

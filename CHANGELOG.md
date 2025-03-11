@@ -4,6 +4,10 @@ All notable changes will be documented in this file.
 
 ## Head
 
+### Changed
+
+* Upgrade the `format_str` helper class to work with `fmt 11.1` (#488)
+
 ## 1.0.4 &ndash; 2024-12-30
 
 ### Added
