@@ -39,10 +39,10 @@ struct ROQ_PUBLIC Service {
   //! The main function
   int run();
 
+  [[noreturn]] static void unhandled_exception();
+
  protected:
   virtual int main(args::Parser const &) = 0;
-
-  [[noreturn]] void unhandled_exception();
 
  private:
   std::string const package_name_;
