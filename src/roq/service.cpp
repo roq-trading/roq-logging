@@ -94,22 +94,4 @@ int Service::run() {
   log::info("===== STOP ====="sv);
   return res;
 }
-
-void Service::unhandled_exception() {
-  // rethrow to get some typeinfo
-  try {
-    throw;
-  } catch (SystemError &e) {
-    log::fatal("Unhandled exception: {}"sv, e);
-  } catch (Exception &e) {
-    log::fatal("Unhandled exception: {}"sv, e);
-  } catch (std::exception &e) {
-    log::fatal(R"(Unhandled exception: type="{}", what="{}")"sv, typeid(e).name(), e.what());
-  } catch (...) {
-    auto e = std::current_exception();
-    log::fatal(R"(Unhandled exception: type="{}")"sv, typeid(e).name());
-  }
-  log::fatal("Unexpected"sv);
-}
-
 }  // namespace roq

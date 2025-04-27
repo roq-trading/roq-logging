@@ -8,8 +8,6 @@
 
 #include "roq/args/parser.hpp"
 
-#include "roq/logging.hpp"  // XXX TODO remove (keeping for now to minimize downstream issues)
-
 #include "roq/logging/handler.hpp"
 #include "roq/logging/logger.hpp"
 
@@ -38,8 +36,6 @@ struct ROQ_PUBLIC Service {
 
   //! The main function
   int run();
-
-  [[noreturn]] static void unhandled_exception();
 
  protected:
   virtual int main(args::Parser const &) = 0;

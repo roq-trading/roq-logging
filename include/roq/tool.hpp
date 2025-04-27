@@ -7,8 +7,6 @@
 
 #include "roq/args/parser.hpp"
 
-#include "roq/logging.hpp"  // XXX TODO remove (keeping for now to minimize downstream issues)
-
 #include "roq/logging/logger.hpp"
 
 namespace roq {
