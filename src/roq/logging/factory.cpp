@@ -16,10 +16,12 @@ namespace logging {
 // === IMPLEMENTATION ===
 
 std::unique_ptr<Handler> Factory::create(std::string_view const &type, Settings const &settings) {
-  if (std::empty(type) || type.compare("std"sv) == 0 || type.compare("standard"sv) == 0)
+  if (std::empty(type) || type == "std"sv || type == "standard"sv) {
     return std::make_unique<standard::Logger>(settings);
-  if (type.compare("spdlog"sv) == 0)
+  }
+  if (type == "spdlog"sv) {
     return std::make_unique<spdlog::Logger>(settings);
+  }
   throw RuntimeError{R"(Unknown logging type: "{}")"sv, type};
 }
 

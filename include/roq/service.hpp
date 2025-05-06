@@ -17,12 +17,12 @@ namespace roq {
 struct ROQ_PUBLIC Service {
   struct Info final {
     std::string_view description;
-    std::string_view package_name = {};
-    std::string_view host = {};
-    std::string_view build_version = {};
-    std::string_view build_number = {};
-    std::string_view build_type = {};
-    std::string_view git_hash = {};
+    std::string_view package_name;
+    std::string_view host;
+    std::string_view build_version;
+    std::string_view build_number;
+    std::string_view build_type;
+    std::string_view git_hash;
     std::string_view compile_date = __DATE__;
     std::string_view compile_time = __TIME__;
   };
@@ -32,7 +32,7 @@ struct ROQ_PUBLIC Service {
 
   Service(Service const &) = delete;
 
-  virtual ~Service();
+  virtual ~Service() = default;
 
   //! The main function
   int run();

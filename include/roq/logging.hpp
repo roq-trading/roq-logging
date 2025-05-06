@@ -65,8 +65,9 @@ struct info final {
   template <typename... Args>
   constexpr info(format_str const &fmt, Args &&...args) {
     if constexpr (level > 0) {
-      if (roq::logging::verbosity < level) [[likely]]
+      if (roq::logging::verbosity < level) [[likely]] {
         return;
+      }
     }
     detail::helper<level>(roq::logging::Level::INFO, fmt, std::forward<Args>(args)...);
   }
@@ -79,8 +80,9 @@ struct warn final {
   template <typename... Args>
   constexpr warn(format_str const &fmt, Args &&...args) {
     if constexpr (level > 0) {
-      if (roq::logging::verbosity < level) [[likely]]
+      if (roq::logging::verbosity < level) [[likely]] {
         return;
+      }
     }
     detail::helper<level>(roq::logging::Level::WARNING, fmt, std::forward<Args>(args)...);
   }
@@ -93,8 +95,9 @@ struct error final {
   template <typename... Args>
   constexpr error(format_str const &fmt, Args &&...args) {
     if constexpr (level > 0) {
-      if (roq::logging::verbosity < level) [[likely]]
+      if (roq::logging::verbosity < level) [[likely]] {
         return;
+      }
     }
     detail::helper<level>(roq::logging::Level::ERROR, fmt, std::forward<Args>(args)...);
   }
@@ -131,8 +134,9 @@ struct debug final {
   template <typename... Args>
   constexpr debug(format_str const &fmt, Args &&...args) {
     if constexpr (level > 0) {
-      if (roq::logging::verbosity < level) [[likely]]
+      if (roq::logging::verbosity < level) [[likely]] {
         return;
+      }
     }
     detail::helper_debug<level>(roq::logging::Level::DEBUG, fmt, std::forward<Args>(args)...);
   }
@@ -149,10 +153,11 @@ struct system_error final {
   template <typename... Args>
   constexpr system_error(format_str const &fmt, Args &&...args) {
     if constexpr (level > 0) {
-      if (roq::logging::verbosity < level) [[likely]]
+      if (roq::logging::verbosity < level) [[likely]] {
         return;
+      }
     }
-    static_assert(std::is_same<std::decay<decltype(errno)>::type, int>::value);
+    static_assert(std::is_same_v<std::decay_t<decltype(errno)>, int>);
     detail::helper_system_error<level>(roq::logging::Level::WARNING, errno, fmt, std::forward<Args>(args)...);
   }
 };

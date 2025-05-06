@@ -6,8 +6,10 @@
 #include <libunwind.h>
 
 #include <cxxabi.h>
-#include <stdio.h>
-#include <stdlib.h>
+
+#include <array>
+#include <cstdio>
+#include <cstdlib>
 
 namespace roq {
 namespace unwind {
@@ -15,7 +17,8 @@ namespace unwind {
 // === CONSTANTS ===
 
 namespace {
-static char proc_name[1024];
+auto const PROC_NAME_LENGTH = 1024UZ;
+std::array<char, PROC_NAME_LENGTH> proc_name = {};
 constexpr int width = (2 * sizeof(void *)) + 2;
 }  // namespace
 
@@ -38,8 +41,9 @@ void print_stacktrace([[maybe_unused]] int signal, [[maybe_unused]] siginfo_t *i
   int status;
   for (int index = 0;; ++index) {
     status = unw_step(&cursor);
-    if (status == 0)  // done
+    if (status == 0) {  // done
       break;
+    }
     if (status < 0) {  // failure
       fprintf(stderr, "Unable to step libunwind cursor.\n");
       return;
@@ -49,7 +53,7 @@ void print_stacktrace([[maybe_unused]] int signal, [[maybe_unused]] siginfo_t *i
       fprintf(stderr, "Unable to get libunwind ip register.\n");
     }
     unw_word_t offp;
-    status = unw_get_proc_name(&cursor, proc_name, sizeof(proc_name), &offp);
+    status = unw_get_proc_name(&cursor, std::data(proc_name), std::size(proc_name), &offp);
     char const *name = "<unknown>";
     char *demangled_name = nullptr;
     if (status < 0) {
@@ -57,14 +61,16 @@ void print_stacktrace([[maybe_unused]] int signal, [[maybe_unused]] siginfo_t *i
         fprintf(stderr, "Unable to get libunwind proc_name.\n");
       }
     } else {
-      name = proc_name;
-      demangled_name = abi::__cxa_demangle(proc_name, nullptr, nullptr, &status);
-      if (status == 0)
+      name = std::data(proc_name);
+      demangled_name = abi::__cxa_demangle(std::data(proc_name), nullptr, nullptr, &status);
+      if (status == 0) {
         name = demangled_name;
+      }
     }
     fprintf(stderr, "[%2d] %#*lx %s\n", index, width, ip, name);
-    if (demangled_name)
+    if (demangled_name != nullptr) {
       free(demangled_name);
+    }
   }
 }
 

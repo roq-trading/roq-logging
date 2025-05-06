@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <signal.h>
+#include <csignal>
 
 namespace roq {
 namespace unwind {

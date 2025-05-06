@@ -40,8 +40,9 @@ auto const DEFAULT_LOG_PATTERN = "%L%m%d %T.%f %t %^%v%$"sv;  // XXX TODO spdlog
 namespace {
 auto create_settings(auto &settings) {
   auto result = settings;
-  if (std::empty(result.log.pattern))
+  if (std::empty(result.log.pattern)) {
     result.log.pattern = DEFAULT_LOG_PATTERN;
+  }
   return result;
 }
 }  // namespace
@@ -58,9 +59,6 @@ Service::Service(args::Parser const &args, logging::Settings const &settings, lo
     : package_name_{info.package_name}, host_{info.host}, build_version_{info.build_version}, build_number_{info.build_number}, build_type_{info.build_type},
       git_hash_{info.git_hash}, compile_date_{info.compile_date}, compile_time_{info.compile_time}, args_{args}, settings_{create_settings(settings)},
       handler_{handler}, logger_{args_, settings_} {
-}
-
-Service::~Service() {
 }
 
 int Service::run() {
@@ -89,8 +87,9 @@ int Service::run() {
   } catch (...) {
     log::error("Exception: <unknown>"sv);
   }
-  if (res != 0)
+  if (res != 0) {
     log::warn("exit-code={}"sv, res);
+  }
   log::info("===== STOP ====="sv);
   return res;
 }

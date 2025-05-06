@@ -25,8 +25,9 @@ auto const DEFAULT_LOG_PATTERN = "%^%v%$"sv;  // XXX TODO spdlog specific
 namespace {
 auto create_settings(auto &settings) {
   auto result = settings;
-  if (std::empty(result.log.pattern))
+  if (std::empty(result.log.pattern)) {
     result.log.pattern = DEFAULT_LOG_PATTERN;
+  }
   return result;
 }
 }  // namespace
@@ -36,9 +37,6 @@ auto create_settings(auto &settings) {
 Tool::Tool(args::Parser const &args, logging::Settings const &settings, Info const &info)
     : build_type_{info.build_type}, git_hash_{info.git_hash}, compile_date_{info.compile_date}, compile_time_{info.compile_time}, args_{args},
       settings_{create_settings(settings)}, logger_{args_, settings_} {
-}
-
-Tool::~Tool() {
 }
 
 int Tool::run() {

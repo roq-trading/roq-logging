@@ -14,7 +14,7 @@ namespace spdlog {
 struct Logger final : public Handler {
   explicit Logger(Settings const &);
 
-  ~Logger();
+  ~Logger() override;
 
  protected:
   void operator()(Level, std::string_view const &message) override;

@@ -23,8 +23,8 @@ namespace spdlog {
 // === CONSTANTS ===
 
 namespace {
-auto const SPDLOG_QUEUE_SIZE = 1048576uz;
-auto const SPDLOG_THREAD_COUNT = 1uz;
+auto const SPDLOG_QUEUE_SIZE = 1048576UZ;
+auto const SPDLOG_THREAD_COUNT = 1UZ;
 }  // namespace
 
 // === IMPLEMENTATION ===
@@ -32,15 +32,16 @@ auto const SPDLOG_THREAD_COUNT = 1uz;
 Logger::Logger(Settings const &settings) {
   auto terminal = ::isatty(fileno(stdout));
   // note! non-interactive sessions are asynchronous
-  auto interactive = std::empty(settings.log.path) && terminal;
+  auto interactive = std::empty(settings.log.path) && terminal != 0;
   if (!interactive) {
     ::spdlog::init_thread_pool(SPDLOG_QUEUE_SIZE, SPDLOG_THREAD_COUNT);
-    if (settings.log.flush_freq.count())
+    if (settings.log.flush_freq.count() != 0) {
       ::spdlog::flush_every(std::chrono::duration_cast<std::chrono::seconds>(settings.log.flush_freq));
+    }
   }
   std::shared_ptr<::spdlog::logger> out, err;
   if (std::empty(settings.log.path)) {
-    if (terminal) {
+    if (terminal != 0) {
       // note! almost similar to stdout/stderr, only using spdlog for buffering
       if (terminal_color) {
         out = ::spdlog::stdout_color_mt("spdlog_out"s);
@@ -67,14 +68,16 @@ Logger::Logger(Settings const &settings) {
     out = ::spdlog::rotating_logger_st<::spdlog::async_factory>(
         "spdlog"s, std::string{settings.log.path}, settings.log.max_size, settings.log.max_files, settings.log.rotate_on_open);
   }
-  if (!std::empty(settings.log.pattern))
+  if (!std::empty(settings.log.pattern)) {
     (*out).set_pattern(std::string{settings.log.pattern});
+  }
   (*out).flush_on(::spdlog::level::warn);
   // note! async logging does not use a dedicated err stream
   // reason: avoid potential timing issues when interleaving two streams
   if (err) {
-    if (!std::empty(settings.log.pattern))
+    if (!std::empty(settings.log.pattern)) {
       (*err).set_pattern(std::string{settings.log.pattern});
+    }
     (*err).flush_on(::spdlog::level::warn);
   }
   // note! spdlog uses reference count
@@ -97,10 +100,12 @@ Logger::Logger(Settings const &settings) {
 Logger::~Logger() {
   try {
     // note! not thread-safe
-    if (out_)
+    if (out_ != nullptr) {
       (*out_).flush();
-    if (err_)
+    }
+    if (err_ != nullptr) {
       (*err_).flush();
+    }
     ::spdlog::drop_all();
   } catch (...) {
     // note! silent

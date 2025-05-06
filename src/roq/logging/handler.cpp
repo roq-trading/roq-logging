@@ -52,8 +52,9 @@ Default DEFAULT_LOGGER;
 // === IMPLEMENTATION ===
 
 Handler::Handler() {
-  if (COUNT >= 2)
+  if (COUNT >= 2) {
     throw RuntimeError{"Logger is singleton"sv};
+  }
   ++COUNT;
   INSTANCE = this;
 }

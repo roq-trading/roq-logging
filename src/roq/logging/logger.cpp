@@ -12,10 +12,10 @@
 #include <absl/debugging/symbolize.h>
 
 #include <execinfo.h>
-#include <signal.h>
 #include <unistd.h>
 
 #include <chrono>
+#include <csignal>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
@@ -89,11 +89,11 @@ Logger::Logger(args::Parser const &args, logging::Settings const &settings, bool
   // note! to detach from terminal: use nohup, systemd, etc.
   auto terminal = ::isatty(fileno(stdout));
   // terminal color
-  if (std::empty(settings.log.color) || settings.log.color.compare("auto"sv) == 0) {
-    terminal_color = terminal;
-  } else if (settings.log.color.compare("always"sv) == 0) {
+  if (std::empty(settings.log.color) || settings.log.color == "auto"sv) {
+    terminal_color = terminal != 0;
+  } else if (settings.log.color == "always"sv) {
     terminal_color = true;
-  } else if (settings.log.color.compare("none"sv) == 0) {
+  } else if (settings.log.color == "none"sv) {
     terminal_color = false;
   } else {
     fmt::print(stderr, R"(Unknown color: "{}"\n)"sv, settings.log.color);
@@ -103,14 +103,16 @@ Logger::Logger(args::Parser const &args, logging::Settings const &settings, bool
   auto verbosity_2 = std::getenv("ROQ_v");
   if (verbosity_2 != nullptr && std::strlen(verbosity_2) > 0) {
     auto tmp = std::atoi(verbosity_2);
-    if (tmp >= 0)
+    if (tmp >= 0) {
       verbosity = tmp;
+    }
   } else {
     verbosity = settings.log.verbosity;
   }
   // stacktrace
-  if (stacktrace)
+  if (stacktrace) {
     install_failure_signal_handler();
+  }
 }
 
 }  // namespace logging
