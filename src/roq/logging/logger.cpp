@@ -60,8 +60,9 @@ void termination_handler(int sig, siginfo_t *info, void *) {
       // note! this signature does not include the arguments
       // --> so we still prefer libunwind
       auto result = absl::Symbolize{addr[i], std::data(name), std::size(name)};
-      if (result)
+      if (result) {
         symbol = std::data(name);
+      }
       fprintf(stderr, "[%2d] %p %s\n", i, addr[i], symbol);
     }
   } else {
