@@ -5,6 +5,8 @@
 #include <absl/debugging/stacktrace.h>
 #include <absl/debugging/symbolize.h>
 
+#include <fmt/format.h>
+
 #include <execinfo.h>
 #include <unistd.h>
 
@@ -51,7 +53,7 @@ void termination_handler(int sig, siginfo_t *info, void *) {
       if (result) {
         symbol = std::data(name);
       }
-      fmt::fprintln(stderr, "[%2d] %p %s", i, addr[i], symbol);
+      fmt::println(stderr, "[%2d] %p %s", i, addr[i], symbol);
     }
   } else {
     fmt::println(stderr, "can't get stacktrace");
