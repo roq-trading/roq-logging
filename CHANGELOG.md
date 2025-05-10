@@ -4,6 +4,11 @@ All notable changes will be documented in this file.
 
 ## Head
 
+
+### Changed
+
+* Use Abseil for stacktrace (#495)
+
 ## 1.0.5 &ndash; 2025-03-26
 
 ### Changed
