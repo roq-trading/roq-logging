@@ -51,10 +51,10 @@ void termination_handler(int sig, siginfo_t *info, void *) {
       if (result) {
         symbol = std::data(name);
       }
-      fprintf(stderr, "[%2d] %p %s\n", i, addr[i], symbol);
+      fmt::fprintln(stderr, "[%2d] %p %s", i, addr[i], symbol);
     }
   } else {
-    fprintf(stderr, "can't get stacktrace\n");
+    fmt::println(stderr, "can't get stacktrace");
   }
   invoke_default_signal_handler(sig);
 }
@@ -84,7 +84,7 @@ Logger::Logger(args::Parser const &args, logging::Settings const &settings, bool
   } else if (settings.log.color == "none"sv) {
     terminal_color = false;
   } else {
-    fmt::print(stderr, R"(Unknown color: "{}"\n)"sv, settings.log.color);
+    fmt::println(stderr, R"(Unknown color: "{}")"sv, settings.log.color);
     std::exit(EXIT_FAILURE);
   }
   // verbosity
