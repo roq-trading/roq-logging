@@ -15,12 +15,10 @@
 #include <cstdlib>
 #include <memory>
 
-#include <fmt/format.h>
-
 #include "roq/logging/shared.hpp"
 
 using namespace std::literals;
-using namespace std::chrono_literals;  // NOLINT
+using namespace std::chrono_literals;
 
 namespace roq {
 namespace logging {
@@ -43,7 +41,7 @@ void termination_handler(int sig, siginfo_t *info, void *) {
 #endif
   std::array<void *, 32> addr;
   int depth = ::backtrace(std::data(addr), std::size(addr));
-  if (depth) {
+  if (depth != 0) {
     std::array<char, 256> name;
     for (int i = 0; i < depth; ++i) {
       char const *symbol = "(unknown)";
