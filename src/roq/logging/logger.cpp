@@ -1,11 +1,5 @@
 /* Copyright (c) 2017-2025, Hans Erik Thrane */
 
-#define USE_UNWIND
-
-#if defined(USE_UNWIND)
-#define UNW_LOCAL_ONLY
-#endif
-
 #include "roq/logging/logger.hpp"
 
 #include <absl/debugging/stacktrace.h>
@@ -20,10 +14,6 @@
 #include <memory>
 
 #include <fmt/format.h>
-
-#if defined(USE_UNWIND)
-#include "roq/unwind.hpp"
-#endif
 
 #include "roq/logging/shared.hpp"
 
@@ -46,9 +36,6 @@ void invoke_default_signal_handler(int signal) {
 
 void termination_handler(int sig, siginfo_t *info, void *) {
   fmt::println(stderr, "*** TERMINATION HANDLER ***"sv);
-#if defined(USE_UNWIND)
-  unwind::print_stacktrace(sig, info);
-#else
 #if defined(__linux__)
   psiginfo(info, nullptr);
 #endif
@@ -60,7 +47,7 @@ void termination_handler(int sig, siginfo_t *info, void *) {
       char const *symbol = "(unknown)";
       // note! this signature does not include the arguments
       // --> so we still prefer libunwind
-      auto result = absl::Symbolize{addr[i], std::data(name), std::size(name)};
+      auto result = absl::Symbolize(addr[i], std::data(name), std::size(name));
       if (result) {
         symbol = std::data(name);
       }
@@ -69,7 +56,6 @@ void termination_handler(int sig, siginfo_t *info, void *) {
   } else {
     fprintf(stderr, "can't get stacktrace\n");
   }
-#endif
   invoke_default_signal_handler(sig);
 }
 

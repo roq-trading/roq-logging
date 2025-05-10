@@ -26,7 +26,6 @@ requirements:
     - libabseil
     - roq-api
     - roq-flags
-    - roq-oss-libunwind  # [linux]
     - roq-oss-magic_enum
     - roq-oss-spdlog
 
