@@ -39,7 +39,8 @@ Logger::Logger(Settings const &settings) {
       ::spdlog::flush_every(std::chrono::duration_cast<std::chrono::seconds>(settings.log.flush_freq));
     }
   }
-  std::shared_ptr<::spdlog::logger> out, err;
+  std::shared_ptr<::spdlog::logger> out;
+  std::shared_ptr<::spdlog::logger> err;
   if (std::empty(settings.log.path)) {
     if (terminal != 0) {
       // note! almost similar to stdout/stderr, only using spdlog for buffering

@@ -2,7 +2,7 @@
 
 #include "roq/logging/standard/logger.hpp"
 
-#include <iostream>
+#include <fmt/format.h>
 
 #include "roq/logging/shared.hpp"
 
@@ -23,11 +23,11 @@ void Logger::operator()(Level level, std::string_view const &message) {
     case DEBUG:
     case INFO:
     case WARNING:
-      std::cout << message << std::endl;
+      fmt::println("{}"sv, message);
       break;
     case ERROR:
     case CRITICAL:
-      std::cout << message << std::endl;
+      fmt::println("{}"sv, message);
       break;
   }
 }

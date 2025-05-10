@@ -4,7 +4,7 @@
 
 #include "roq/logging/handler.hpp"
 
-#include <iostream>
+#include <fmt/format.h>
 
 #include "roq/exceptions.hpp"
 
@@ -31,11 +31,11 @@ struct Default final : public Handler {
       case DEBUG:
       case INFO:
       case WARNING:
-        std::cout << message << std::endl;
+        fmt::println("{}"sv, message);
         break;
       case ERROR:
       case CRITICAL:
-        std::cout << message << std::endl;
+        fmt::println("{}"sv, message);
         break;
     }
   }

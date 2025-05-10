@@ -11,6 +11,10 @@
 #include <cstdio>
 #include <cstdlib>
 
+#include <fmt/format.h>
+
+using namespace std::literals;
+
 namespace roq {
 namespace unwind {
 
@@ -28,14 +32,14 @@ void print_stacktrace([[maybe_unused]] int signal, [[maybe_unused]] siginfo_t *i
 #if defined(__linux__)
   psiginfo(info, nullptr);
 #endif
-  unw_context_t uc;
-  if (unw_getcontext(&uc) != 0) {
-    fprintf(stderr, "Unable to initialize libunwind context.\n");
+  unw_context_t context;
+  if (unw_getcontext(&context) != 0) {
+    fmt::println(stderr, "{}"sv, "Unable to initialize libunwind context."sv);
     return;
   }
   unw_cursor_t cursor;
-  if (unw_init_local(&cursor, &uc) < 0) {
-    fprintf(stderr, "Unable to initialize libunwind cursor.\n");
+  if (unw_init_local(&cursor, &context) < 0) {
+    fmt::println(stderr, "{}"sv, "Unable to initialize libunwind cursor."sv);
     return;
   }
   int status;
@@ -45,12 +49,12 @@ void print_stacktrace([[maybe_unused]] int signal, [[maybe_unused]] siginfo_t *i
       break;
     }
     if (status < 0) {  // failure
-      fprintf(stderr, "Unable to step libunwind cursor.\n");
+      fmt::println(stderr, "{}"sv, "Unable to step libunwind cursor."sv);
       return;
     }
-    unw_word_t ip = 0;
-    if (unw_get_reg(&cursor, UNW_REG_IP, &ip) < 0) {
-      fprintf(stderr, "Unable to get libunwind ip register.\n");
+    unw_word_t ip_register = 0;
+    if (unw_get_reg(&cursor, UNW_REG_IP, &ip_register) < 0) {
+      fmt::println(stderr, "{}"sv, "Unable to get libunwind ip register."sv);
     }
     unw_word_t offp;
     status = unw_get_proc_name(&cursor, std::data(proc_name), std::size(proc_name), &offp);
@@ -58,7 +62,7 @@ void print_stacktrace([[maybe_unused]] int signal, [[maybe_unused]] siginfo_t *i
     char *demangled_name = nullptr;
     if (status < 0) {
       if (status != UNW_ENOINFO) {
-        fprintf(stderr, "Unable to get libunwind proc_name.\n");
+        fmt::println(stderr, "{}"sv, "Unable to get libunwind proc_name."sv);
       }
     } else {
       name = std::data(proc_name);
@@ -67,7 +71,7 @@ void print_stacktrace([[maybe_unused]] int signal, [[maybe_unused]] siginfo_t *i
         name = demangled_name;
       }
     }
-    fprintf(stderr, "[%2d] %#*lx %s\n", index, width, ip, name);
+    fmt::println(stderr, "[{:2}] {:#{}x} {}"sv, index, width, ip_register, name);
     if (demangled_name != nullptr) {
       free(demangled_name);
     }

@@ -17,8 +17,9 @@
 #include <chrono>
 #include <csignal>
 #include <cstdlib>
-#include <iostream>
 #include <memory>
+
+#include <fmt/format.h>
 
 #if defined(USE_UNWIND)
 #include "roq/unwind.hpp"
@@ -36,15 +37,15 @@ namespace logging {
 
 namespace {
 void invoke_default_signal_handler(int signal) {
-  struct sigaction sa = {};
-  sigemptyset(&sa.sa_mask);
-  sa.sa_handler = SIG_DFL;
-  sigaction(signal, &sa, nullptr);
+  struct sigaction action = {};
+  sigemptyset(&action.sa_mask);
+  action.sa_handler = SIG_DFL;
+  sigaction(signal, &action, nullptr);
   kill(getpid(), signal);
 }
 
 void termination_handler(int sig, siginfo_t *info, void *) {
-  fprintf(stderr, "*** TERMINATION HANDLER ***\n");
+  fmt::println(stderr, "*** TERMINATION HANDLER ***"sv);
 #if defined(USE_UNWIND)
   unwind::print_stacktrace(sig, info);
 #else
@@ -73,12 +74,12 @@ void termination_handler(int sig, siginfo_t *info, void *) {
 }
 
 void install_failure_signal_handler() {
-  struct sigaction sa = {};
-  sa.sa_sigaction = termination_handler;
-  sa.sa_flags = SA_SIGINFO;
-  sigaction(SIGABRT, &sa, nullptr);
-  sigaction(SIGILL, &sa, nullptr);
-  sigaction(SIGSEGV, &sa, nullptr);
+  struct sigaction action = {};
+  action.sa_sigaction = termination_handler;
+  action.sa_flags = SA_SIGINFO;
+  sigaction(SIGABRT, &action, nullptr);
+  sigaction(SIGILL, &action, nullptr);
+  sigaction(SIGSEGV, &action, nullptr);
 }
 }  // namespace
 
