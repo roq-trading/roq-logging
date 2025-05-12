@@ -157,7 +157,7 @@ struct system_error final {
         return;
       }
     }
-    static_assert(std::is_same_v<std::decay_t<decltype(errno)>, int>);
+    static_assert(std::is_same_v<std::remove_cvref_t<decltype(errno)>, int>);
     detail::helper_system_error<level>(roq::logging::Level::WARNING, errno, fmt, std::forward<Args>(args)...);
   }
 };
