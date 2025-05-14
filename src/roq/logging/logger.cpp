@@ -51,7 +51,7 @@ void termination_handler(int sig, [[maybe_unused]] siginfo_t *info, void *) {
       if (result) {
         symbol = std::data(name);
       }
-      fmt::println(stderr, "[%2d] %p %s", i, addr[i], symbol);
+      fmt::println(stderr, "[{:2}] {} {}", i, addr[i], symbol);
     }
   } else {
     fmt::println(stderr, "can't get stacktrace");
