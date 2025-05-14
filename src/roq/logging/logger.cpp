@@ -34,7 +34,7 @@ void invoke_default_signal_handler(int signal) {
   kill(getpid(), signal);
 }
 
-void termination_handler(int sig, siginfo_t *info, void *) {
+void termination_handler(int sig, [[maybe_unused]] siginfo_t *info, void *) {
   fmt::println(stderr, "*** TERMINATION HANDLER ***"sv);
 #if defined(__linux__)
   psiginfo(info, nullptr);
