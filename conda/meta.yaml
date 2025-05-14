@@ -24,9 +24,9 @@ requirements:
     - catch2
     - fmt
     - libabseil
+    - magic_enum
     - roq-api
     - roq-flags
-    - roq-oss-magic_enum
     - roq-oss-spdlog
 
 about:
