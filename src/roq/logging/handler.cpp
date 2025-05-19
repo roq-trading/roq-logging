@@ -31,11 +31,11 @@ struct Default final : public Handler {
       case DEBUG:
       case INFO:
       case WARNING:
-        fmt::println("{}"sv, message);
+        fmt::println(stdout, "{}"sv, message);
         break;
       case ERROR:
       case CRITICAL:
-        fmt::println("{}"sv, message);
+        fmt::println(stderr, "{}"sv, message);
         break;
     }
   }

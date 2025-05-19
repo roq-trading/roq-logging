@@ -23,6 +23,13 @@ using namespace std::chrono_literals;
 namespace roq {
 namespace logging {
 
+// === CONSTANTS ===
+
+namespace {
+size_t const LENGTH_ADDR = 32;
+size_t const LENGTH_NAME = 256;
+}  // namespace
+
 // === HELPERS ===
 
 namespace {
@@ -39,10 +46,10 @@ void termination_handler(int sig, [[maybe_unused]] siginfo_t *info, void *) {
 #if defined(__linux__)
   psiginfo(info, nullptr);
 #endif
-  std::array<void *, 32> addr;
+  std::array<void *, LENGTH_ADDR> addr;
   int depth = ::backtrace(std::data(addr), std::size(addr));
   if (depth != 0) {
-    std::array<char, 256> name;
+    std::array<char, LENGTH_NAME> name;
     for (int i = 0; i < depth; ++i) {
       char const *symbol = "(unknown)";
       // note! this signature does not include the arguments
