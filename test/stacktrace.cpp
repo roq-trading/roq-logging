@@ -2,22 +2,24 @@
 
 #include <absl/debugging/stacktrace.h>
 
+#include <array>
 #include <cstddef>
 
 #include <catch2/catch_test_macros.hpp>
 
 namespace {
-static auto stack_frames_function() {
+auto stack_frames_function() {
   constexpr size_t const max_depth = 10;
-  void *result[max_depth];
-  int sizes[max_depth];
-  int depth = absl::GetStackFrames(result, sizes, max_depth, 0);
+  std::array<void *, max_depth> result;
+  std::array<int, max_depth> sizes;
+  int depth = absl::GetStackFrames(std::data(result), std::data(sizes), std::size(result), 0);
   return depth;
 }
-static auto stack_trace_function() {
+
+auto stack_trace_function() {
   constexpr size_t const max_depth = 10;
-  void *result[max_depth];
-  int depth = absl::GetStackTrace(result, max_depth, 0);
+  std::array<void *, max_depth> result;
+  int depth = absl::GetStackTrace(std::data(result), std::size(result), 0);
   return depth;
 }
 }  // namespace
