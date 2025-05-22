@@ -23,8 +23,8 @@ namespace spdlog {
 // === CONSTANTS ===
 
 namespace {
-auto const SPDLOG_QUEUE_SIZE = 1048576UZ;
-auto const SPDLOG_THREAD_COUNT = 1UZ;
+auto const SPDLOG_QUEUE_SIZE = 1048576uz;
+auto const SPDLOG_THREAD_COUNT = 1uz;
 }  // namespace
 
 // === IMPLEMENTATION ===
