@@ -35,9 +35,5 @@ TEST_CASE("stack_frames_simple", "[stack_frames]") {
 
 TEST_CASE("stack_trace_simple", "[stack_trace]") {
   auto depth = stack_trace_function();
-#if defined(NDEBUG) || defined(__APPLE__)
-  REQUIRE(depth > 0);
-#else
-  REQUIRE(depth == 0);  // doesn't seem to work in debug
-#endif
+  REQUIRE(depth > 0);  // note! seems to work also in debug mode since abseil 20250512
 }
