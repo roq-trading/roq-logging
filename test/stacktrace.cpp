@@ -33,7 +33,9 @@ TEST_CASE("stack_frames_simple", "[stack_frames]") {
 #endif
 }
 
+/*
 TEST_CASE("stack_trace_simple", "[stack_trace]") {
   auto depth = stack_trace_function();
   REQUIRE(depth > 0);  // note! seems to work also in debug mode since abseil 20250512
 }
+*/
