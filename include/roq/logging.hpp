@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <algorithm>  // note! used by fmt/color.h without including
+#include "roq/compat/fmt.hpp"
 
 #include <fmt/color.h>
 #include <fmt/format.h>
