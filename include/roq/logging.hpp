@@ -156,7 +156,7 @@ struct debug_info final {
   }
 #else
   template <typename... Args>
-  constexpr debug_info(format_str const &, Args &&...) {
+  constexpr debug_info(format_str const &fmt, Args &&...args) {
     if constexpr (level > 0) {
       if (roq::logging::verbosity < level) [[likely]] {
         return;
