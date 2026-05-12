@@ -144,6 +144,29 @@ struct debug final {
 #endif
 };
 
+// debug_info (always debug if debug build, info if release build)
+
+template <std::size_t level = 0>
+struct debug_info final {
+#ifndef NDEBUG
+  template <typename... Args>
+  constexpr debug_info(format_str const &fmt, Args &&...args) {
+    // note! always (disregard level)
+    detail::helper_debug<level>(roq::logging::Level::DEBUG, fmt, std::forward<Args>(args)...);
+  }
+#else
+  template <typename... Args>
+  constexpr debug_info(format_str const &, Args &&...) {
+    if constexpr (level > 0) {
+      if (roq::logging::verbosity < level) [[likely]] {
+        return;
+      }
+    }
+    detail::helper<level>(roq::logging::Level::INFO, fmt, std::forward<Args>(args)...);
+  }
+#endif
+};
+
 // system_error
 
 template <std::size_t level = 0>
