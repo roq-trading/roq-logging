@@ -188,7 +188,7 @@ struct system_error final {
 struct print final {
   template <typename... Args>
   constexpr print(fmt::text_style const &text_style, fmt::format_string<Args...> const format_str, Args &&...args) {
-    fmt::print(text_style, format_str, std::forward<Args>(args)...);
+    fmt::print(logging::terminal_color ? text_style : fmt::text_style{}, format_str, std::forward<Args>(args)...);
   }
   template <typename... Args>
   constexpr print(fmt::format_string<Args...> const &format_str, Args &&...args) {

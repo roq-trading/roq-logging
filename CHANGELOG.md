@@ -8,6 +8,10 @@ All notable changes will be documented in this file.
 
 * Added `debug_info<level>`
 
+### Fixed
+
+* Using `--color=none` doesn't seem to work (#593)
+
 ## 1.1.4 &ndash; 2026-04-20
 
 ## 1.1.3 &ndash; 2026-03-12
