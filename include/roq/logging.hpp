@@ -6,6 +6,7 @@
 #include <fmt/format.h>
 
 #include <cassert>
+#include <cstring>
 
 #include "roq/format_str.hpp"
 
