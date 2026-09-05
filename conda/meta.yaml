@@ -30,6 +30,7 @@ requirements:
     - roq-oss-catch2  # [linux]
     - roq-oss-cpptrace
     - roq-oss-spdlog
+    - roq-oss-zstd
 
 about:
   home: https://roq-trading.com
