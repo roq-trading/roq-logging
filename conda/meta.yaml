@@ -28,6 +28,7 @@ requirements:
     - roq-api
     - roq-flags
     - roq-oss-catch2  # [linux]
+    - roq-oss-cpptrace
     - roq-oss-spdlog
 
 about:

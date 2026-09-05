@@ -2,8 +2,14 @@
 
 #include "roq/logging/logger.hpp"
 
+#define USE_CPPTRACE
+
+#ifdef USE_CPPTRACE
+#include <cpptrace/cpptrace.hpp>
+#else
 #include <absl/debugging/stacktrace.h>
 #include <absl/debugging/symbolize.h>
+#endif
 
 #include <fmt/format.h>
 
@@ -46,6 +52,9 @@ void termination_handler(int sig, [[maybe_unused]] siginfo_t *info, void *) {
 #if defined(__linux__)
   psiginfo(info, nullptr);
 #endif
+#ifdef USE_CPPTRACE
+  cpptrace::generate_trace().print();
+#else
   std::array<void *, LENGTH_ADDR> addr;
   int depth = ::backtrace(std::data(addr), std::size(addr));
   if (depth != 0) {
@@ -63,6 +72,7 @@ void termination_handler(int sig, [[maybe_unused]] siginfo_t *info, void *) {
   } else {
     fmt::println(stderr, "can't get stacktrace");
   }
+#endif
   invoke_default_signal_handler(sig);
 }
 
@@ -79,8 +89,11 @@ void install_failure_signal_handler() {
 // === IMPLEMENTATION ===
 
 Logger::Logger(args::Parser const &args, logging::Settings const &settings, bool stacktrace) {
+#ifdef USE_CPPTRACE
+#else
   std::string arg0{args.program_name()};
   absl::InitializeSymbolizer(arg0.c_str());
+#endif
   // note! to detach from terminal: use nohup, systemd, etc.
   auto terminal = ::isatty(fileno(stdout));
   // terminal color

@@ -29,11 +29,12 @@ include(GNUInstallDirs)
 # dependencies
 
 find_package(absl REQUIRED)
+find_package(cpptrace REQUIRED)
 find_package(fmt REQUIRED)
 find_package(magic_enum REQUIRED)
-find_package(spdlog REQUIRED)
 find_package(roq-api REQUIRED)
 find_package(roq-flags REQUIRED)
+find_package(spdlog REQUIRED)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   include(CTest)

@@ -13,11 +13,12 @@ set(SOURCES
 
 add_library(${TARGET_NAME} SHARED ${SOURCES})
 
+# note! absl::symbolize if not using cpptrace
 target_link_libraries(
   ${TARGET_NAME}
   INTERFACE roq-api::roq-api magic_enum::magic_enum
   PUBLIC fmt::fmt
-  PRIVATE ${PROJECT_NAME}-flags ${PROJECT_NAME}-spdlog ${PROJECT_NAME}-standard absl::symbolize spdlog::spdlog)
+  PRIVATE ${PROJECT_NAME}-flags ${PROJECT_NAME}-spdlog ${PROJECT_NAME}-standard cpptrace::cpptrace spdlog::spdlog)
 
 if(ROQ_BUILD_TYPE STREQUAL "Release")
   set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_RELEASE -s)
