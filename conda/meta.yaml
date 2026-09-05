@@ -29,6 +29,7 @@ requirements:
     - roq-flags
     - roq-oss-catch2  # [linux]
     - roq-oss-cpptrace
+    - roq-oss-libunwind  # [linux]
     - roq-oss-spdlog
     - roq-oss-zlib-ng-compat
     - roq-oss-zstd
