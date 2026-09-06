@@ -13,7 +13,6 @@ set(SOURCES
 
 add_library(${TARGET_NAME} SHARED ${SOURCES})
 
-# note! absl::symbolize if not using cpptrace
 target_link_libraries(
   ${TARGET_NAME}
   INTERFACE roq-api::roq-api magic_enum::magic_enum

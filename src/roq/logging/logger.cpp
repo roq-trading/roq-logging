@@ -2,14 +2,7 @@
 
 #include "roq/logging/logger.hpp"
 
-#define USE_CPPTRACE
-
-#ifdef USE_CPPTRACE
 #include <cpptrace/cpptrace.hpp>
-#else
-#include <absl/debugging/stacktrace.h>
-#include <absl/debugging/symbolize.h>
-#endif
 
 #include <fmt/format.h>
 
@@ -52,27 +45,7 @@ void termination_handler(int sig, [[maybe_unused]] siginfo_t *info, void *) {
 #if defined(__linux__)
   psiginfo(info, nullptr);
 #endif
-#ifdef USE_CPPTRACE
   cpptrace::generate_trace().print();
-#else
-  std::array<void *, LENGTH_ADDR> addr;
-  int depth = ::backtrace(std::data(addr), std::size(addr));
-  if (depth != 0) {
-    std::array<char, LENGTH_NAME> name;
-    for (int i = 0; i < depth; ++i) {
-      char const *symbol = "(unknown)";
-      // note! this signature does not include the arguments
-      // --> so we still prefer libunwind
-      auto result = absl::Symbolize(addr[i], std::data(name), std::size(name));
-      if (result) {
-        symbol = std::data(name);
-      }
-      fmt::println(stderr, "[{:2}] {} {}", i, addr[i], symbol);
-    }
-  } else {
-    fmt::println(stderr, "can't get stacktrace");
-  }
-#endif
   invoke_default_signal_handler(sig);
 }
 
@@ -88,35 +61,33 @@ void install_failure_signal_handler() {
 
 // === IMPLEMENTATION ===
 
-Logger::Logger(args::Parser const &args, logging::Settings const &settings, bool stacktrace) {
-#ifdef USE_CPPTRACE
-#else
-  std::string arg0{args.program_name()};
-  absl::InitializeSymbolizer(arg0.c_str());
-#endif
+Logger::Logger(args::Parser const &, logging::Settings const &settings, bool stacktrace) {
   // note! to detach from terminal: use nohup, systemd, etc.
-  auto terminal = ::isatty(fileno(stdout));
-  // terminal color
-  if (std::empty(settings.log.color) || settings.log.color == "auto"sv) {
-    terminal_color = terminal != 0;
-  } else if (settings.log.color == "always"sv) {
-    terminal_color = true;
-  } else if (settings.log.color == "none"sv) {
-    terminal_color = false;
-  } else {
-    fmt::println(stderr, R"(Unknown color: "{}")"sv, settings.log.color);
-    std::exit(EXIT_FAILURE);
-  }
-  // verbosity
-  auto verbosity_2 = std::getenv("ROQ_v");
-  if (verbosity_2 != nullptr && std::strlen(verbosity_2) > 0) {
-    auto tmp = std::atoi(verbosity_2);
-    if (tmp >= 0) {
-      verbosity = tmp;
+  terminal_color = [&]() -> bool {
+    auto terminal = ::isatty(fileno(stdout));
+    // terminal color
+    if (std::empty(settings.log.color) || settings.log.color == "auto"sv) {
+      return terminal != 0;
+    } else if (settings.log.color == "always"sv) {
+      return true;
+    } else if (settings.log.color == "none"sv) {
+      return false;
+    } else {
+      fmt::println(stderr, R"(Unknown color: "{}")"sv, settings.log.color);
+      std::exit(EXIT_FAILURE);
     }
-  } else {
-    verbosity = settings.log.verbosity;
-  }
+  }();
+  // verbosity
+  verbosity = [&]() -> uint32_t {
+    auto tmp = std::getenv("ROQ_v");
+    if (tmp != nullptr && std::strlen(tmp) > 0) {
+      auto tmp_2 = std::atoi(tmp);
+      if (tmp_2 >= 0) {
+        return tmp_2;
+      }
+    }
+    return settings.log.verbosity;
+  }();
   // stacktrace
   if (stacktrace) {
     install_failure_signal_handler();
